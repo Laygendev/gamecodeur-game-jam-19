@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Tank.io</title>
+    <script src="lib/socket.io.js"></script>
+    <script src="lib/phaser.js"></script>
+    <script src="src/game.js"></script>
+    <script src="src/entity.js"></script>
+    <script src="src/player.js"></script>
+    <script src="src/ennemy.js"></script>
+    <script src="src/food.js"></script>
+    <script src="src/util.js"></script>
+    <script src="src/net.js"></script>
+</head>
+<body>
+    <script>
+    winW = window.innerWidth;
+    winH = window.innerHeight;
+    (function() {
+      var tankGame = new Game();
+
+      var config = {
+        type: Phaser.AUTO,
+        width: winW,
+        height: winH,
+        backgroundColor: '#444',
+        physics: {
+          default: 'arcade',
+          arcade: { debug: true }
+        },
+        scene: {
+            preload: tankGame.preload,
+            create: tankGame.create,
+            update: tankGame.update
+        }
+    };
+        var game = new Phaser.Game(config);
+    })();
+    </script>
+</body>
+</html>
