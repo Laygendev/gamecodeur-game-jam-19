@@ -17,15 +17,28 @@ var port = 8080;
 //======================================================
 var server = require("http");
 
-server = server.createServer();
-var io = require("socket.io").listen(server).set('log level',1);
-io = io.sockets.on("connection", SocketHandler);
+
+
+
+
 var fs = require("fs");
+
+const options = {
+  // key: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/privkey.pem'),
+  // cert: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/cert.pem')
+};
+
+server = server.createServer(options);
+
+var io = require("socket.io").listen(server).set('log level',1);
+
+io = io.sockets.on("connection", SocketHandler);
+
+
 var path = require("path");
 var logger = require('util');
 var sys = require('sys');
 server.listen(port);
-
 console.log("===================================");
 console.log("Server for Tank.io");
 logger.log("Started server on port "+port);
@@ -79,6 +92,7 @@ function SocketHandler(socket, data) {
     var player = {};
     player.id = socket.id;
     player.life = 5;
+    player.isAlive = true;
     socket.player = player;
     sockets.push(socket);
     players[socket.id] = player;
@@ -119,9 +133,9 @@ function Shoot(data) {
             'angleRadians': degrees_to_radians(players[data.id].info.endcanonangle),
             'pos': JSON.parse(JSON.stringify(players[data.id].info.endcanon))
         };
-        
+
         bullets.push(bullet);
-        
+
       io.emit("Shoot", bullet);
     }
 }
@@ -153,31 +167,37 @@ var lastframetime;
 var updateid;
 
 function update(t) {
-    
+
     dt = lastframetime ? ( (t - lastframetime)/1000.0).fixed() : 0.016;
     lastframetime = t;
-    
+
     for (var key in bullets) {
         bullets[key].pos.x += bullets[key].speed * Math.cos(bullets[key].angleRadians);
         bullets[key].pos.y += bullets[key].speed * Math.sin(bullets[key].angleRadians);
-        
+
         io.emit("Bullet", {
             id: bullets[key].bulletid,
             pos: bullets[key].pos
         } );
-        
+
         var destroyBullet = false;
-        
+
         var playerHit = undefined
-        
+
         for(var key_player in players) {
-            if ( players[key_player].id != bullets[key].id ) {
+            if ( players[key_player].id != bullets[key].id && players[key_player].isAlive ) {
                 if (collision(players[key_player].info.colliderPos, bullets[key].pos)) {
-                    console.log('hit');
+                  players[key_player].life--;
+
+                  if (players[key_player].life <= 0) {
+                    players[key_player].isAlive = false;
+                  }
                     var hit = {
                         bulletID: bullets[key].bulletid,
-                        playerID: players[key_player].id
+                        playerID: players[key_player].id,
+                        player: players[key_player]
                     };
+
                     io.emit("HitPlayer", hit);
                     bullets.splice(key, 1);
                     destroyBullet = true;
@@ -185,17 +205,17 @@ function update(t) {
                 }
             }
         }
-        
+
         if ( destroyBullet ) {
             continue;
         }
-        
+
         var dist = Math.sqrt( Math.pow((bullets[key].basePos.x-bullets[key].pos.x), 2) + Math.pow((bullets[key].basePos.y-bullets[key].pos.y), 2) );
         if (dist >= bullets[key].distanceMax) {
             bullets.splice(key, 1);
         }
     }
-    
+
     updateid = window.requestAnimationFrame( update.bind(this), this.viewport );
 }
 
@@ -212,7 +232,7 @@ function collision(tab, P) {
         }
   		var D = {X: 0, Y: 0};
   		var T = {X: 0, Y: 0};
-        
+
   		D.X = B.x - A.x;
   		D.Y = B.y - A.y;
   		T.X = P.x - A.x;
@@ -222,6 +242,6 @@ function collision(tab, P) {
   			return false;
   		}
     }
-    
+
     return true;
 }

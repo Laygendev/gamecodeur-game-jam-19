@@ -36,11 +36,11 @@ class Entity {
     this.sprite.entity = this;
     this.canon = this.game.add.sprite(0, 0, 'canon').setOrigin(0.15, 0.5);
     this.endcanon = this.game.add.sprite(this.pos.x + 50, this.pos.y, 'endcanon');
-    
+
     for (var i = 0; i < 4; i++) {
         this.colliderPoint.push(new Phaser.Geom.Point(150, 150));
     }
-    
+
     this.colliderPoint[3].offset = {
         x: -35,
         y: -25
@@ -57,9 +57,9 @@ class Entity {
         x: 35,
         y: 25
     };
-    
-    
-    
+
+
+
     // this.colliderPoint[i]
 
     this.rect = new Phaser.Geom.Rectangle(0, 0, 100, 16);
@@ -67,45 +67,45 @@ class Entity {
     this.graphics = this.game.add.graphics({ lineStyle: { alpha: 1, width: 1, color: 0x0000ff }});
     this.graphics = this.game.add.graphics({ fillStyle: { color: 0x00ff00 }});
 
-    
+
     this.container.add([this.sprite, this.canon]);
 
   }
-  
+
   update() {
-     
+
   }
-  
+
   updateAfter() {
       this.graphics.clear();
-      
+
       this.currentLife.x = this.pos.x - 50;
       this.currentLife.y = this.pos.y - 60;
-      
+
       this.rect.x = this.pos.x - 50;
       this.rect.y = this.pos.y - 60;
-      
+
       this.graphics.strokeRectShape(this.rect);
-      
+
       this.currentLife.width = this.life * 100 / this.maxlife;
       this.graphics.fillRectShape(this.currentLife);
-      
+
       for (var i = 0; i < 4; ++i) {
           var currentPos = {
               x: this.pos.x - this.colliderPoint[i].offset.x,
               y: this.pos.y - this.colliderPoint[i].offset.y
           };
-          
+
           this.colliderPoint[i].x = (currentPos.x - this.pos.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - this.pos.y) * Math.sin(degrees_to_radians(this.angle)) + this.pos.x;
           this.colliderPoint[i].y = (currentPos.y - this.pos.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - this.pos.x) * Math.sin(degrees_to_radians(this.angle)) + this.pos.y;
-          
+
           this.graphics.fillPointShape(this.colliderPoint[i], 5);
       }
   }
 
   destroy() {
-    this.particleDestroy.emitParticleAt(this.pos.x, this.pos.y);
-    this.particleDestroy2.emitParticleAt(this.pos.x, this.pos.y);
+    this.game.particleDestroy.emitParticleAt(this.pos.x, this.pos.y);
+    this.game.particleDestroy2.emitParticleAt(this.pos.x, this.pos.y);
     this.container.destroy();
     this.endcanon.destroy();
 

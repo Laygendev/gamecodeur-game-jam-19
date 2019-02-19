@@ -22,7 +22,7 @@ class Game {
     var width = winW;
     var height = winH;
 
-    // this.cameras.main.setBounds(0, 0, width*4, height*4);
+    this.cameras.main.setBounds(0, 0, width*4, height*4);
 
     var background = this.add.tileSprite(0, 0, width*8, height*8, 'background');
 
@@ -30,7 +30,7 @@ class Game {
     this.scoreText.setScrollFactor(0);
 
     this.net = new Net(this);
-    
+
     this.particles = this.add.particles('explosion');
     this.particleDestroy = this.add.particles('canon');
     this.particleDestroy2 = this.add.particles('tank');
@@ -94,7 +94,6 @@ function destroyTanks(game) {
     game.tanksToDestroy[key].destroy();
     for (var other in game.tanks) {
       if(game.tanks[other].id == game.tanksToDestroy[key].id) {
-        game.tanks[other].alive = false;
         game.tanks.splice(other, 1);
       }
     }

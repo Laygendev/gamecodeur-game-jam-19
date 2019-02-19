@@ -12,17 +12,17 @@ class Player extends Entity {
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
-    //this.game.cameras.main.startFollow(this.container);
+    this.game.cameras.main.startFollow(this.container);
 
     this.game.input.on('pointerdown', (pointer) => {
       this.game.net.Shoot({
           id: this.id
       });
     });
-    
+
     this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
   }
-  
+
   updatePos() {
      var colliderPos = [];
      for (var i = 0; i < 4; ++i) {
@@ -31,7 +31,7 @@ class Player extends Entity {
              y: this.colliderPoint[i].y
          });
      }
-     
+
     this.game.net.updatePos({
         id: this.id,
         x: this.container.x,
@@ -49,7 +49,7 @@ class Player extends Entity {
 
   update(delta) {
       super.update(delta);
-      
+
      delta = this.game.game.loop.delta;
 
     this.angleMove = degrees_to_radians(this.angle);
@@ -80,7 +80,7 @@ class Player extends Entity {
 
     this.canon.angle = radians_to_degrees( this.canonAngle );
     this.endcanon.angle = radians_to_degrees( this.canonAngle );
-    
+
     super.updateAfter();
   }
 
