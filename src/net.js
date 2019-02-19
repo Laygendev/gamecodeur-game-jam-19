@@ -1,4 +1,6 @@
 class Net {
+    id;
+    
   constructor(game) {
     this.socket = io.connect("http://localhost:8080");
 
@@ -6,26 +8,34 @@ class Net {
         let tank = new Player(data.player.id, game, {x: 50, y: 50});
         tank.create();
         game.tanks[data.player.id] = tank;
+        
+        this.id = data.player.id;
+        console.log(game.tanks);
+        game.scoreText.setText('Total Tanks: ' + Object.keys(game.tanks).length);
     });
 
     this.socket.on('addPlayer', (data) => {
       let tank = new Ennemy(data.player.id, game, {x: 50, y: 50});
       tank.create();
       game.tanks[data.player.id] = tank;
+      game.scoreText.setText('Total Tanks: ' + Object.keys(game.tanks).length);
     });
 
     this.socket.on('UpdatePlayerPosition', (data) => {
+        if (data.id == this.id) {
+            return;
+        }
+        
       if (game.tanks[data.id] != undefined) {
-        game.tanks[data.id].container.x = data.pos.x;
-        game.tanks[data.id].container.y = data.pos.y;
+        game.tanks[data.id].container.x = data.x;
+        game.tanks[data.id].container.y = data.y;
+        game.tanks[data.id].sprite.angle = data.angle;
+        game.tanks[data.id].canon.angle = data.canonAngle;
       }
     });
   }
 
-  updatePos(id, pos) {
-    this.socket.emit('UpdatePlayerPosition', {
-      id: id,
-      pos: pos
-    });
+  updatePos(data) {
+    this.socket.emit('UpdatePlayerPosition', data);
   }
 }

@@ -33,7 +33,8 @@ class Player extends Entity {
     });
   }
 
-  update() {
+  update(delta) {
+     delta = this.game.game.loop.delta;
     for (var key in this.bullets) {
       this.bullets[key].pos.x += this.bullets[key].speed * Math.cos(this.bullets[key].angleRadians);
       this.bullets[key].pos.y += this.bullets[key].speed * Math.sin(this.bullets[key].angleRadians);
@@ -51,15 +52,15 @@ class Player extends Entity {
     this.angleMove = degrees_to_radians(this.angle);
 
     if (this.cursors.left.isDown) {
-      this.angle -= this.speedRotation;
+      this.angle -= this.speedRotation * delta;
     }
     if (this.cursors.right.isDown) {
-      this.angle += this.speedRotation;
+      this.angle += this.speedRotation * delta;
     }
 
     if (this.cursors.up.isDown) {
-      this.pos.x += this.speed * Math.cos(this.angleMove);
-      this.pos.y += this.speed * Math.sin(this.angleMove);
+      this.pos.x += this.speed * Math.cos(this.angleMove) * delta;
+      this.pos.y += this.speed * Math.sin(this.angleMove) * delta;
     }
 
     this.container.x = this.pos.x;

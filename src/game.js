@@ -31,11 +31,11 @@ class Game {
     this.net = new Net(this);
   }
 
-  update() {
+  update(time, delta) {
     destroyTanks(this);
 
     for (var key in this.tanks) {
-      this.tanks[key].update();
+      this.tanks[key].update(delta);
     }
   }
 

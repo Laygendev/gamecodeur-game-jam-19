@@ -20,8 +20,8 @@ class Entity {
     this.game = game;
     this.pos = pos;
 
-    this.speed = 5;
-    this.speedRotation = 3;
+    this.speed = 0.5;
+    this.speedRotation = 0.1;
     this.angleMove = 0;
     this.angle = 0;
     this.canonAngle = 0;
@@ -78,11 +78,17 @@ class Entity {
         on: false
     });
 
-    this.timerUpdate = this.game.time.addEvent({ delay: 10, callback: this.updatePos, callbackScope: this, loop: true });
+    this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
   }
 
   updatePos() {
-    this.game.net.updatePos(this.id, {x: this.container.x, y: this.container.y});
+    this.game.net.updatePos({
+        id: this.id,
+        x: this.container.x,
+        y: this.container.y,
+        angle: this.angle,
+        canonAngle: radians_to_degrees(this.canonAngle)
+    });
   }
 
   destroy() {

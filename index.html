@@ -21,10 +21,14 @@
       var tankGame = new Game();
 
       var config = {
-        type: Phaser.AUTO,
+        type: Phaser.OPENGL,
         width: winW,
         height: winH,
         backgroundColor: '#444',
+        fps: {
+            target: 30,
+            min: 30
+        },
         physics: {
           default: 'arcade',
           arcade: { debug: true }
