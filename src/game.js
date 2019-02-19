@@ -12,6 +12,7 @@ class Game {
     this.load.atlas('explosion', 'asset/particles.png', 'asset/explosion.json');
 
     this.tanks = [];
+    this.bullets = [];
     this.tanksToDestroy = [];
     this.group = this.add.group();
 
@@ -21,7 +22,7 @@ class Game {
     var width = winW;
     var height = winH;
 
-    this.cameras.main.setBounds(0, 0, width*4, height*4);
+    // this.cameras.main.setBounds(0, 0, width*4, height*4);
 
     var background = this.add.tileSprite(0, 0, width*8, height*8, 'background');
 
@@ -29,6 +30,48 @@ class Game {
     this.scoreText.setScrollFactor(0);
 
     this.net = new Net(this);
+    
+    this.particles = this.add.particles('explosion');
+    this.particleDestroy = this.add.particles('canon');
+    this.particleDestroy2 = this.add.particles('tank');
+
+    this.particles.createEmitter({
+        frame: [ 'smoke-puff', 'cloud', 'smoke-puff' ],
+        angle: { min: 240, max: 300 },
+        speed: { min: 50, max: 100 },
+        quantity: 6,
+        lifespan: 2000,
+        alpha: { start: 0.5, end: 0 },
+        scale: { start: 1, end: 0.4 },
+        on: false
+    });
+
+    this.particles.createEmitter({
+        frame: 'muzzleflash2',
+        lifespan: 200,
+        scale: { start: 1, end: 0 },
+        rotate: { start: 0, end: 180 },
+        on: false
+    });
+
+    this.particleDestroy.createEmitter({
+      lifespan: 500,
+      angle: { min: 0, max: 360 },
+      speed: { min: 1000, max: 1500 },
+      rotate: { start: 0, end: 360 },
+      on: false
+    });
+
+    this.particleDestroy2.createEmitter({
+        angle: { min: 0, max: 300 },
+        speed: { min: 1000, max: 1500 },
+        quantity: 30,
+        lifespan: 2000,
+        scale: { start: 0.2, end: 0.1 },
+        rotate: { start: 0, end: 360 },
+        on: false
+    });
+
   }
 
   update(time, delta) {

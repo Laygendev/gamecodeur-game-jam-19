@@ -9,7 +9,8 @@ class Ennemy extends Entity {
     super(id, game, pos);
 
     this.speed = 3;
-    this.life = 3;
+    this.maxlife = 5;
+    this.life = 5;
   }
 
   create() {
@@ -25,6 +26,8 @@ class Ennemy extends Entity {
   }
 
   update() {
+      super.update();
+      this.updateAfter();
     // this.findTarget();
     // this.moveTo();
     // this.hit();
@@ -42,6 +45,33 @@ class Ennemy extends Entity {
     //     this.bullets.splice(key, 1);
     //   }
     // }
+  }
+  
+  updateAfter() {
+      this.graphics.clear();
+      
+      this.currentLife.x = this.pos.x - 50;
+      this.currentLife.y = this.pos.y - 60;
+      
+      this.rect.x = this.pos.x - 50;
+      this.rect.y = this.pos.y - 60;
+      
+      this.graphics.strokeRectShape(this.rect);
+      
+      this.currentLife.width = this.life * 100 / this.maxlife;
+      this.graphics.fillRectShape(this.currentLife);
+      
+      for (var i = 0; i < 4; ++i) {
+          // var currentPos = {
+          //     x: this.pos.x - this.colliderPoint[i].offset.x,
+          //     y: this.pos.y - this.colliderPoint[i].offset.y
+          // };
+          // 
+          // this.colliderPoint[i].x = (currentPos.x - this.pos.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - this.pos.y) * Math.sin(degrees_to_radians(this.angle)) + this.pos.x;
+          // this.colliderPoint[i].y = (currentPos.y - this.pos.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - this.pos.x) * Math.sin(degrees_to_radians(this.angle)) + this.pos.y;
+          // 
+          this.graphics.fillPointShape(this.colliderPoint[i], 5);
+      }
   }
 
   findTarget() {

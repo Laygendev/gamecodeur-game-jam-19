@@ -3,8 +3,8 @@ class Player extends Entity {
 
   constructor(id, game, pos) {
     super(id, game, pos);
-
-    this.life = 5;
+    this.maxlife = 5;
+    this.life = this.maxlife;
   }
 
   create() {
@@ -12,42 +12,45 @@ class Player extends Entity {
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
-    this.game.cameras.main.startFollow(this.container);
+    //this.game.cameras.main.startFollow(this.container);
 
     this.game.input.on('pointerdown', (pointer) => {
-      let sprite = this.game.physics.add.sprite(this.endcanon.x, this.endcanon.y, 'fire');
-      sprite.angle = this.endcanon.angle;
-      var bullet = {
-        'basePos': JSON.parse(JSON.stringify(this.endcanon)),
-        'sprite': sprite,
-        'speed': 15,
-        'distanceMax': 300,
-        'angleRadians': degrees_to_radians(sprite.angle),
-        'pos': JSON.parse(JSON.stringify(this.endcanon))
-      };
-
-      this.game.physics.add.overlap(this.game.group, sprite, (tank, bullet) => test(this, tank, bullet, () => {
-
-      }));
-      this.bullets.push(bullet);
+      this.game.net.Shoot({
+          id: this.id
+      });
+    });
+    
+    this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
+  }
+  
+  updatePos() {
+     var colliderPos = [];
+     for (var i = 0; i < 4; ++i) {
+         colliderPos.push({
+             x: this.colliderPoint[i].x,
+             y: this.colliderPoint[i].y
+         });
+     }
+     
+    this.game.net.updatePos({
+        id: this.id,
+        x: this.container.x,
+        y: this.container.y,
+        angle: this.angle,
+        endcanonangle: this.endcanon.angle,
+        endcanon: {
+            x: this.endcanon.x,
+            y: this.endcanon.y
+        },
+        canonAngle: radians_to_degrees(this.canonAngle),
+        colliderPos: colliderPos
     });
   }
 
   update(delta) {
+      super.update(delta);
+      
      delta = this.game.game.loop.delta;
-    for (var key in this.bullets) {
-      this.bullets[key].pos.x += this.bullets[key].speed * Math.cos(this.bullets[key].angleRadians);
-      this.bullets[key].pos.y += this.bullets[key].speed * Math.sin(this.bullets[key].angleRadians);
-
-      this.bullets[key].sprite.x = this.bullets[key].pos.x;
-      this.bullets[key].sprite.y = this.bullets[key].pos.y;
-
-      if (Phaser.Math.Distance.Between(this.bullets[key].basePos.x, this.bullets[key].basePos.y, this.bullets[key].pos.x, this.bullets[key].pos.y) >= this.bullets[key].distanceMax) {
-        this.particles.emitParticleAt(this.bullets[key].pos.x, this.bullets[key].pos.y);
-        this.bullets[key].sprite.destroy();
-        this.bullets.splice(key, 1);
-      }
-    }
 
     this.angleMove = degrees_to_radians(this.angle);
 
@@ -77,6 +80,8 @@ class Player extends Entity {
 
     this.canon.angle = radians_to_degrees( this.canonAngle );
     this.endcanon.angle = radians_to_degrees( this.canonAngle );
+    
+    super.updateAfter();
   }
 
   destroy() {

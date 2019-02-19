@@ -12,9 +12,11 @@ class Entity {
   particleDestroy;
   particleDestroy2;
   target;
+  maxlife;
   life;
   alive = true;
   timerUpdate;
+  colliderPoint = [];
   constructor(id, game, pos) {
     this.id = id;
     this.game = game;
@@ -29,66 +31,76 @@ class Entity {
 
   create() {
     this.container = this.game.add.container(this.pos.x, this.pos.y);
-    this.sprite = this.game.physics.add.sprite(0, 0, 'tank');
+    this.sprite = this.game.add.sprite(0, 0, 'tank');
     this.game.group.add(this.sprite);
     this.sprite.entity = this;
     this.canon = this.game.add.sprite(0, 0, 'canon').setOrigin(0.15, 0.5);
     this.endcanon = this.game.add.sprite(this.pos.x + 50, this.pos.y, 'endcanon');
+    
+    for (var i = 0; i < 4; i++) {
+        this.colliderPoint.push(new Phaser.Geom.Point(150, 150));
+    }
+    
+    this.colliderPoint[3].offset = {
+        x: -35,
+        y: -25
+    };
+    this.colliderPoint[2].offset = {
+        x: 35,
+        y: -25
+    };
+    this.colliderPoint[0].offset = {
+        x: -35,
+        y: 25
+    };
+    this.colliderPoint[1].offset = {
+        x: 35,
+        y: 25
+    };
+    
+    
+    
+    // this.colliderPoint[i]
 
+    this.rect = new Phaser.Geom.Rectangle(0, 0, 100, 16);
+    this.currentLife = new Phaser.Geom.Rectangle(0, 1, 100, 15);
+    this.graphics = this.game.add.graphics({ lineStyle: { alpha: 1, width: 1, color: 0x0000ff }});
+    this.graphics = this.game.add.graphics({ fillStyle: { color: 0x00ff00 }});
+
+    
     this.container.add([this.sprite, this.canon]);
 
-    this.particles = this.game.add.particles('explosion');
-    this.particleDestroy = this.game.add.particles('canon');
-    this.particleDestroy2 = this.game.add.particles('tank');
-
-    this.particles.createEmitter({
-        frame: [ 'smoke-puff', 'cloud', 'smoke-puff' ],
-        angle: { min: 240, max: 300 },
-        speed: { min: 50, max: 100 },
-        quantity: 6,
-        lifespan: 2000,
-        alpha: { start: 0.5, end: 0 },
-        scale: { start: 1, end: 0.4 },
-        on: false
-    });
-
-    this.particles.createEmitter({
-        frame: 'muzzleflash2',
-        lifespan: 200,
-        scale: { start: 1, end: 0 },
-        rotate: { start: 0, end: 180 },
-        on: false
-    });
-
-    this.particleDestroy.createEmitter({
-      lifespan: 500,
-      angle: { min: 0, max: 360 },
-      speed: { min: 1000, max: 1500 },
-      rotate: { start: 0, end: 360 },
-      on: false
-    });
-
-    this.particleDestroy2.createEmitter({
-        angle: { min: 0, max: 300 },
-        speed: { min: 1000, max: 1500 },
-        quantity: 30,
-        lifespan: 2000,
-        scale: { start: 0.2, end: 0.1 },
-        rotate: { start: 0, end: 360 },
-        on: false
-    });
-
-    this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
   }
-
-  updatePos() {
-    this.game.net.updatePos({
-        id: this.id,
-        x: this.container.x,
-        y: this.container.y,
-        angle: this.angle,
-        canonAngle: radians_to_degrees(this.canonAngle)
-    });
+  
+  update() {
+     
+  }
+  
+  updateAfter() {
+      this.graphics.clear();
+      
+      this.currentLife.x = this.pos.x - 50;
+      this.currentLife.y = this.pos.y - 60;
+      
+      this.rect.x = this.pos.x - 50;
+      this.rect.y = this.pos.y - 60;
+      
+      this.graphics.strokeRectShape(this.rect);
+      
+      this.currentLife.width = this.life * 100 / this.maxlife;
+      this.graphics.fillRectShape(this.currentLife);
+      
+      for (var i = 0; i < 4; ++i) {
+          var currentPos = {
+              x: this.pos.x - this.colliderPoint[i].offset.x,
+              y: this.pos.y - this.colliderPoint[i].offset.y
+          };
+          
+          this.colliderPoint[i].x = (currentPos.x - this.pos.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - this.pos.y) * Math.sin(degrees_to_radians(this.angle)) + this.pos.x;
+          this.colliderPoint[i].y = (currentPos.y - this.pos.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - this.pos.x) * Math.sin(degrees_to_radians(this.angle)) + this.pos.y;
+          
+          this.graphics.fillPointShape(this.colliderPoint[i], 5);
+      }
   }
 
   destroy() {
