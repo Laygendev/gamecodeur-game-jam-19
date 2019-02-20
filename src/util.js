@@ -21,5 +21,9 @@ const Util = {
         var withinRoot = Math.pow(x1-x2,2) + Math.pow(y1-y2,2);
         var dist = Math.pow(withinRoot,0.5);
         return dist;
+    },
+
+    length : function(obj) {
+        return Object.keys(obj).length;
     }
 };

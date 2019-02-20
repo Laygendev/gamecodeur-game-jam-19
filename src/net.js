@@ -2,7 +2,9 @@ class Net {
     id;
 
   constructor(game) {
-    this.socket = io.connect("http://localhost:8080");
+    this.socket = io.connect("http://localhost:8080", {
+      forceNew: true
+    });
 
     this.socket.on('spawnPlayer', (data) => {
         let tank = new Player(data.player.id, game, {x: 0, y: 0});
@@ -23,26 +25,17 @@ class Net {
             return;
         }
 
+        console.log(data.id,this.id);
+
       if (game.tanks[data.id] != undefined) {
         game.tanks[data.id].pos.x = data.x;
         game.tanks[data.id].pos.y = data.y;
-        game.tanks[data.id].container.x = data.x;
-        game.tanks[data.id].container.y = data.y;
-        game.tanks[data.id].sprite.angle = data.angle;
-        game.tanks[data.id].canon.angle = data.canonAngle;
-        game.tanks[data.id].endcanon.x = data.endcanon.x;
-        game.tanks[data.id].endcanon.y = data.endcanon.y;
-
-        for (var i = 0; i < 4; i++) {
-            game.tanks[data.id].colliderPoint[i].x = data.colliderPos[i].x;
-            game.tanks[data.id].colliderPoint[i].y = data.colliderPos[i].y;
-        }
+        game.tanks[data.id].angle = data.angle;
+        game.tanks[data.id].canonAngle = data.canonAngle;
       }
     });
 
     this.socket.on('Shoot', (data) => {
-        data.sprite = game.add.sprite(data.basePos.x, data.basePos.y, 'fire');
-        data.sprite.angle = data.endcanonangle;
         game.bullets[data.bulletid] = data;
     });
 
@@ -59,12 +52,10 @@ class Net {
           game.tanksToDestroy.push(game.tanks[hit.playerID]);
         }
     });
-    
+
     this.socket.on("MissileDelete", (missile) => {
-        game.bullets[missile.bulletid].sprite.destroy();
         for (var key in game.bullets) {
             if( game.bullets[key].bulletid == missile.bulletid) {
-                game.particles.emitParticleAt(missile.pos.x, missile.pos.y);
                 game.bullets.splice(key, 1);
                 break;
             }

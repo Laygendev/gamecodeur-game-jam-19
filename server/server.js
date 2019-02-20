@@ -121,12 +121,12 @@ function Shoot(data) {
         var bullet = {
             'id': data.id,
             'bulletid': new Date().getTime(),
-            'basePos': JSON.parse(JSON.stringify(players[data.id].info.endcanon)),
+            'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanon)),
             'speed': 15,
             'distanceMax': 300,
-            'endcanonangle': players[data.id].info.endcanonangle,
-            'angleRadians': degrees_to_radians(players[data.id].info.endcanonangle),
-            'pos': JSON.parse(JSON.stringify(players[data.id].info.endcanon))
+            'endcanonangle': radians_to_degrees(players[data.id].info.canonAngle),
+            'angleRadians': players[data.id].info.canonAngle,
+            'pos': JSON.parse(JSON.stringify(players[data.id].info.posCanon))
         };
 
         bullets.push(bullet);
