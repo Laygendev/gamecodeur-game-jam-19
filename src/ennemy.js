@@ -26,8 +26,8 @@ class Ennemy extends Entity {
   }
 
   update() {
-      super.update();
-      this.updateAfter();
+      // super.update();
+      // this.updateAfter();
     // this.findTarget();
     // this.moveTo();
     // this.hit();

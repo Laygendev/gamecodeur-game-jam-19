@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8" />
     <title>Tank.io</title>
+    <link rel="stylesheet" type="text/css" href="asset/reset.css">
     <script src="lib/socket.io.js"></script>
-    <script src="lib/phaser.js"></script>
+    <script src="src/input.js"></script>
+    <script src="src/loader.js"></script>
     <script src="src/game.js"></script>
     <script src="src/entity.js"></script>
     <script src="src/player.js"></script>
@@ -14,28 +16,12 @@
     <script src="src/net.js"></script>
 </head>
 <body>
+    <canvas id="canvas"></canvas>
     <script>
     winW = window.innerWidth;
     winH = window.innerHeight;
     (function() {
       var tankGame = new Game();
-
-      var config = {
-        type: Phaser.OPENGL,
-        width: winW,
-        height: winH,
-        backgroundColor: '#444',
-        fps: {
-            target: 30,
-            min: 30
-        },
-        scene: {
-            preload: tankGame.preload,
-            create: tankGame.create,
-            update: tankGame.update
-        }
-    };
-        var game = new Phaser.Game(config);
     })();
     </script>
 </body>

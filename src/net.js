@@ -5,20 +5,17 @@ class Net {
     this.socket = io.connect("http://localhost:8080");
 
     this.socket.on('spawnPlayer', (data) => {
-        let tank = new Player(data.player.id, game, {x: 50, y: 50});
-        tank.create();
+        let tank = new Player(data.player.id, game, {x: 0, y: 0});
+        // tank.create();
         game.tanks[data.player.id] = tank;
 
         this.id = data.player.id;
-        console.log(game.tanks);
-        game.scoreText.setText('Total Tanks: ' + Object.keys(game.tanks).length);
     });
 
     this.socket.on('addPlayer', (data) => {
-      let tank = new Ennemy(data.player.id, game, {x: 50, y: 50});
-      tank.create();
+      let tank = new Ennemy(data.player.id, game, {x: 0, y: 0});
+      // tank.create();
       game.tanks[data.player.id] = tank;
-      game.scoreText.setText('Total Tanks: ' + Object.keys(game.tanks).length);
     });
 
     this.socket.on('UpdatePlayerPosition', (data) => {
@@ -60,6 +57,17 @@ class Net {
 
         if (! hit.player.isAlive) {
           game.tanksToDestroy.push(game.tanks[hit.playerID]);
+        }
+    });
+    
+    this.socket.on("MissileDelete", (missile) => {
+        game.bullets[missile.bulletid].sprite.destroy();
+        for (var key in game.bullets) {
+            if( game.bullets[key].bulletid == missile.bulletid) {
+                game.particles.emitParticleAt(missile.pos.x, missile.pos.y);
+                game.bullets.splice(key, 1);
+                break;
+            }
         }
     });
   }

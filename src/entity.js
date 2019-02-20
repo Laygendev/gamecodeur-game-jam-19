@@ -4,6 +4,7 @@ class Entity {
   sprite;
   game;
   pos;
+  posCanon;
   angle;
   speed;
   speedRotation;
@@ -17,13 +18,15 @@ class Entity {
   alive = true;
   timerUpdate;
   colliderPoint = [];
+  
   constructor(id, game, pos) {
     this.id = id;
     this.game = game;
     this.pos = pos;
+    this.posCanon = {x: 0, y: 0};
 
-    this.speed = 0.5;
-    this.speedRotation = 0.1;
+    this.speed = 300;
+    this.speedRotation = 100;
     this.angleMove = 0;
     this.angle = 0;
     this.canonAngle = 0;
@@ -73,7 +76,6 @@ class Entity {
   }
 
   update() {
-
   }
 
   updateAfter() {

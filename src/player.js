@@ -1,26 +1,25 @@
 class Player extends Entity {
-  cursors;
-
   constructor(id, game, pos) {
     super(id, game, pos);
+    
     this.maxlife = 5;
     this.life = this.maxlife;
   }
 
   create() {
-    super.create();
-
-    this.cursors = this.game.input.keyboard.createCursorKeys();
-
-    this.game.cameras.main.startFollow(this.container);
-
-    this.game.input.on('pointerdown', (pointer) => {
-      this.game.net.Shoot({
-          id: this.id
-      });
-    });
-
-    this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
+    // super.create();
+    // 
+    // this.cursors = this.game.input.keyboard.createCursorKeys();
+    // 
+    // this.game.cameras.main.startFollow(this.container);
+    // 
+    // this.game.input.on('pointerdown', (pointer) => {
+    //   this.game.net.Shoot({
+    //       id: this.id
+    //   });
+    // });
+    // 
+    // this.timerUpdate = this.game.time.addEvent({ delay: 5, callback: this.updatePos, callbackScope: this, loop: true });
   }
 
   updatePos() {
@@ -50,38 +49,44 @@ class Player extends Entity {
   update(delta) {
       super.update(delta);
 
-     delta = this.game.game.loop.delta;
-
-    this.angleMove = degrees_to_radians(this.angle);
-
-    if (this.cursors.left.isDown) {
-      this.angle -= this.speedRotation * delta;
-    }
-    if (this.cursors.right.isDown) {
-      this.angle += this.speedRotation * delta;
-    }
-
-    if (this.cursors.up.isDown) {
+      this.angleMove = degrees_to_radians(this.angle);
+      
+        if (this.game.input.keyPressed.left) {
+          this.angle -= this.speedRotation * delta;
+        }
+        if (this.game.input.keyPressed.right) {
+          this.angle += this.speedRotation * delta;
+        }
+        
+    if (this.game.input.keyPressed.up) {
       this.pos.x += this.speed * Math.cos(this.angleMove) * delta;
       this.pos.y += this.speed * Math.sin(this.angleMove) * delta;
     }
-
-    this.container.x = this.pos.x;
-    this.container.y = this.pos.y;
-
-    this.sprite.angle = this.angle;
-
-    let inputPos = this.game.input.activePointer.position;
-    this.canonAngle = Phaser.Math.Angle.Between(this.container.x, this.container.y, inputPos.x + this.game.cameras.main.scrollX, inputPos.y + this.game.cameras.main.scrollY);
-    let dt = Math.sqrt(Math.pow(((inputPos.x + this.game.cameras.main.scrollX) - this.container.x), 2) + Math.pow(((inputPos.y + this.game.cameras.main.scrollY) - this.container.y), 2 ));
+    
+    this.canonAngle = Math.atan2(this.game.input.mousePosition.y - this.pos.y - this.game.ressources['canon'].height, this.game.input.mousePosition.x - this.pos.x - this.game.ressources['canon'].width);
+    // this.canonAngle = Phaser.Math.Angle.Between(this.container.x, this.container.y, inputPos.x + this.game.cameras.main.scrollX, inputPos.y + this.game.cameras.main.scrollY);
+    let dt = Math.sqrt(Math.pow((this.game.input.mousePosition.x - (this.pos.x + this.game.ressources['tank'].width / 2 + 30)), 2) + Math.pow((this.game.input.mousePosition.y - (this.pos.y + this.game.ressources['tank'].height / 2 + 25)), 2 ));
     let t = 50 / dt;
-    this.endcanon.x = (1 - t) * this.container.x + t * (inputPos.x + this.game.cameras.main.scrollX);
-    this.endcanon.y = (1 - t) * this.container.y + t * (inputPos.y + this.game.cameras.main.scrollY);
-
-    this.canon.angle = radians_to_degrees( this.canonAngle );
-    this.endcanon.angle = radians_to_degrees( this.canonAngle );
-
-    super.updateAfter();
+    this.posCanon.x = (1 - t) * (this.pos.x + this.game.ressources['tank'].width / 2 + 30) + t * (this.game.input.mousePosition.x);
+    this.posCanon.y = (1 - t) * (this.pos.y + this.game.ressources['tank'].height / 2 + 25) + t * (this.game.input.mousePosition.y);
+    // 
+    // this.canon.angle = radians_to_degrees( this.canonAngle );
+    // this.endcanon.angle = radians_to_degrees( this.canonAngle );
+    this.game.ctx.save();
+    this.game.ctx.translate(this.pos.x + this.game.ressources['tank'].width, this.pos.y + this.game.ressources['tank'].height);
+    this.game.ctx.rotate(this.angle * Math.PI / 180);
+    
+    this.game.ctx.drawImage(this.game.ressources['tank'], -this.game.ressources['tank'].width / 2, -this.game.ressources['tank'].height / 2);
+     this.game.ctx.restore();
+     
+     this.game.ctx.save();
+     this.game.ctx.translate(this.pos.x + this.game.ressources['canon'].width, this.pos.y + this.game.ressources['canon'].height);
+     this.game.ctx.rotate(radians_to_degrees(this.canonAngle) * Math.PI / 180);
+     
+     this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
+     this.game.ctx.restore();
+    
+    // super.updateAfter();
   }
 
   destroy() {

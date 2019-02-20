@@ -16,11 +16,6 @@ var port = 8080;
 // Initialization
 //======================================================
 var server = require("http");
-
-
-
-
-
 var fs = require("fs");
 
 const options = {
@@ -175,11 +170,6 @@ function update(t) {
         bullets[key].pos.x += bullets[key].speed * Math.cos(bullets[key].angleRadians);
         bullets[key].pos.y += bullets[key].speed * Math.sin(bullets[key].angleRadians);
 
-        io.emit("Bullet", {
-            id: bullets[key].bulletid,
-            pos: bullets[key].pos
-        } );
-
         var destroyBullet = false;
 
         var playerHit = undefined
@@ -212,6 +202,7 @@ function update(t) {
 
         var dist = Math.sqrt( Math.pow((bullets[key].basePos.x-bullets[key].pos.x), 2) + Math.pow((bullets[key].basePos.y-bullets[key].pos.y), 2) );
         if (dist >= bullets[key].distanceMax) {
+            io.emit("MissileDelete", bullets[key]);
             bullets.splice(key, 1);
         }
     }
