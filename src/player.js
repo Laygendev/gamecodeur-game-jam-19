@@ -47,7 +47,8 @@ class Player extends Entity {
         posCanon: {
             x: this.posCanon.x,
             y: this.posCanon.y
-        }
+        },
+        colliderPoint: this.colliderPoint
     });
   }
 
@@ -93,21 +94,12 @@ class Player extends Entity {
     //
     // this.canon.angle = radians_to_degrees( this.canonAngle );
     // this.endcanon.angle = radians_to_degrees( this.canonAngle );
-    this.game.ctx.save();
-    this.game.ctx.translate(this.pos.x + this.game.ressources['tank'].width, this.pos.y + this.game.ressources['tank'].height);
-    this.game.ctx.rotate(this.angle * Math.PI / 180);
-
-    this.game.ctx.drawImage(this.game.ressources['tank'], -this.game.ressources['tank'].width / 2, -this.game.ressources['tank'].height / 2);
-     this.game.ctx.restore();
-
-     this.game.ctx.save();
-     this.game.ctx.translate(this.pos.x + this.game.ressources['canon'].width, this.pos.y + this.game.ressources['canon'].height);
-     this.game.ctx.rotate(radians_to_degrees(this.canonAngle) * Math.PI / 180);
-
-     this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
-     this.game.ctx.restore();
-
+    this.draw();
     // super.updateAfter();
+  }
+  
+  draw() {
+      super.draw();
   }
 
   destroy() {

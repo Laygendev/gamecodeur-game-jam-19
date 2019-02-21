@@ -9,6 +9,7 @@ class Game {
     loader;
     net;
     input;
+    camera;
 
     ressources;
     tanks;
@@ -35,18 +36,21 @@ class Game {
     }
 
     start() {
-      this.net   = new Net(this);
-        this.input = new Input(this);
+      this.net    = new Net(this);
+      this.input  = new Input(this);
+      this.camera = new Camera(this);
 
-        this.update(new Date().getTime());
+      this.update(new Date().getTime());
     }
 
   update(t) {
       this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
       this.lastframetime = t;
-
-
+        
+      
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      this.camera.beforeUpdate();
 
       for (var x = 0; x < this.canvas.width; x += 40) {
           for (var y = 0; y < this.canvas.width; y += 40) {
@@ -55,8 +59,8 @@ class Game {
       }
 
     for (var key in this.bullets) {
-        this.bullets[key].pos.x += this.bullets[key].speed * Math.cos(this.bullets[key].angleRadians);
-        this.bullets[key].pos.y += this.bullets[key].speed * Math.sin(this.bullets[key].angleRadians);
+        this.bullets[key].pos.x += this.bullets[key].speed * this.dt * Math.cos(this.bullets[key].angleRadians);
+        this.bullets[key].pos.y += this.bullets[key].speed * this.dt * Math.sin(this.bullets[key].angleRadians);
 
         this.ctx.save();
         this.ctx.translate(this.bullets[key].pos.x + this.ressources['fire'].width, this.bullets[key].pos.y + this.ressources['fire'].height);
@@ -70,6 +74,8 @@ class Game {
     for (var key in this.tanks) {
       this.tanks[key].update(this.dt);
     }
+    
+    this.camera.afterUpdate();
 
     this.updateid = window.requestAnimationFrame( this.update.bind(this), this.viewport );
   }

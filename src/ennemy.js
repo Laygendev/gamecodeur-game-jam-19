@@ -26,6 +26,7 @@ class Ennemy extends Entity {
   }
 
   update() {
+      this.draw();
       // super.update();
       // this.updateAfter();
     // this.findTarget();
@@ -45,6 +46,10 @@ class Ennemy extends Entity {
     //     this.bullets.splice(key, 1);
     //   }
     // }
+  }
+  
+  draw() {
+      super.draw();
   }
   
   updateAfter() {

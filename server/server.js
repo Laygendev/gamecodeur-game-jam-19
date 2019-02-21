@@ -48,7 +48,7 @@ global.window = global.document = global;
 var frame_time = 60/1000; // run the local game at 16ms/ 60hz
 
 if('undefined' != typeof(global)) frame_time = 45; //on server we run at 45ms, 22hz
-
+console.log(frame_time);
 ( function () {
 
     var lastTime = 0;
@@ -122,7 +122,7 @@ function Shoot(data) {
             'id': data.id,
             'bulletid': new Date().getTime(),
             'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanon)),
-            'speed': 15,
+            'speed': 500,
             'distanceMax': 300,
             'endcanonangle': radians_to_degrees(players[data.id].info.canonAngle),
             'angleRadians': players[data.id].info.canonAngle,
@@ -167,8 +167,8 @@ function update(t) {
     lastframetime = t;
 
     for (var key in bullets) {
-        bullets[key].pos.x += bullets[key].speed * Math.cos(bullets[key].angleRadians);
-        bullets[key].pos.y += bullets[key].speed * Math.sin(bullets[key].angleRadians);
+        bullets[key].pos.x += bullets[key].speed * Math.cos(bullets[key].angleRadians) * dt;
+        bullets[key].pos.y += bullets[key].speed * Math.sin(bullets[key].angleRadians) * dt;
 
         var destroyBullet = false;
 
@@ -176,9 +176,9 @@ function update(t) {
 
         for(var key_player in players) {
             if ( players[key_player].id != bullets[key].id && players[key_player].isAlive ) {
-                if (collision(players[key_player].info.colliderPos, bullets[key].pos)) {
+                if (collision(players[key_player].info.colliderPoint, bullets[key].pos)) {
                   players[key_player].life--;
-
+        
                   if (players[key_player].life <= 0) {
                     players[key_player].isAlive = false;
                   }
@@ -187,7 +187,7 @@ function update(t) {
                         playerID: players[key_player].id,
                         player: players[key_player]
                     };
-
+        
                     io.emit("HitPlayer", hit);
                     bullets.splice(key, 1);
                     destroyBullet = true;
@@ -214,12 +214,12 @@ update(new Date().getTime() );
 
 function collision(tab, P) {
     for (i = 0; i < 4; i++) {
-        var A = tab[i];
+        var A = tab[i].pos;
         var B;
   		if (i == 3) {
-  			B = tab[0]
+  			B = tab[0].pos
   		} else {
-            B = tab[i + 1];
+            B = tab[i + 1].pos;
         }
   		var D = {X: 0, Y: 0};
   		var T = {X: 0, Y: 0};

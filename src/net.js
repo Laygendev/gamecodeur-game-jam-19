@@ -10,6 +10,8 @@ class Net {
         let tank = new Player(data.player.id, game, {x: 0, y: 0});
         // tank.create();
         game.tanks[data.player.id] = tank;
+        
+        game.camera.setTarget(game.tanks[data.player.id]);
 
         this.id = data.player.id;
     });
@@ -24,8 +26,6 @@ class Net {
         if (data.id == this.id) {
             return;
         }
-
-        console.log(data.id,this.id);
 
       if (game.tanks[data.id] != undefined) {
         game.tanks[data.id].pos.x = data.x;
@@ -47,7 +47,9 @@ class Net {
     this.socket.on("HitPlayer", (hit) => {
         game.tanks[hit.playerID].life = hit.player.life;
         game.tanks[hit.playerID].isAlive = hit.player.isAlive;
-
+        
+        delete game.bullets[hit.bulletID];
+        
         if (! hit.player.isAlive) {
           game.tanksToDestroy.push(game.tanks[hit.playerID]);
         }
@@ -56,7 +58,7 @@ class Net {
     this.socket.on("MissileDelete", (missile) => {
         for (var key in game.bullets) {
             if( game.bullets[key].bulletid == missile.bulletid) {
-                game.bullets.splice(key, 1);
+                delete game.bullets[key];
                 break;
             }
         }
