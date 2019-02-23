@@ -40,44 +40,55 @@ class Game {
       this.input  = new Input(this);
       this.camera = new Camera(this);
 
-      this.update(new Date().getTime());
+      this.gameLoop(new Date().getTime());
     }
 
-  update(t) {
-      this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
-      this.lastframetime = t;
-        
-      
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      
-      this.camera.beforeUpdate();
+  gameLoop(t) {
+    this.update(t);
+    this.draw();
 
-      for (var x = 0; x < this.canvas.width; x += 40) {
-          for (var y = 0; y < this.canvas.width; y += 40) {
-              this.ctx.drawImage(this.ressources['tile'], x, y);
-          }
-      }
+    this.updateid = window.requestAnimationFrame( this.gameLoop.bind(this), this.viewport );
+  }
+
+  update(t) {
+    this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
+    this.lastframetime = t;
+
+    this.camera.update();
 
     for (var key in this.bullets) {
         this.bullets[key].pos.x += this.bullets[key].speed * this.dt * Math.cos(this.bullets[key].angleRadians);
         this.bullets[key].pos.y += this.bullets[key].speed * this.dt * Math.sin(this.bullets[key].angleRadians);
-
-        this.ctx.save();
-        this.ctx.translate(this.bullets[key].pos.x + this.ressources['fire'].width, this.bullets[key].pos.y + this.ressources['fire'].height);
-        this.ctx.rotate(this.bullets[key].angle * Math.PI / 180);
-
-        this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-        this.ctx.restore();
-
     }
 
     for (var key in this.tanks) {
       this.tanks[key].update(this.dt);
     }
-    
-    this.camera.afterUpdate();
 
-    this.updateid = window.requestAnimationFrame( this.update.bind(this), this.viewport );
+  }
+
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    for (var x = 0; x < this.canvas.width; x += 40) {
+        for (var y = 0; y < this.canvas.width; y += 40) {
+            this.ctx.drawImage(this.ressources['tile'], x - this.camera.x, y - this.camera.y);
+        }
+    }
+
+    for (var key in this.tanks) {
+      this.tanks[key].draw();
+    }
+
+
+    for (var key in this.bullets) {
+      this.ctx.save();
+      this.ctx.translate(this.bullets[key].pos.x + this.ressources['fire'].width, this.bullets[key].pos.y + this.ressources['fire'].height);
+      this.ctx.rotate(this.bullets[key].angle * Math.PI / 180);
+
+      this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
+      this.ctx.restore();
+    }
   }
 
 }

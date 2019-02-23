@@ -8,10 +8,8 @@ class Net {
 
     this.socket.on('spawnPlayer', (data) => {
         let tank = new Player(data.player.id, game, {x: 0, y: 0});
-        // tank.create();
         game.tanks[data.player.id] = tank;
-        
-        game.camera.setTarget(game.tanks[data.player.id]);
+        game.camera.setTarget(game.tanks[data.player.id], game.canvas.width / 2, game.canvas.height / 2);
 
         this.id = data.player.id;
     });
@@ -47,9 +45,9 @@ class Net {
     this.socket.on("HitPlayer", (hit) => {
         game.tanks[hit.playerID].life = hit.player.life;
         game.tanks[hit.playerID].isAlive = hit.player.isAlive;
-        
+
         delete game.bullets[hit.bulletID];
-        
+
         if (! hit.player.isAlive) {
           game.tanksToDestroy.push(game.tanks[hit.playerID]);
         }
