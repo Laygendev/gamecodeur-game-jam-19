@@ -5,6 +5,7 @@ class Entity  {
   game;
   pos;
   posCanon;
+  posCanonServer;
   angle;
   speed;
   speedRotation;
@@ -17,8 +18,10 @@ class Entity  {
   life;
   posLife;
   alive = true;
+  isSpectator = false;
   timerUpdate;
   colliderPoint = [];
+  colliderPointServer = [];
   width;
   height;
 
@@ -26,6 +29,7 @@ class Entity  {
     this.id = id;
     this.game = game;
     this.posCanon = {x: 0, y: 0};
+    this.posCanonServer = {x: 0, y: 0};
     this.pos = pos;
     this.posLife = {
         x: pos.x,
@@ -81,44 +85,54 @@ class Entity  {
             y: -25
         }
     };
+
+    this.colliderPointServer[0] = {
+        pos: {
+            x: 0,
+            y: 0,
+        },
+        offset: {
+            x: -35,
+            y: 25
+        }
+    };
+    this.colliderPointServer[1] = {
+        pos: {
+            x: 0,
+            y: 0,
+        },
+        offset: {
+            x: 35,
+            y: 25
+        }
+    };
+    this.colliderPointServer[2] = {
+        pos: {
+            x: 0,
+            y: 0,
+        },
+        offset: {
+            x: 35,
+            y: -25
+        }
+    };
+    this.colliderPointServer[3] = {
+        pos: {
+            x: 0,
+            y: 0,
+        },
+        offset: {
+            x: -35,
+            y: -25
+        }
+    };
   }
 
   update() {
   }
 
   draw() {
-      this.game.ctx.save();
-      this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y - this.game.camera.y);
-      this.game.ctx.rotate(this.angle * Math.PI / 180);
 
-      this.game.ctx.drawImage(this.game.ressources['tank'], -this.width / 2, -this.height / 2);
-      this.game.ctx.restore();
-
-       this.game.ctx.save();
-       this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y  - this.game.camera.y);
-       this.game.ctx.rotate(radians_to_degrees(this.canonAngle) * Math.PI / 180);
-
-       this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
-       this.game.ctx.restore();
-
-       this.game.ctx.drawImage(this.game.ressources['endcanon'], this.posCanon.x, this.posCanon.y);
-       //
-       for( var i = 0; i < 4; i++) {
-           var currentPos = {
-               x: this.pos.x - this.game.camera.x - this.colliderPoint[i].offset.x,
-               y: this.pos.y - this.game.camera.y - this.colliderPoint[i].offset.y
-           };
-
-           var currentPosSource = {
-               x: this.pos.x - this.game.camera.x,
-               y: this.pos.y - this.game.camera.y
-           };
-
-           this.colliderPoint[i].pos.x = (currentPos.x - currentPosSource.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.x;
-           this.colliderPoint[i].pos.y = (currentPos.y - currentPosSource.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.y;
-
-           this.game.ctx.fillRect(this.colliderPoint[i].pos.x, this.colliderPoint[i].pos.y, 5, 5);
-       }
        //
        // this.posLife.x = this.pos.x + 20;
        // this.posLife.y = this.pos.y;
@@ -140,14 +154,5 @@ class Entity  {
   }
 
   destroy() {
-    this.game.particleDestroy.emitParticleAt(this.pos.x, this.pos.y);
-    this.game.particleDestroy2.emitParticleAt(this.pos.x, this.pos.y);
-    this.container.destroy();
-    this.endcanon.destroy();
-
-    for(var key in this.bullets) {
-      this.bullets[key].sprite.destroy();
-      this.bullets.splice(key, 1);
-    }
   }
 }

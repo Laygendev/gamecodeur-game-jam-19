@@ -1,16 +1,19 @@
 class Net {
     id;
+    init = false;
 
   constructor(game) {
-    this.socket = io.connect("http://localhost:8080", {
+    this.socket = io.connect("https://trackball-game.com:8080", {
       forceNew: true
     });
 
     this.socket.on('spawnPlayer', (data) => {
-        let tank = new Player(data.player.id, game, {x: 0, y: 0});
+        game.width = data.map.width;
+        game.height = data.map.height;
+        let tank = new Player(data.player.id, game, {x: 50, y: 50});
         game.tanks[data.player.id] = tank;
         game.camera.setTarget(game.tanks[data.player.id], game.canvas.width / 2, game.canvas.height / 2);
-
+        this.init = true;
         this.id = data.player.id;
     });
 
@@ -30,6 +33,8 @@ class Net {
         game.tanks[data.id].pos.y = data.y;
         game.tanks[data.id].angle = data.angle;
         game.tanks[data.id].canonAngle = data.canonAngle;
+        game.tanks[data.id].posCanon = data.posCanonServer;
+        game.tanks[data.id].colliderPoint = data.colliderPointServer;
       }
     });
 
@@ -48,8 +53,14 @@ class Net {
 
         delete game.bullets[hit.bulletID];
 
-        if (! hit.player.isAlive) {
-          game.tanksToDestroy.push(game.tanks[hit.playerID]);
+
+        // Delete tank
+        if (!hit.player.isAlive) {
+          if (hit.playerID != this.id) {
+            delete game.tanks[hit.playerID];
+          } else {
+            game.tanks[hit.playerID].isSpectator = true;
+          }
         }
     });
 
@@ -60,6 +71,10 @@ class Net {
                 break;
             }
         }
+    });
+
+    this.socket.on("RemovePlayer", (data) => {
+      delete game.tanks[data.player.id];
     });
   }
 

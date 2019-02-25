@@ -15,6 +15,9 @@ class Game {
     tanks;
     bullets;
 
+    width;
+    height;
+
     constructor() {
         this.canvas = document.getElementById('canvas');
         this.ctx    = this.canvas.getContext('2d');
@@ -47,47 +50,62 @@ class Game {
     this.update(t);
     this.draw();
 
-    this.updateid = window.requestAnimationFrame( this.gameLoop.bind(this), this.viewport );
+    this.updateid = window.requestAnimationFrame(this.gameLoop.bind(this), this.viewport);
   }
 
   update(t) {
-    this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
-    this.lastframetime = t;
+    if (this.net.init) {
+      this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
+      this.lastframetime = t;
 
-    this.camera.update();
+      for (var key in this.bullets) {
+          this.bullets[key].pos.x += this.bullets[key].speed * this.dt * Math.cos(this.bullets[key].angleRadians);
+          this.bullets[key].pos.y += this.bullets[key].speed * this.dt * Math.sin(this.bullets[key].angleRadians);
+      }
 
-    for (var key in this.bullets) {
-        this.bullets[key].pos.x += this.bullets[key].speed * this.dt * Math.cos(this.bullets[key].angleRadians);
-        this.bullets[key].pos.y += this.bullets[key].speed * this.dt * Math.sin(this.bullets[key].angleRadians);
+      for (var key in this.tanks) {
+        this.tanks[key].update(this.dt);
+      }
+
+      this.camera.update();
     }
-
-    for (var key in this.tanks) {
-      this.tanks[key].update(this.dt);
-    }
-
   }
 
   draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.net.init) {
+      var tile = 0;
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (var x = 0; x < this.canvas.width; x += 40) {
-        for (var y = 0; y < this.canvas.width; y += 40) {
+      console.log(this.camera.inViewport(1500, 0));
+
+      for (var x = 0; x < this.width; x += 40) {
+        for (var y = 0; y < this.height; y += 40) {
+          if (this.camera.inViewport(x, y)) {
             this.ctx.drawImage(this.ressources['tile'], x - this.camera.x, y - this.camera.y);
+            tile++;
+          }
         }
-    }
+      }
 
-    for (var key in this.tanks) {
-      this.tanks[key].draw();
-    }
+      for (var key in this.tanks) {
+        this.tanks[key].draw();
+      }
 
 
-    for (var key in this.bullets) {
-      this.ctx.save();
-      this.ctx.translate(this.bullets[key].pos.x + this.ressources['fire'].width, this.bullets[key].pos.y + this.ressources['fire'].height);
-      this.ctx.rotate(this.bullets[key].angle * Math.PI / 180);
+      for (var key in this.bullets) {
+        this.ctx.save();
+        this.ctx.translate(this.bullets[key].pos.x - this.camera.x + this.ressources['fire'].width, this.bullets[key].pos.y - this.camera.y + this.ressources['fire'].height);
+        this.ctx.rotate(this.bullets[key].angle * Math.PI / 180);
 
-      this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-      this.ctx.restore();
+        this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
+        this.ctx.restore();
+      }
+
+      this.ctx.fillText('Camera x:' + this.camera.x + ' y:' + this.camera.y, 10, 50);
+      this.ctx.fillText('Camera:' + (this.camera.x + this.camera.viewportRect.width), 10, 65);
+      this.ctx.fillText('Number tiles:' + tile, 10, 80);
+      this.ctx.fillText('Canvas width:' + this.canvas.width + ' height:' + this.canvas.height, 10, 100);
+      this.ctx.fillText('Canvas hWidth:' + this.canvas.width / 2 + ' hHeight:' + this.canvas.height / 2, 10, 120);
     }
   }
 

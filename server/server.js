@@ -15,12 +15,12 @@ var port = 8080;
 //======================================================
 // Initialization
 //======================================================
-var server = require("http");
+var server = require("https");
 var fs = require("fs");
 
 const options = {
-  // key: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/privkey.pem'),
-  // cert: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/cert.pem')
+  key: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/cert.pem')
 };
 
 server = server.createServer(options);
@@ -42,6 +42,9 @@ var sockets = new Array();
 var players = [];
 var bullets = [];
 var unique_count = 1;
+
+var width = 2000;
+var height = 2000;
 
 global.window = global.document = global;
 
@@ -91,7 +94,13 @@ function SocketHandler(socket, data) {
     socket.player = player;
     sockets.push(socket);
     players[socket.id] = player;
-    socket.emit("spawnPlayer", { player: player });
+    socket.emit("spawnPlayer", {
+      player: player,
+      map: {
+        width: width,
+        height: height,
+      }
+    });
     socket.broadcast.emit("addPlayer", { player: player });
 
     for (var k in players) {
@@ -121,12 +130,12 @@ function Shoot(data) {
         var bullet = {
             'id': data.id,
             'bulletid': new Date().getTime(),
-            'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanon)),
+            'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer)),
             'speed': 500,
             'distanceMax': 300,
             'endcanonangle': radians_to_degrees(players[data.id].info.canonAngle),
             'angleRadians': players[data.id].info.canonAngle,
-            'pos': JSON.parse(JSON.stringify(players[data.id].info.posCanon))
+            'pos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer))
         };
 
         bullets.push(bullet);
@@ -176,9 +185,9 @@ function update(t) {
 
         for(var key_player in players) {
             if ( players[key_player].id != bullets[key].id && players[key_player].isAlive ) {
-                if (collision(players[key_player].info.colliderPoint, bullets[key].pos)) {
+                if (collision(players[key_player].info.colliderPointServer, bullets[key].pos)) {
                   players[key_player].life--;
-        
+
                   if (players[key_player].life <= 0) {
                     players[key_player].isAlive = false;
                   }
@@ -187,7 +196,7 @@ function update(t) {
                         playerID: players[key_player].id,
                         player: players[key_player]
                     };
-        
+
                     io.emit("HitPlayer", hit);
                     bullets.splice(key, 1);
                     destroyBullet = true;
