@@ -37,7 +37,7 @@ class Entity  {
     };
 
     this.speed = 300;
-    this.speedRotation = 100;
+    this.speedRotation = 200;
     this.angleMove = 0;
     this.angle = 0;
     this.canonAngle = 0;

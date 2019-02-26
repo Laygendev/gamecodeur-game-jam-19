@@ -1,0 +1,42 @@
+@font-face {
+    font-family: motion;
+    src: url("MotionControl-Bold.otf") format("opentype");
+}
+
+
+.mask {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    font-family: 'motion';
+    font-size: 30px;
+}
+
+
+.mask .in {
+    width: 96%;
+    padding: 2%;
+}
+
+.center-bloc {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 40vh;
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+input {
+    font-family: 'motion';
+    width: 60%;
+    padding: 10px;
+    font-size: 20px;
+    border: solid black 5px;
+}
+
+.hidden {
+    display: none;
+}

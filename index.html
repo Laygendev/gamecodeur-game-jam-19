@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Tank.io</title>
     <link rel="stylesheet" type="text/css" href="asset/reset.css">
+    <link rel="stylesheet" type="text/css" href="asset/style.css">
     <script src="lib/socket.io.js"></script>
     <script src="src/util.js"></script>
     <script src="src/input.js"></script>
@@ -19,12 +20,40 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    
+    <div class="mask">
+        <div class="in">
+            <h2>Changelog</h2>
+            
+            <ul>
+                <li>* Update camera</li>
+            </ul>
+            
+            <div class="center-bloc">
+                <div class="network-not-ready">
+                    <h2>Connecting...</h2>
+                </div>
+                <div class="network-ready hidden">
+                    <h2>This is the tank of...</h2>
+                    <input type="text" />
+                    <p class="state">Press enter to looking for a game</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
     <script>
-    winW = window.innerWidth;
-    winH = window.innerHeight;
-    (function() {
-      var tankGame = new Game();
-    })();
+        winW = window.innerWidth;
+        winH = window.innerHeight;
+         var tankGame = new Game();
+        window.addEventListener('keydown', (e) => {
+            var code = e.keyCode;
+            if (13 == code) {
+                console.log(tankGame);
+                tankGame.net.lookingForRoom();
+            }
+        });
     </script>
 </body>
 </html>

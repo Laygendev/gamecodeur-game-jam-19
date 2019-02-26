@@ -29,17 +29,17 @@ class Game {
         this.tanks      = [];
         this.bullets    = [];
 
-        this.loader = new Loader(this);
-        this.loader.load('tile', 'asset/tile.png');
-        this.loader.load('tank', 'asset/tank.png');
-        this.loader.load('canon', 'asset/canon.png');
-        this.loader.load('fire', 'asset/fire.png');
-        this.loader.load('endcanon', 'asset/endcanon.png');
-        this.loader.start();
+        this.net = new Net(this);
     }
 
     start() {
-      this.net    = new Net(this);
+    this.loader = new Loader(this);
+    this.loader.load('tile', 'asset/tile.png');
+    this.loader.load('tank', 'asset/tank.png');
+    this.loader.load('canon', 'asset/canon.png');
+    this.loader.load('fire', 'asset/fire.png');
+    this.loader.load('endcanon', 'asset/endcanon.png');
+    // this.loader.start();
       this.input  = new Input(this);
       this.camera = new Camera(this);
 
@@ -100,12 +100,6 @@ class Game {
         this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
         this.ctx.restore();
       }
-
-      this.ctx.fillText('Camera x:' + this.camera.x + ' y:' + this.camera.y, 10, 50);
-      this.ctx.fillText('Camera:' + (this.camera.x + this.camera.viewportRect.width), 10, 65);
-      this.ctx.fillText('Number tiles:' + tile, 10, 80);
-      this.ctx.fillText('Canvas width:' + this.canvas.width + ' height:' + this.canvas.height, 10, 100);
-      this.ctx.fillText('Canvas hWidth:' + this.canvas.width / 2 + ' hHeight:' + this.canvas.height / 2, 10, 120);
     }
   }
 

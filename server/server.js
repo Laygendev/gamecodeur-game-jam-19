@@ -43,8 +43,8 @@ var players = [];
 var bullets = [];
 var unique_count = 1;
 
-var width = 2000;
-var height = 2000;
+var width = 3000;
+var height = 3000;
 
 global.window = global.document = global;
 
@@ -85,29 +85,35 @@ function SocketHandler(socket, data) {
     socket.on('disconnect', Disconnect);
     socket.on('UpdatePlayerPosition', UpdatePlayerPosition);
     socket.on('Shoot', Shoot);
-    // socket.on('PlayerRespawn', PlayerRespawn);
+    
+    socket.emit("connected");
 
-    var player = {};
-    player.id = socket.id;
-    player.life = 5;
-    player.isAlive = true;
-    socket.player = player;
-    sockets.push(socket);
-    players[socket.id] = player;
-    socket.emit("spawnPlayer", {
-      player: player,
-      map: {
-        width: width,
-        height: height,
-      }
-    });
-    socket.broadcast.emit("addPlayer", { player: player });
-
-    for (var k in players) {
-      if (socket.player.id != players[k].id) {
-        socket.emit("addPlayer", { player: players[k] } );
-      }
-    }
+    // var player = {};
+    // player.id = socket.id;
+    // player.life = 5;
+    // player.isAlive = true;
+    // player.pos = {
+    //     x: Math.floor(Math.random() * (width - 100)) + 100,
+    //     y: Math.floor(Math.random() * (height - 100)) + 100,
+    // };
+    // 
+    // socket.player = player;
+    // sockets.push(socket);
+    // players[socket.id] = player;
+    // socket.emit("spawnPlayer", {
+    //   player: player,
+    //   map: {
+    //     width: width,
+    //     height: height,
+    //   }
+    // });
+    // socket.broadcast.emit("addPlayer", { player: player });
+    // 
+    // for (var k in players) {
+    //   if (socket.player.id != players[k].id) {
+    //     socket.emit("addPlayer", { player: players[k] } );
+    //   }
+    // }
 }
 
 
@@ -132,7 +138,7 @@ function Shoot(data) {
             'bulletid': new Date().getTime(),
             'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer)),
             'speed': 500,
-            'distanceMax': 300,
+            'distanceMax': 600,
             'endcanonangle': radians_to_degrees(players[data.id].info.canonAngle),
             'angleRadians': players[data.id].info.canonAngle,
             'pos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer))
@@ -184,7 +190,7 @@ function update(t) {
         var playerHit = undefined
 
         for(var key_player in players) {
-            if ( players[key_player].id != bullets[key].id && players[key_player].isAlive ) {
+            if ( players[key_player].id != bullets[key].id && players[key_player].isAlive && players[key_player].info && players[key_player].info.colliderPointServer ) {
                 if (collision(players[key_player].info.colliderPointServer, bullets[key].pos)) {
                   players[key_player].life--;
 
