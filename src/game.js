@@ -29,22 +29,23 @@ class Game {
         this.tanks      = [];
         this.bullets    = [];
 
-        this.net = new Net(this);
+        this.loader = new Loader(this);
+        this.loader.load('tile', 'asset/tile.png');
+        this.loader.load('tank', 'asset/tank.png');
+        this.loader.load('canon', 'asset/canon.png');
+        this.loader.load('fire', 'asset/fire.png');
+        this.loader.load('endcanon', 'asset/endcanon.png');
+
+        this.loader.start();
     }
 
     start() {
-    this.loader = new Loader(this);
-    this.loader.load('tile', 'asset/tile.png');
-    this.loader.load('tank', 'asset/tank.png');
-    this.loader.load('canon', 'asset/canon.png');
-    this.loader.load('fire', 'asset/fire.png');
-    this.loader.load('endcanon', 'asset/endcanon.png');
-    // this.loader.start();
-      this.input  = new Input(this);
-      this.camera = new Camera(this);
+        this.input  = new Input(this);
+        this.camera = new Camera(this);
 
-      this.gameLoop(new Date().getTime());
+        this.gameLoop(new Date().getTime());
     }
+
 
   gameLoop(t) {
     this.update(t);
@@ -75,8 +76,6 @@ class Game {
     if (this.net.init) {
       var tile = 0;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      console.log(this.camera.inViewport(1500, 0));
 
       for (var x = 0; x < this.width; x += 40) {
         for (var y = 0; y < this.height; y += 40) {

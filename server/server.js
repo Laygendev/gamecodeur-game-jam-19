@@ -87,7 +87,7 @@ function SocketHandler(socket, data) {
     socket.on('JoinRoom', JoinRoom);
     socket.on('UpdatePlayerPosition', UpdatePlayerPosition);
     socket.on('Shoot', Shoot);
-    
+
     socket.emit("connected", socket.id);
     sockets.push(socket);
 }
@@ -108,38 +108,38 @@ function JoinRoom(data) {
         id: data.id,
         pseudo: data.pseudo
     };
-    
+
     this.player = player;
     player.socket = this;
-    
+
     var currentRoom = undefined;
-    
+
     for (var key in rooms) {
         if (! rooms[key].isStarted && rooms[key].numberPlayer < rooms[key].maxPlayer) {
             rooms[key].add(player);
-            
+
             player.roomID = rooms[key].id;
             currentRoom = rooms[key];
             break;
         }
     }
-    
+
     if (! currentRoom) {
         currentRoom = new Room();
         currentRoom.add(player);
         player.roomID = currentRoom.id;
-        
+
         rooms[currentRoom.id] = currentRoom;
     }
-    
+
     this.join(currentRoom.id);
-    
+
     io.to(currentRoom.id).emit('JoinedRoom', {
         id: currentRoom.id,
         numberPlayer: currentRoom.numberPlayer,
         maxPlayer: currentRoom.maxPlayer
     });
-    
+
     if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
         currentRoom.start();
     }
@@ -150,33 +150,34 @@ function Length(obj) {
 }
 
 function Shoot(data) {
-    if (players[data.id] != undefined) {
-        var bullet = {
-            'roomID': data.roomID,
-            'id': data.id,
-            'bulletid': new Date().getTime(),
-            'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer)),
-            'speed': 500,
-            'distanceMax': 600,
-            'endcanonangle': radians_to_degrees(players[data.id].info.canonAngle),
-            'angleRadians': players[data.id].info.canonAngle,
-            'pos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer))
-        };
+  var room = rooms[data.roomID];
+  var player = room.players[data.id];
 
-        bullets.push(bullet);
+    var bullet = {
+        'roomID': data.roomID,
+        'id': data.id,
+        'bulletid': new Date().getTime(),
+        'basePos': JSON.parse(JSON.stringify(player.info.posCanonServer)),
+        'speed': 500,
+        'distanceMax': 600,
+        'endcanonangle': radians_to_degrees(player.info.canonAngle),
+        'angleRadians': player.info.canonAngle,
+        'pos': JSON.parse(JSON.stringify(player.info.posCanonServer))
+    };
 
-      io.to(data.roomID).emit("Shoot", bullet);
-    }
+    io.to(data.roomID).emit("Shoot", bullet);
+
+    room.addBullet(bullet);
 }
 
 Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };
 
 // Update player position
 function UpdatePlayerPosition(data) {
-  if (players[data.id] != undefined) {
-      players[data.id].info = data;
-    this.broadcast.to(data.roomID).emit("UpdatePlayerPosition", data);
-  }
+  var room = rooms[data.roomID];
+  var player = room.players[data.id];
+  player.info = data;
+  this.broadcast.to(data.roomID).emit("UpdatePlayerPosition", data);
 }
 
 function degrees_to_radians(degrees)
@@ -200,45 +201,8 @@ function update(t) {
     dt = lastframetime ? ( (t - lastframetime)/1000.0).fixed() : 0.016;
     lastframetime = t;
 
-    for (var key in bullets) {
-        bullets[key].pos.x += bullets[key].speed * Math.cos(bullets[key].angleRadians) * dt;
-        bullets[key].pos.y += bullets[key].speed * Math.sin(bullets[key].angleRadians) * dt;
-
-        var destroyBullet = false;
-
-        var playerHit = undefined
-
-        for(var key_player in players) {
-            if ( players[key_player].id != bullets[key].id && players[key_player].isAlive && players[key_player].info && players[key_player].info.colliderPointServer ) {
-                if (collision(players[key_player].info.colliderPointServer, bullets[key].pos)) {
-                  players[key_player].life--;
-
-                  if (players[key_player].life <= 0) {
-                    players[key_player].isAlive = false;
-                  }
-                    var hit = {
-                        bulletID: bullets[key].bulletid,
-                        playerID: players[key_player].id,
-                        player: players[key_player]
-                    };
-
-                    io.to(bullets[key].roomID).emit("HitPlayer", hit);
-                    bullets.splice(key, 1);
-                    destroyBullet = true;
-                    break;
-                }
-            }
-        }
-
-        if ( destroyBullet ) {
-            continue;
-        }
-
-        var dist = Math.sqrt( Math.pow((bullets[key].basePos.x-bullets[key].pos.x), 2) + Math.pow((bullets[key].basePos.y-bullets[key].pos.y), 2) );
-        if (dist >= bullets[key].distanceMax) {
-            io.to(bullets[key].roomID).emit("MissileDelete", bullets[key]);
-            bullets.splice(key, 1);
-        }
+    for (var key in rooms) {
+      rooms[key].update(dt);
     }
 
     updateid = window.requestAnimationFrame( update.bind(this) );
@@ -276,45 +240,100 @@ class Room {
     constructor() {
         this.id           = new Date().getTime();
         this.numberPlayer = 0;
-        this.maxPlayer    = 2;
+        this.maxPlayer    = 1;
         this.players      = [];
+        this.bullets      = [];
         this.isStarted    = false;
     }
-    
+
     add(player) {
         this.players[player.id] = player;
         this.numberPlayer++;
     }
-    
+
+    addBullet(bullet) {
+      this.bullets.push(bullet);
+    }
+
     start() {
         for (var key in this.players) {
             this.players[key].life = 5;
             this.players[key].isAlive = true;
-            
+
             this.players[key].pos = {
                 x: Math.floor(Math.random() * (width - 100)) + 100,
                 y: Math.floor(Math.random() * (height - 100)) + 100,
             };
-            
-            this.players[key].socket.to(this.players[key].roomID).emit("spawnPlayer", {
-              player: this.players[key],
+
+            let dataPlayer = {
+              id: key,
+              life: this.players[key].life,
+              alive: this.players[key].isAlive,
+              pos: this.players[key].pos
+            };
+
+            this.players[key].socket.emit("spawnPlayer", {
+              player: dataPlayer,
               map: {
                 width: width,
                 height: height,
               }
             });
-            
-            this.players[key].socket.broadcast.to(this.players[key].roomID).emit("addPlayer", { player: this.players[key] });
-            
+
+            this.players[key].socket.broadcast.to(this.players[key].roomID).emit("addPlayer", { player: dataPlayer });
+
             for (var k in this.players) {
-              if (this.players[key].socket.player.id != this.players[k].id) {
+              if (this.players[key].id != this.players[k].id) {
                 this.players[key].socket.to(this.player[k].roomID).emit("addPlayer", { player: players[k] } );
               }
             }
         }
     }
-    
+
+    update(dt) {
+      for (var key in this.bullets) {
+          this.bullets[key].pos.x += this.bullets[key].speed * Math.cos(this.bullets[key].angleRadians) * dt;
+          this.bullets[key].pos.y += this.bullets[key].speed * Math.sin(this.bullets[key].angleRadians) * dt;
+
+          var destroyBullet = false;
+
+          var playerHit = undefined
+
+          for(var key_player in players) {
+              if ( players[key_player].id != this.bullets[key].id && players[key_player].isAlive && players[key_player].info && players[key_player].info.colliderPointServer ) {
+                  if (collision(players[key_player].info.colliderPointServer, this.bullets[key].pos)) {
+                    players[key_player].life--;
+
+                    if (players[key_player].life <= 0) {
+                      players[key_player].isAlive = false;
+                    }
+                      var hit = {
+                          bulletID: this.bullets[key].bulletid,
+                          playerID: players[key_player].id,
+                          player: players[key_player]
+                      };
+
+                      io.to(this.bullets[key].roomID).emit("HitPlayer", hit);
+                      this.bullets.splice(key, 1);
+                      destroyBullet = true;
+                      break;
+                  }
+              }
+          }
+
+          if ( destroyBullet ) {
+              continue;
+          }
+
+          var dist = Math.sqrt( Math.pow((this.bullets[key].basePos.x-this.bullets[key].pos.x), 2) + Math.pow((this.bullets[key].basePos.y-this.bullets[key].pos.y), 2) );
+          if (dist >= this.bullets[key].distanceMax) {
+              io.to(this.bullets[key].roomID).emit("MissileDelete", this.bullets[key]);
+              this.bullets.splice(key, 1);
+          }
+      }
+    }
+
     remove(player) {
-        
+
     }
 }

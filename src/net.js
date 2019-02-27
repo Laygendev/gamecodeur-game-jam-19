@@ -9,38 +9,46 @@ class Net {
     this.socket = io.connect("https://trackball-game.com:8080", {
       forceNew: true
     });
-    
+
     this.socket.on('connect_error', () => {
         document.querySelector(".network-not-ready").innerHTML = "Server offline";
     });
-    
+
     this.socket.on('reconnecting', (n) => {
         document.querySelector(".network-not-ready").innerHTML = "Try reconnecting #" + n;
     });
-    
+
     this.socket.on('connected', (id) => {
         document.querySelector(".network-ready").style.display = 'block';
         document.querySelector(".network-not-ready").style.display = 'none';
-        
+
         this.id = id;
     });
-    
+
     this.socket.on('JoinedRoom', (room) => {
-        console.log(room);
         this.room = room;
-                
+
         document.querySelector(".network-ready .state").innerHTML = "Room #" + room.id + " " + room.numberPlayer + "/" + room.maxPlayer;
     });
 
     this.socket.on('spawnPlayer', (data) => {
-        game.width = data.map.width;
+
+        game.width  = data.map.width;
         game.height = data.map.height;
+
+        game.start();
+
         let tank = new Player(data.player.id, game, data.player.pos);
         game.tanks[data.player.id] = tank;
+
         game.camera.setTarget(game.tanks[data.player.id], game.canvas.width / 2, game.canvas.height / 2);
+
         this.init = true;
         this.id = data.player.id;
         this.roomID = this.room.id;
+
+        document.querySelector(".mask").style.display = "none";
+
     });
 
     this.socket.on('addPlayer', (data) => {
@@ -113,14 +121,14 @@ class Net {
       data.roomID = this.room.id;
       this.socket.emit('Shoot', data);
   }
-  
+
   lookingForRoom() {
       if (!this.isLookingForRoom) {
           this.isLookingForRoom = true;
           document.querySelector(".network-ready .state").innerHTML = "Looking for room...";
-          
+
           this.pseudo = document.querySelector(".pseudo").value;
-          
+
           this.socket.emit('JoinRoom', {
               id: this.id,
               pseudo: this.pseudo,

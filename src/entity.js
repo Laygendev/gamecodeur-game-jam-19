@@ -41,7 +41,6 @@ class Entity  {
     this.angleMove = 0;
     this.angle = 0;
     this.canonAngle = 0;
-
     this.width = this.game.ressources['tank'].width;
     this.height = this.game.ressources['tank'].height;
 

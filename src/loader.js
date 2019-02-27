@@ -32,7 +32,7 @@ class Loader {
     checkAllLoad() {
       if (this.nbLoad == Util.length(this.ressourcesToLoad)) {
         this.isLoaded = true;
-        this.game.start();
+        this.game.net = new Net(this.game);
       }
     }
 }
