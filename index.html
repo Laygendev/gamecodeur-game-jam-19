@@ -35,7 +35,7 @@
                 </div>
                 <div class="network-ready hidden">
                     <h2>This is the tank of...</h2>
-                    <input type="text" />
+                    <input type="text" class="pseudo" />
                     <p class="state">Press enter to looking for a game</p>
                 </div>
                 
@@ -50,7 +50,6 @@
         window.addEventListener('keydown', (e) => {
             var code = e.keyCode;
             if (13 == code) {
-                console.log(tankGame);
                 tankGame.net.lookingForRoom();
             }
         });

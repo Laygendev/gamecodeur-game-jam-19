@@ -2,6 +2,8 @@ class Net {
     id;
     init = false;
     isLookingForRoom = false;
+    pseudo;
+    room;
 
   constructor(game) {
     this.socket = io.connect("https://trackball-game.com:8080", {
@@ -16,9 +18,18 @@ class Net {
         document.querySelector(".network-not-ready").innerHTML = "Try reconnecting #" + n;
     });
     
-    this.socket.on('connected', () => {
+    this.socket.on('connected', (id) => {
         document.querySelector(".network-ready").style.display = 'block';
         document.querySelector(".network-not-ready").style.display = 'none';
+        
+        this.id = id;
+    });
+    
+    this.socket.on('JoinedRoom', (room) => {
+        console.log(room);
+        this.room = room;
+                
+        document.querySelector(".network-ready .state").innerHTML = "Room #" + room.id + " " + room.numberPlayer + "/" + room.maxPlayer;
     });
 
     this.socket.on('spawnPlayer', (data) => {
@@ -29,6 +40,7 @@ class Net {
         game.camera.setTarget(game.tanks[data.player.id], game.canvas.width / 2, game.canvas.height / 2);
         this.init = true;
         this.id = data.player.id;
+        this.roomID = this.room.id;
     });
 
     this.socket.on('addPlayer', (data) => {
@@ -93,10 +105,12 @@ class Net {
   }
 
   updatePos(data) {
-    this.socket.emit('UpdatePlayerPosition', data);
+      data.roomID = this.room.id;
+      this.socket.emit('UpdatePlayerPosition', data);
   }
 
   Shoot(data) {
+      data.roomID = this.room.id;
       this.socket.emit('Shoot', data);
   }
   
@@ -104,6 +118,13 @@ class Net {
       if (!this.isLookingForRoom) {
           this.isLookingForRoom = true;
           document.querySelector(".network-ready .state").innerHTML = "Looking for room...";
+          
+          this.pseudo = document.querySelector(".pseudo").value;
+          
+          this.socket.emit('JoinRoom', {
+              id: this.id,
+              pseudo: this.pseudo,
+          } );
       }
   }
 }

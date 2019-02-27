@@ -41,6 +41,7 @@ logger.log("Started server on port "+port);
 var sockets = new Array();
 var players = [];
 var bullets = [];
+var rooms = [];
 var unique_count = 1;
 
 var width = 3000;
@@ -83,37 +84,12 @@ function SocketHandler(socket, data) {
     logger.log("Incoming connection from "+ip.address+":"+ip.port);
 
     socket.on('disconnect', Disconnect);
+    socket.on('JoinRoom', JoinRoom);
     socket.on('UpdatePlayerPosition', UpdatePlayerPosition);
     socket.on('Shoot', Shoot);
     
-    socket.emit("connected");
-
-    // var player = {};
-    // player.id = socket.id;
-    // player.life = 5;
-    // player.isAlive = true;
-    // player.pos = {
-    //     x: Math.floor(Math.random() * (width - 100)) + 100,
-    //     y: Math.floor(Math.random() * (height - 100)) + 100,
-    // };
-    // 
-    // socket.player = player;
-    // sockets.push(socket);
-    // players[socket.id] = player;
-    // socket.emit("spawnPlayer", {
-    //   player: player,
-    //   map: {
-    //     width: width,
-    //     height: height,
-    //   }
-    // });
-    // socket.broadcast.emit("addPlayer", { player: player });
-    // 
-    // for (var k in players) {
-    //   if (socket.player.id != players[k].id) {
-    //     socket.emit("addPlayer", { player: players[k] } );
-    //   }
-    // }
+    socket.emit("connected", socket.id);
+    sockets.push(socket);
 }
 
 
@@ -121,10 +97,52 @@ function Disconnect() {
     var i = sockets.indexOf(this);
     if(this.player != undefined) {
         logger.log("disconnected user: "+this.player.name);
-        this.broadcast.emit("RemovePlayer", {player: this.player});
+        this.broadcast.to(this.player.roomID).emit("RemovePlayer", {player: this.player});
         delete players[this.player.id];
     }
     sockets.splice(i, 1);
+}
+
+function JoinRoom(data) {
+    var player = {
+        id: data.id,
+        pseudo: data.pseudo
+    };
+    
+    this.player = player;
+    player.socket = this;
+    
+    var currentRoom = undefined;
+    
+    for (var key in rooms) {
+        if (! rooms[key].isStarted && rooms[key].numberPlayer < rooms[key].maxPlayer) {
+            rooms[key].add(player);
+            
+            player.roomID = rooms[key].id;
+            currentRoom = rooms[key];
+            break;
+        }
+    }
+    
+    if (! currentRoom) {
+        currentRoom = new Room();
+        currentRoom.add(player);
+        player.roomID = currentRoom.id;
+        
+        rooms[currentRoom.id] = currentRoom;
+    }
+    
+    this.join(currentRoom.id);
+    
+    io.to(currentRoom.id).emit('JoinedRoom', {
+        id: currentRoom.id,
+        numberPlayer: currentRoom.numberPlayer,
+        maxPlayer: currentRoom.maxPlayer
+    });
+    
+    if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
+        currentRoom.start();
+    }
 }
 
 function Length(obj) {
@@ -134,6 +152,7 @@ function Length(obj) {
 function Shoot(data) {
     if (players[data.id] != undefined) {
         var bullet = {
+            'roomID': data.roomID,
             'id': data.id,
             'bulletid': new Date().getTime(),
             'basePos': JSON.parse(JSON.stringify(players[data.id].info.posCanonServer)),
@@ -146,7 +165,7 @@ function Shoot(data) {
 
         bullets.push(bullet);
 
-      io.emit("Shoot", bullet);
+      io.to(data.roomID).emit("Shoot", bullet);
     }
 }
 
@@ -156,7 +175,7 @@ Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixe
 function UpdatePlayerPosition(data) {
   if (players[data.id] != undefined) {
       players[data.id].info = data;
-    this.broadcast.emit("UpdatePlayerPosition", data);
+    this.broadcast.to(data.roomID).emit("UpdatePlayerPosition", data);
   }
 }
 
@@ -203,7 +222,7 @@ function update(t) {
                         player: players[key_player]
                     };
 
-                    io.emit("HitPlayer", hit);
+                    io.to(bullets[key].roomID).emit("HitPlayer", hit);
                     bullets.splice(key, 1);
                     destroyBullet = true;
                     break;
@@ -217,12 +236,12 @@ function update(t) {
 
         var dist = Math.sqrt( Math.pow((bullets[key].basePos.x-bullets[key].pos.x), 2) + Math.pow((bullets[key].basePos.y-bullets[key].pos.y), 2) );
         if (dist >= bullets[key].distanceMax) {
-            io.emit("MissileDelete", bullets[key]);
+            io.to(bullets[key].roomID).emit("MissileDelete", bullets[key]);
             bullets.splice(key, 1);
         }
     }
 
-    updateid = window.requestAnimationFrame( update.bind(this), this.viewport );
+    updateid = window.requestAnimationFrame( update.bind(this) );
 }
 
 update(new Date().getTime() );
@@ -250,4 +269,52 @@ function collision(tab, P) {
     }
 
     return true;
+}
+
+
+class Room {
+    constructor() {
+        this.id           = new Date().getTime();
+        this.numberPlayer = 0;
+        this.maxPlayer    = 2;
+        this.players      = [];
+        this.isStarted    = false;
+    }
+    
+    add(player) {
+        this.players[player.id] = player;
+        this.numberPlayer++;
+    }
+    
+    start() {
+        for (var key in this.players) {
+            this.players[key].life = 5;
+            this.players[key].isAlive = true;
+            
+            this.players[key].pos = {
+                x: Math.floor(Math.random() * (width - 100)) + 100,
+                y: Math.floor(Math.random() * (height - 100)) + 100,
+            };
+            
+            this.players[key].socket.to(this.players[key].roomID).emit("spawnPlayer", {
+              player: this.players[key],
+              map: {
+                width: width,
+                height: height,
+              }
+            });
+            
+            this.players[key].socket.broadcast.to(this.players[key].roomID).emit("addPlayer", { player: this.players[key] });
+            
+            for (var k in this.players) {
+              if (this.players[key].socket.player.id != this.players[k].id) {
+                this.players[key].socket.to(this.player[k].roomID).emit("addPlayer", { player: players[k] } );
+              }
+            }
+        }
+    }
+    
+    remove(player) {
+        
+    }
 }
