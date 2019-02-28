@@ -108,7 +108,7 @@ class Net {
     });
 
     this.socket.on("RemovePlayer", (data) => {
-      delete game.tanks[data.player.id];
+      delete game.tanks[data.id];
     });
   }
 

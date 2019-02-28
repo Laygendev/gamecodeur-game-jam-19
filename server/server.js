@@ -44,8 +44,8 @@ var bullets = [];
 var rooms = [];
 var unique_count = 1;
 
-var width = 3000;
-var height = 3000;
+var width = 2000;
+var height = 2000;
 
 global.window = global.document = global;
 
@@ -97,8 +97,16 @@ function Disconnect() {
     var i = sockets.indexOf(this);
     if(this.player != undefined) {
         logger.log("disconnected user: "+this.player.name);
-        this.broadcast.to(this.player.roomID).emit("RemovePlayer", {player: this.player});
-        delete players[this.player.id];
+
+        var room = rooms[this.player.roomID];
+
+        if (room.isStarted) {
+          this.broadcast.to(this.player.roomID).emit("RemovePlayer", {
+            id: this.player.id
+          });
+        }
+
+        room.delete(this.player.id);
     }
     sockets.splice(i, 1);
 }
@@ -211,7 +219,7 @@ function update(t) {
 update(new Date().getTime() );
 
 function collision(tab, P) {
-    for (i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
         var A = tab[i].pos;
         var B;
   		if (i == 3) {
@@ -240,7 +248,7 @@ class Room {
     constructor() {
         this.id           = new Date().getTime();
         this.numberPlayer = 0;
-        this.maxPlayer    = 1;
+        this.maxPlayer    = 2;
         this.players      = [];
         this.bullets      = [];
         this.isStarted    = false;
@@ -251,11 +259,17 @@ class Room {
         this.numberPlayer++;
     }
 
+    delete(playerID) {
+      delete this.players[playerID];
+      this.numberPlayer--;
+    }
+
     addBullet(bullet) {
       this.bullets.push(bullet);
     }
 
     start() {
+      this.isStarted = true;
         for (var key in this.players) {
             this.players[key].life = 5;
             this.players[key].isAlive = true;
@@ -284,7 +298,7 @@ class Room {
 
             for (var k in this.players) {
               if (this.players[key].id != this.players[k].id) {
-                this.players[key].socket.to(this.player[k].roomID).emit("addPlayer", { player: players[k] } );
+                this.players[key].socket.to(this.players[k].roomID).emit("addPlayer", { player: players[k] } );
               }
             }
         }
@@ -299,18 +313,21 @@ class Room {
 
           var playerHit = undefined
 
-          for(var key_player in players) {
-              if ( players[key_player].id != this.bullets[key].id && players[key_player].isAlive && players[key_player].info && players[key_player].info.colliderPointServer ) {
-                  if (collision(players[key_player].info.colliderPointServer, this.bullets[key].pos)) {
-                    players[key_player].life--;
+          for(var key_player in this.players) {
+              if ( this.players[key_player].id != this.bullets[key].id && this.players[key_player].isAlive && this.players[key_player].info && this.players[key_player].info.colliderPointServer ) {
+                  if (collision(this.players[key_player].info.colliderPointServer, this.bullets[key].pos)) {
+                    this.players[key_player].life--;
 
-                    if (players[key_player].life <= 0) {
-                      players[key_player].isAlive = false;
+                    if (this.players[key_player].life <= 0) {
+                      this.players[key_player].isAlive = false;
                     }
                       var hit = {
                           bulletID: this.bullets[key].bulletid,
-                          playerID: players[key_player].id,
-                          player: players[key_player]
+                          playerID: this.players[key_player].id,
+                          player: {
+                            life: this.players[key_player].life,
+                            isAlive: this.players[key_player].isAlive
+                          }
                       };
 
                       io.to(this.bullets[key].roomID).emit("HitPlayer", hit);
