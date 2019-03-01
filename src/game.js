@@ -1,4 +1,6 @@
 class Game {
+    started;
+    
     canvas;
     ctx;
 
@@ -19,8 +21,9 @@ class Game {
     height;
 
     constructor() {
-        this.canvas = document.getElementById('canvas');
-        this.ctx    = this.canvas.getContext('2d');
+        this.started = false;
+        this.canvas  = document.getElementById('canvas');
+        this.ctx     = this.canvas.getContext('2d');
 
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
@@ -40,18 +43,33 @@ class Game {
     }
 
     start() {
-        this.input  = new Input(this);
-        this.camera = new Camera(this);
+        this.started = true;
+        this.input   = new Input(this);
+        this.camera  = new Camera(this);
 
         this.gameLoop(new Date().getTime());
+    }
+    
+    stop() {
+        this.started = false;
+        for (var key in this.tanks) {
+            this.tanks[key].destroy();
+        }
+        
+        this.tanks   = [];
+        this.bullets = [];
+        this.net.reset();
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
 
   gameLoop(t) {
-    this.update(t);
-    this.draw();
+    if (this.started) {
+        this.update(t);
+        this.draw();
 
-    this.updateid = window.requestAnimationFrame(this.gameLoop.bind(this), this.viewport);
+        this.updateid = window.requestAnimationFrame(this.gameLoop.bind(this), this.viewport);
+    }
   }
 
   update(t) {

@@ -32,5 +32,8 @@ class Ennemy extends Entity {
     this.game.ctx.fillStyle = "#556B2F";
     this.game.ctx.fillRect(this.posLife.x, this.posLife.y, this.life * 100 / this.maxlife, 10);
     this.game.ctx.restore();
+    
+    this.game.ctx.font = "26px Arial";
+    this.game.ctx.fillText(this.pseudo, this.posLife.x + this.game.ctx.measureText(this.pseudo).width / 2, this.posLife.y - 20);
   }
 }

@@ -183,9 +183,11 @@ Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixe
 // Update player position
 function UpdatePlayerPosition(data) {
   var room = rooms[data.roomID];
-  var player = room.players[data.id];
-  player.info = data;
-  this.broadcast.to(data.roomID).emit("UpdatePlayerPosition", data);
+  if (room) {
+      var player = room.players[data.id];
+      player.info = data;
+      this.broadcast.to(data.roomID).emit("UpdatePlayerPosition", data);
+    }
 }
 
 function degrees_to_radians(degrees)
@@ -281,6 +283,7 @@ class Room {
 
             let dataPlayer = {
               id: key,
+              pseudo: this.players[key].pseudo,
               life: this.players[key].life,
               alive: this.players[key].isAlive,
               pos: this.players[key].pos

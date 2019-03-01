@@ -3,7 +3,7 @@ class Net {
     init = false;
     isLookingForRoom = false;
     pseudo;
-    room;
+    room = undefined;
 
   constructor(game) {
     this.socket = io.connect("https://trackball-game.com:8080", {
@@ -11,6 +11,15 @@ class Net {
     });
 
     this.socket.on('connect_error', () => {
+        if (this.room != undefined) {
+            document.querySelector(".mask").style.display = "block";    
+            document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+            game.stop();
+        }
+        
+        document.querySelector(".network-ready").style.display = 'none';
+        document.querySelector(".network-not-ready").style.display = 'block';
+        
         document.querySelector(".network-not-ready").innerHTML = "Server offline";
     });
 
@@ -39,6 +48,7 @@ class Net {
         game.start();
 
         let tank = new Player(data.player.id, game, data.player.pos);
+        tank.pseudo = data.player.pseudo;
         game.tanks[data.player.id] = tank;
 
         game.camera.setTarget(game.tanks[data.player.id], game.canvas.width / 2, game.canvas.height / 2);
@@ -53,6 +63,7 @@ class Net {
 
     this.socket.on('addPlayer', (data) => {
       let tank = new Ennemy(data.player.id, game, data.player.pos);
+      tank.pseudo = data.player.pseudo;
       // tank.create();
       game.tanks[data.player.id] = tank;
     });
@@ -108,6 +119,7 @@ class Net {
     });
 
     this.socket.on("RemovePlayer", (data) => {
+        console.log('ok');
       delete game.tanks[data.id];
     });
   }
@@ -134,5 +146,11 @@ class Net {
               pseudo: this.pseudo,
           } );
       }
+  }
+  
+  reset() {
+      this.isLookingForRoom = false;
+      this.id = undefined;
+      this.room = undefined;
   }
 }

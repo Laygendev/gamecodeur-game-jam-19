@@ -24,6 +24,7 @@ class Entity  {
   colliderPointServer = [];
   width;
   height;
+  pseudo;
 
   constructor(id, game, pos) {
     this.id = id;
