@@ -19,7 +19,7 @@ class Ennemy extends Entity {
 
     this.game.ctx.save();
     this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y  - this.game.camera.y);
-    this.game.ctx.rotate(radians_to_degrees(this.canonAngle) * Math.PI / 180);
+    this.game.ctx.rotate(Utils.radiansToDegrees(this.canonAngle) * Math.PI / 180);
 
     this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
     this.game.ctx.restore();

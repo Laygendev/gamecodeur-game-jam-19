@@ -7,18 +7,15 @@ class Player extends Entity {
 
     this.maxlife = 5;
     this.life = this.maxlife;
-
-    // this.intervalPlayer = setInterval(() => { this.updatePos() }, 3 );
   }
 
   event() {
 
   }
 
-
-
   update() {
-    // super.update(delta);
+    super.update();
+
     this.canonAngle = Math.atan2((this.game.input.mousePosition.y + this.game.camera.y ) - this.pos.y, (this.game.input.mousePosition.x + this.game.camera.x) - this.pos.x);
 
     let dt = Math.sqrt(Math.pow(this.pos.x + this.game.camera.x + this.game.input.mousePosition.x, 2) + Math.pow(this.pos.y + this.game.camera.y + this.game.input.mousePosition.y, 2 ) );
@@ -55,7 +52,7 @@ class Player extends Entity {
 
      this.game.ctx.save();
      this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y  - this.game.camera.y);
-     this.game.ctx.rotate(radians_to_degrees(this.canonAngle) * Math.PI / 180);
+     this.game.ctx.rotate(Utils.radiansToDegrees(this.canonAngle) * Math.PI / 180);
 
      if (this.isSpectator) {
        this.game.ctx.globalAlpha = 0.5;

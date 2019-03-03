@@ -1,3 +1,5 @@
+var UtilsObject = module ? require('./utils.js') : Utils;
+
 class Entity  {
   constructor(id, game, pos) {
     this.id = id;
@@ -5,18 +7,22 @@ class Entity  {
     this.posCanon = {x: 0, y: 0};
     this.posCanonServer = {x: 0, y: 0};
     this.pos = pos;
+    this.last_processed_input = 0;
     this.posLife = {
         x: pos.x,
         y: pos.y
     };
 
-    this.speed = 200;
+    this.speed = 300;
     this.speedRotation = 150;
     this.angleMove = 0;
     this.angle = 0;
     this.canonAngle = 0;
-    this.width = this.game.ressources['tank'].width;
-    this.height = this.game.ressources['tank'].height;
+
+    if (this.game) {
+      this.width = this.game.ressources['tank'].width;
+      this.height = this.game.ressources['tank'].height;
+    }
 
     this.position_buffer = [];
 
@@ -119,8 +125,8 @@ class Entity  {
             y: this.pos.y - this.game.camera.y
         };
 
-        this.colliderPoint[i].pos.x = (currentPos.x - currentPosSource.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.x;
-        this.colliderPoint[i].pos.y = (currentPos.y - currentPosSource.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.y;
+        this.colliderPoint[i].pos.x = (currentPos.x - currentPosSource.x) * Math.cos(UtilsObject.degreesToRadians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.x;
+        this.colliderPoint[i].pos.y = (currentPos.y - currentPosSource.y) * Math.cos(UtilsObject.degreesToRadians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.y;
 
         var currentPos = {
             x: this.pos.x - this.colliderPoint[i].offset.x,
@@ -132,38 +138,17 @@ class Entity  {
             y: this.pos.y
         };
 
-        this.colliderPointServer[i].pos.x = (currentPos.x - currentPosSource.x) * Math.cos(degrees_to_radians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.x;
-        this.colliderPointServer[i].pos.y = (currentPos.y - currentPosSource.y) * Math.cos(degrees_to_radians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(degrees_to_radians(this.angle)) + currentPosSource.y;
+        this.colliderPointServer[i].pos.x = (currentPos.x - currentPosSource.x) * Math.cos(UtilsObject.degreesToRadians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.x;
+        this.colliderPointServer[i].pos.y = (currentPos.y - currentPosSource.y) * Math.cos(UtilsObject.degreesToRadians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.y;
       }
   }
 
-  draw() {
-
-       //
-       // this.posLife.x = this.pos.x + 20;
-       // this.posLife.y = this.pos.y;
-       //
-       // this.game.ctx.fillRect(this.posLife.x, this.posLife.y, 100, 10);
-       // this.game.ctx.save();
-       // this.game.ctx.fillStyle = "#556B2F";
-       // this.game.ctx.fillRect(this.posLife.x, this.posLife.y, this.life * 100 / this.maxlife, 10);
-       // this.game.ctx.restore();
-       //
-       //
-
-  }
-
-  updateAfter() {
-
-
-
-  }
-
-  destroy() {
-  }
-
   applyInput(input) {
-    this.angleMove = degrees_to_radians(this.angle);
+    this.colliderPointServer = input.colliderPointServer;
+    this.posCanonServer = input.posCanonServer;
+    this.canonAngle = input.canonAngle;
+    
+    this.angleMove = UtilsObject.degreesToRadians(this.angle);
 
     this.angle -= input.left_press_time * this.speedRotation;
     this.angle += input.right_press_time * this.speedRotation;
@@ -171,4 +156,8 @@ class Entity  {
     this.pos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
     this.pos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
   }
+}
+
+if (module) {
+  module.exports = Entity;
 }

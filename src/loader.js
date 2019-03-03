@@ -25,7 +25,7 @@ class Loader {
     }
 
     checkAllLoad() {
-      if (this.nbLoad == Util.length(this.ressourcesToLoad)) {
+      if (this.nbLoad == Utils.length(this.ressourcesToLoad)) {
         this.isLoaded = true;
         this.game.net = new Net(this.game);
       }

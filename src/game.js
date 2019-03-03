@@ -147,16 +147,4 @@ function destroyTanks(game) {
   }
 }
 
-function degrees_to_radians(degrees)
-{
-  var pi = Math.PI;
-  return degrees * (pi/180);
-}
-
-function radians_to_degrees(radians)
-{
-  var pi = Math.PI;
-  return radians * (180/pi);
-}
-
 Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };
