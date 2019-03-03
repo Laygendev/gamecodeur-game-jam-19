@@ -1,9 +1,4 @@
 class Input {
-    game;
-    keyPressed;
-    mousePosition;
-    leftClickPressed;
-
     constructor(game) {
         this.game = game;
 
@@ -30,6 +25,7 @@ class Input {
 
     keydown(e) {
         var code = e.keyCode;
+
 
         switch (code) {
             case 38:

@@ -1,10 +1,5 @@
 class Loader {
-    game;
 
-    ressourcesToLoad;
-    nbLoad;
-
-    isLoaded;
     constructor(game) {
         this.game             = game;
         this.ressourcesToLoad = [];

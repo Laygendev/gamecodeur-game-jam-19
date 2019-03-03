@@ -5,44 +5,69 @@
     <title>Tank.io</title>
     <link rel="stylesheet" type="text/css" href="asset/reset.css">
     <link rel="stylesheet" type="text/css" href="asset/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="lib/socket.io.js"></script>
     <script src="src/util.js"></script>
     <script src="src/input.js"></script>
+    <script src="src/ui.js"></script>
     <script src="src/rectangle.js"></script>
     <script src="src/loader.js"></script>
     <script src="src/camera.js"></script>
     <script src="src/sprite.js"></script>
     <script src="src/game.js"></script>
-    <script src="src/entity.js"></script>
+    <script src="shared/entity.js"></script>
     <script src="src/player.js"></script>
     <script src="src/ennemy.js"></script>
     <script src="src/net.js"></script>
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    
-    <div class="mask">
+
+    <div class="mask end-game" style="display: none;">
+      <div class="in">
+
+        <div class="center-bloc top">
+          <h1>Top <span>1</span></h1>
+          <div class="back">Menu</div>
+        </div>
+
+
+      </div>
+    </div>
+
+    <div class="in-game" style="display: none;">
+      <div class="top-right">
+        <ul class="icons">
+          <li class="alives"><i class="fas fa-users"></i><span>0</span></li>
+          <li class="kills"><i class="fas fa-bullseye"></i><span>0</span></li>
+        </ul>
+
+        <ul class="messages"></ul>
+      </div>
+    </div>
+
+    <div class="mask menu">
         <div class="in">
             <h2>Changelog</h2>
-            
+
             <ul>
                 <li>* Update camera</li>
             </ul>
-            
+
             <div class="center-bloc">
                 <div class="network-not-ready">
                     <h2>Connecting...</h2>
                 </div>
                 <div class="network-ready hidden">
                     <h2>This is the tank of...</h2>
-                    <input type="text" class="pseudo" />
+                    <input type="text" class="pseudo" maxlength="20" />
                     <p class="state">Press enter to looking for a game</p>
                 </div>
-                
+
             </div>
         </div>
     </div>
-    
+
     <script>
         winW = window.innerWidth;
         winH = window.innerHeight;
@@ -53,6 +78,23 @@
                 tankGame.net.lookingForRoom();
             }
         });
+
+        document.querySelector('.back').addEventListener('click', function() {
+          tankGame.stop();
+
+          document.querySelector( '.end-game' ).style.display = "none";
+          document.querySelector( '.in-game' ).style.display = "none";
+          document.querySelector( '.menu' ).style.display = "block";
+          document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+
+        });
+
+
+        function start() {
+          if (tankGame.net.room) {
+            tankGame.net.start(tankGame.net.room.id);
+          }
+        }
     </script>
 </body>
 </html>

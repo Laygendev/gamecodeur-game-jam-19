@@ -1,29 +1,11 @@
 class Game {
-    started;
-    
-    canvas;
-    ctx;
-
-    dt;
-    lastframetime;
-    updateid;
-
-    loader;
-    net;
-    input;
-    camera;
-
-    ressources;
-    tanks;
-    bullets;
-
-    width;
-    height;
-
     constructor() {
         this.started = false;
         this.canvas  = document.getElementById('canvas');
         this.ctx     = this.canvas.getContext('2d');
+
+        this.t       = 0;
+        this.last_ts = 0;
 
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
@@ -31,6 +13,11 @@ class Game {
         this.ressources = [];
         this.tanks      = [];
         this.bullets    = [];
+
+        this.input = undefined;
+        this.camera = undefined;
+        this.ui = undefined;
+        this.net = undefined;
 
         this.loader = new Loader(this);
         this.loader.load('tile', 'asset/tile.png');
@@ -46,16 +33,17 @@ class Game {
         this.started = true;
         this.input   = new Input(this);
         this.camera  = new Camera(this);
+        this.ui      = new UI(this);
 
-        this.gameLoop(new Date().getTime());
+        requestAnimationFrame(() => {this.gameLoop()});
     }
-    
+
     stop() {
         this.started = false;
         for (var key in this.tanks) {
             this.tanks[key].destroy();
         }
-        
+
         this.tanks   = [];
         this.bullets = [];
         this.net.reset();
@@ -63,27 +51,27 @@ class Game {
     }
 
 
-  gameLoop(t) {
+  gameLoop() {
     if (this.started) {
-        this.update(t);
+      var now_ts = +new Date();
+      var last_ts = this.last_ts || now_ts;
+      var dt_sec = (now_ts - last_ts) / 1000.0;
+      this.last_ts = now_ts;
+
+        this.update(dt_sec);
+        this.net.update(dt_sec);
         this.draw();
 
-        this.updateid = window.requestAnimationFrame(this.gameLoop.bind(this), this.viewport);
+        requestAnimationFrame(() => {this.gameLoop()});
     }
   }
 
-  update(t) {
+  update(dt) {
     if (this.net.init) {
-      this.dt = this.lastframetime ? ( (t - this.lastframetime)/1000.0).fixed() : 0.016;
-      this.lastframetime = t;
 
       for (var key in this.bullets) {
-          this.bullets[key].pos.x += this.bullets[key].speed * this.dt * Math.cos(this.bullets[key].angleRadians);
-          this.bullets[key].pos.y += this.bullets[key].speed * this.dt * Math.sin(this.bullets[key].angleRadians);
-      }
-
-      for (var key in this.tanks) {
-        this.tanks[key].update(this.dt);
+          this.bullets[key].pos.x += this.bullets[key].speed * dt * Math.cos(this.bullets[key].angleRadians);
+          this.bullets[key].pos.y += this.bullets[key].speed * dt * Math.sin(this.bullets[key].angleRadians);
       }
 
       this.camera.update();
@@ -118,40 +106,31 @@ class Game {
         this.ctx.restore();
       }
     }
+
+    this.ctx.font = "20px Arial";
+    this.ctx.fillText(this.net.latency + 'ms', 20, 20);
   }
 
 }
 
 
+if ( !window.requestAnimationFrame ) {
 
-var frame_time = 60/1000; // run the local game at 16ms/ 60hz
+    window.requestAnimationFrame = ( function() {
 
-if('undefined' != typeof(global)) frame_time = 45; //on server we run at 45ms, 22hz
+            return window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame || // comment out if FF4 is slow (it caps framerate at ~30fps: https://bugzilla.mozilla.org/show_bug.cgi?id=630127)
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
 
-( function () {
+                    window.setTimeout( callback, 1000 / 60 );
 
-    var lastTime = 0;
-    var vendors = [ 'ms', 'moz', 'webkit', 'o' ];
+            };
 
-    for ( var x = 0; x < vendors.length && !window.requestAnimationFrame; ++ x ) {
-        window.requestAnimationFrame = window[ vendors[ x ] + 'RequestAnimationFrame' ];
-        window.cancelAnimationFrame = window[ vendors[ x ] + 'CancelAnimationFrame' ] || window[ vendors[ x ] + 'CancelRequestAnimationFrame' ];
-    }
+    } )();
 
-    if ( !window.requestAnimationFrame ) {
-        window.requestAnimationFrame = function ( callback, element ) {
-            var currTime = Date.now(), timeToCall = Math.max( 0, frame_time - ( currTime - lastTime ) );
-            var id = window.setTimeout( function() { callback( currTime + timeToCall ); }, timeToCall );
-            lastTime = currTime + timeToCall;
-            return id;
-        };
-    }
-
-    if ( !window.cancelAnimationFrame ) {
-        window.cancelAnimationFrame = function ( id ) { clearTimeout( id ); };
-    }
-
-}() );
+}
 
 
 function destroyTanks(game) {

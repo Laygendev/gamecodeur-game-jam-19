@@ -1,24 +1,14 @@
 class Camera {
-    game;
-    x;
-    y;
-    width;
-    height;
-    maxX;
-    maxY;
-    target;
-    speed;
-    viewportRect;
-    worldRect;
-
     constructor(game) {
+      this.game      = game;
         this.x         = 0;
         this.y         = 0;
-        this.game      = game;
-        this.xDeadZone = 0;
-        this.yDeadZone = 0;
         this.width     = this.game.canvas.width;
         this.height    = this.game.canvas.height;
+        this.maxX      = 0;
+        this.maxY      = 0;
+        this.xDeadZone = 0;
+        this.yDeadZone = 0;
         this.target    = null;
         this.viewportRect   = new Rectangle(this.x, this.y, this.width, this.height);
         this.worldRect      = null;
@@ -61,8 +51,8 @@ class Camera {
     }
 
     inViewport(x, y) {
-      if (x + 40 >= this.x && x + 40 <= this.x + this.viewportRect.width
-      && y + 40 >= this.y && y + 40 <= this.y + this.viewportRect.height) {
+      if (x + 80 >= this.x && x + 80 <= this.x + this.viewportRect.width + 80
+      && y + 80 >= this.y && y + 80 <= this.y + this.viewportRect.height + 80) {
         return true;
       }
 
