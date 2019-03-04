@@ -13,6 +13,7 @@
     </script>
     <script src="src/input.js"></script>
     <script src="shared/utils.js"></script>
+    <script src="src/htmlUI.js"></script>
     <script src="src/ui.js"></script>
     <script src="src/rectangle.js"></script>
     <script src="src/loader.js"></script>
@@ -91,6 +92,7 @@
           document.querySelector( '.menu' ).style.display = "block";
           document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
 
+          tankGame.net.leaveRoom();
         });
 
 
