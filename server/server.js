@@ -13,7 +13,6 @@ class Server {
     this.players  = [];
     this.bullets  = [];
     this.rooms    = [];
-    this.messages = [];
     this.last_ts  = 0;
 
     setInterval(() => { this.update(); }, 1000 / 60);
@@ -22,6 +21,7 @@ class Server {
   handleSocket(socket) {
     socket.on('disconnect', () => { this.disconnect(socket); });
     socket.on('JoinRoom', (data) => { this.joinRoom(data); });
+    socket.on('leaveRoom', (data) => { this.leaveRoom(data); });
     socket.on('0', (data) => { this.receiveMessages(data); });
     socket.on('Start', (data) => { this.start(data); });
     socket.on('pingto', function() {
@@ -59,9 +59,8 @@ class Server {
     var dt_sec = (now_ts - last_ts) / 1000.0;
     this.last_ts = now_ts;
 
-    this.processInput();
-
     for (var key in this.rooms) {
+      this.rooms[key].processInput();
       this.rooms[key].update(dt_sec);
       this.rooms[key].sendWorldState();
     }
@@ -87,6 +86,7 @@ class Server {
               this.rooms[key].add(player);
 
               player.roomID = this.rooms[key].id;
+              player.room   = this.rooms[key];
               currentRoom   = this.rooms[key];
               break;
           }
@@ -100,7 +100,6 @@ class Server {
 
           this.rooms[currentRoom.id] = currentRoom;
       }
-
 
       currentSocket.join(currentRoom.id);
 
@@ -117,28 +116,16 @@ class Server {
       }
   }
 
-  shoot(data) {
+  leaveRoom(data) {
     var room = this.rooms[data.roomID];
+
     if (room) {
       var player = room.players[data.id];
 
       if (player) {
-
-          var bullet = {
-              'roomID': data.roomID,
-              'id': data.id,
-              'bulletid': new Date().getTime(),
-              'basePos': JSON.parse(JSON.stringify(player.posCanonServer)),
-              'speed': 500,
-              'distanceMax': 600,
-              'endcanonangle': Utils.radiansToDegrees(player.canonAngle),
-              'angleRadians': player.canonAngle,
-              'pos': JSON.parse(JSON.stringify(player.posCanonServer))
-          };
-
-          this.io.to(data.roomID).emit("Shoot", bullet);
-
-          room.addBullet(bullet);
+        if (room.isFinish && room.numberPlayer == 1) {
+          delete this.rooms[room.id];
+        }
       }
     }
   }
@@ -151,53 +138,10 @@ class Server {
       if (player) {
         player.socket.lag = data.lag;
 
-        this.messages.push({
+        room.messages.push({
           recv_ts: now + data.lag,
           payload: data,
         });
-      }
-    }
-  }
-
-  getAvailableMessage() {
-    var now = +new Date();
-  	for (var i = 0; i < this.messages.length; i++) {
-  		var message = this.messages[i];
-  		if (message.recv_ts <= now) {
-  			this.messages.splice(i, 1);
-  			return message.payload;
-  		}
-  	}
-  }
-
-
-  processInput() {
-    while (true) {
-      var message = this.getAvailableMessage();
-      if (!message) {
-        break;
-      }
-
-      var id      = message.id;
-      var room_id = message.room_id;
-
-      var room   = this.rooms[room_id];
-      var entity = room.players[id];
-
-      if (entity) {
-        if (message.shoot) {
-          this.shoot({
-            'roomID': message.room_id,
-            'id': message.id,
-            'basePos': JSON.parse(JSON.stringify(entity.posCanonServer)),
-            'endcanonangle': Utils.radiansToDegrees(entity.canonAngle),
-            'angleRadians': entity.canonAngle,
-            'pos': JSON.parse(JSON.stringify(entity.posCanonServer))
-          });
-        }
-
-        entity.applyInput(message);
-        entity.last_processed_input = message.input_sequence_number;
       }
     }
   }

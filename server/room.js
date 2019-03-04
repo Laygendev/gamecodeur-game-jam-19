@@ -1,4 +1,5 @@
 var Collider = require('./collider.js');
+var Utils    = require('./utils.js');
 
 class Room {
     constructor(io, width, height) {
@@ -11,6 +12,8 @@ class Room {
         this.isStarted    = false;
         this.width        = height;
         this.height       = width;
+        this.messages     = [];
+        this.isFinish     = false;
     }
 
     add(player) {
@@ -21,7 +24,16 @@ class Room {
     delete(playerID) {
       delete this.players[playerID];
       this.numberPlayer--;
-      this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
+
+      if (this.isStarted) {
+        this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
+      } else {
+        this.io.to(this.id).emit("UpdateWaitingRoomMessage", {
+          id: this.id,
+          numberPlayer: this.numberPlayer,
+          maxPlayer: this.maxPlayer
+        });
+      }
     }
 
     addBullet(bullet) {
@@ -86,13 +98,15 @@ class Room {
                       this.checkWinner();
                     }
                       var hit = {
-                          bulletID: this.bullets[key].bulletid,
-                          playerID: this.players[key_player].id,
-                          player: {
-                            life: this.players[key_player].life,
-                            isAlive: this.players[key_player].isAlive,
-                            top: this.numberPlayer + 1
-                          }
+                        damage: 10,
+                        bulletID: this.bullets[key].bulletid,
+                        playerID: this.players[key_player].id,
+                        player: {
+                          pos: this.players[key_player].pos,
+                          life: this.players[key_player].life,
+                          isAlive: this.players[key_player].isAlive,
+                          top: this.numberPlayer + 1
+                        }
                       };
 
                       this.io.to(this.bullets[key].roomID).emit("HitPlayer", hit);
@@ -112,6 +126,41 @@ class Room {
               this.io.to(this.bullets[key].roomID).emit("MissileDelete", this.bullets[key]);
               this.bullets.splice(key, 1);
           }
+      }
+    }
+
+    getAvailableMessage() {
+      var now = +new Date();
+      for (var i = 0; i < this.messages.length; i++) {
+        var message = this.messages[i];
+        if (message.recv_ts <= now) {
+          this.messages.splice(i, 1);
+          return message.payload;
+        }
+      }
+    }
+
+    processInput() {
+      while (true) {
+        var message = this.getAvailableMessage();
+        if (!message) {
+          break;
+        }
+
+        var id      = message.id;
+        var room_id = message.room_id;
+
+        var entity = this.players[id];
+
+        if (entity) {
+          if (message.shoot) {
+            var bullet = entity.shoot();
+            this.io.to(room_id).emit("Shoot", bullet);
+          }
+
+          entity.applyInput(message);
+          entity.last_processed_input = message.input_sequence_number;
+        }
       }
     }
 
@@ -162,6 +211,8 @@ class Room {
           pseudo: winner.pseudo,
           top: 1
         });
+
+        this.isFinish = true;
       }
     }
 

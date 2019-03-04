@@ -86,6 +86,23 @@ class Entity  {
       this.pos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
     }
   }
+
+  shoot() {
+    var bullet = {
+      'roomID': this.room.id,
+      'id': this.id,
+      'bulletid': new Date().getTime(),
+      'basePos': JSON.parse(JSON.stringify(this.posCanonServer)),
+      'speed': 500,
+      'distanceMax': 600,
+      'endcanonangle': UtilsObject.radiansToDegrees(this.canonAngle),
+      'angleRadians': this.canonAngle,
+      'pos': JSON.parse(JSON.stringify(this.posCanonServer))
+    };
+
+    this.room.addBullet(bullet);
+    return bullet;
+  }
 }
 
 if (module) {

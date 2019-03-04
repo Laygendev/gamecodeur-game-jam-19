@@ -1,50 +1,52 @@
 class Game {
-    constructor() {
-        this.started = false;
-        this.canvas  = document.getElementById('canvas');
-        this.ctx     = this.canvas.getContext('2d');
+  constructor() {
+    this.started = false;
+    this.canvas  = document.getElementById('canvas');
+    this.ctx     = this.canvas.getContext('2d');
 
-        this.t       = 0;
-        this.last_ts = 0;
+    this.t       = 0;
+    this.last_ts = 0;
 
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
 
-        this.ressources = [];
-        this.tanks      = [];
-        this.bullets    = [];
+    this.ressources = [];
+    this.tanks      = [];
+    this.bullets    = [];
 
-        this.input = undefined;
-        this.camera = undefined;
-        this.ui = undefined;
-        this.net = undefined;
+    this.input  = undefined;
+    this.camera = undefined;
+    this.htmlUI = undefined;
+    this.ui     = undefined;
+    this.net    = undefined;
 
-        this.loader = new Loader(this);
-        this.loader.load('tile', 'asset/tile.png');
-        this.loader.load('tank', 'asset/tank.png');
-        this.loader.load('canon', 'asset/canon.png');
-        this.loader.load('fire', 'asset/fire.png');
-        this.loader.load('endcanon', 'asset/endcanon.png');
+    this.loader = new Loader(this);
+    this.loader.load('tile', 'asset/tile.png');
+    this.loader.load('tank', 'asset/tank.png');
+    this.loader.load('canon', 'asset/canon.png');
+    this.loader.load('fire', 'asset/fire.png');
+    this.loader.load('endcanon', 'asset/endcanon.png');
 
-        this.loader.start();
-    }
+    this.loader.start();
+  }
 
-    start() {
-        this.started = true;
-        this.input   = new Input(this);
-        this.camera  = new Camera(this);
-        this.ui      = new UI(this);
+  start() {
+    this.started = true;
+    this.input   = new Input(this);
+    this.camera  = new Camera(this);
+    this.htmlUI  = new htmlUI(this);
+    this.ui      = new UI(this);
 
-        requestAnimationFrame(() => {this.gameLoop()});
-    }
+    requestAnimationFrame(() => {this.gameLoop()});
+  }
 
-    stop() {
-        this.started = false;
-        this.tanks   = [];
-        this.bullets = [];
-        this.net.reset();
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+  stop() {
+    this.started = false;
+    this.tanks   = [];
+    this.bullets = [];
+    this.net.reset();
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
 
 
   gameLoop() {
@@ -70,6 +72,7 @@ class Game {
           this.bullets[key].pos.y += this.bullets[key].speed * dt * Math.sin(this.bullets[key].angleRadians);
       }
 
+      this.ui.update(dt);
       this.camera.update();
     }
   }
@@ -103,6 +106,8 @@ class Game {
       }
     }
 
+    this.ui.draw();
+
     this.ctx.font = "20px Arial";
     this.ctx.fillText(this.net.latency + 'ms', 20, 20);
   }
@@ -126,21 +131,6 @@ if ( !window.requestAnimationFrame ) {
 
     } )();
 
-}
-
-
-function destroyTanks(game) {
-  for (var key in game.tanksToDestroy) {
-    game.tanksToDestroy[key].destroy();
-    for (var other in game.tanks) {
-      if(game.tanks[other].id == game.tanksToDestroy[key].id) {
-        game.tanks.splice(other, 1);
-      }
-    }
-
-    game.tanksToDestroy.splice(key, 1);
-    game.scoreText.setText('Total Tanks: ' + game.tanks.length);
-  }
 }
 
 Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };

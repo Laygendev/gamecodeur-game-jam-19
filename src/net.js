@@ -47,11 +47,11 @@ class Net {
     });
 
     this.socket.on('UpdateNumberPlayer', (numberPlayer) => {
-      game.ui.updateLeftPlayer(numberPlayer);
+      game.htmlUI.updateLeftPlayer(numberPlayer);
     });
 
     this.socket.on('UpdateKill', (numberKill) => {
-      game.ui.updateKill(numberKill);
+      game.htmlUI.updateKill(numberKill);
     });
 
     this.socket.on('JoinedRoom', (room) => {
@@ -61,8 +61,12 @@ class Net {
         document.querySelector(".network-ready .state").innerHTML = "Room #" + room.id + "<br />Waiting for other players (" + room.numberPlayer + "/" + room.maxPlayer + ")";
     });
 
+    this.socket.on('UpdateWaitingRoomMessage', (data) => {
+      document.querySelector(".network-ready .state").innerHTML = "Room #" + data.id + "<br />Waiting for other players (" + data.numberPlayer + "/" + data.maxPlayer + ")";
+    })
+
     this.socket.on('Message', (message) => {
-      game.ui.addMessage(message);
+      game.htmlUI.addMessage(message);
     })
 
     this.socket.on('spawnPlayer', (data) => {
@@ -70,8 +74,6 @@ class Net {
         game.height = data.map.height;
 
         game.start();
-
-        console.log(this.room);
 
         let tank = new Player(data.player.id, this.room, game, data.player.pos);
         tank.pseudo = data.player.pseudo;
@@ -111,6 +113,9 @@ class Net {
         game.tanks[hit.playerID].life = hit.player.life;
         game.tanks[hit.playerID].isAlive = hit.player.isAlive;
 
+        var text = new UIText(hit.player.pos, hit.damage);
+        game.ui.add(text)
+
         delete game.bullets[hit.bulletID];
 
         // Delete tank
@@ -118,7 +123,7 @@ class Net {
           if (hit.playerID != this.id) {
             delete game.tanks[hit.playerID];
           } else {
-            game.ui.displayTop(hit.player.top);
+            game.htmlUI.displayTop(hit.player.top);
             game.tanks[hit.playerID].isSpectator = true;
           }
         }
@@ -127,7 +132,7 @@ class Net {
 
       this.socket.on("Winner", (winner) => {
         if (this.id == winner.id) {
-          game.ui.displayTop(winner.top);
+          game.htmlUI.displayTop(winner.top);
         }
       });
 
@@ -331,5 +336,12 @@ class Net {
               entity.colliderPointServer = colliderPointServer0 + (colliderPointServer1 - colliderPointServer0) * (render_timestamp - t0) / (t1 - t0);
           }
       }
+  }
+
+  leaveRoom() {
+    this.socket.emit('leaveRoom', {
+      id: this.id,
+      roomID: this.roomID
+    });
   }
 }

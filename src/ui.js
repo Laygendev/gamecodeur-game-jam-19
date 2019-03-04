@@ -1,37 +1,64 @@
 class UI {
   constructor(game) {
-    this.game = game;
-
-    this.messages = [];
+    this.game     = game;
+    this.entities = [];
   }
 
-  displayTop(top) {
-    document.querySelector('.end-game').style.display = 'block';
-    document.querySelector('.end-game h1 span').innerHTML = top;
+  add(entity) {
+    entity.ui = this;
+    this.entities[entity.id] = entity;
   }
 
-  updateLeftPlayer(number) {
-    document.querySelector('.in-game .alives span' ).innerHTML = number;
-  }
-
-  updateKill(number) {
-    document.querySelector('.in-game .kills span' ).innerHTML = number;
-  }
-
-  addMessage(message) {
-    this.messages.push(message);
-
-    if ( this.messages.length > 4 ) {
-      this.messages.splice(0, 1);
+  update(dt) {
+    for (var key in this.entities) {
+      this.entities[key].update(dt);
     }
+  }
 
-    var output = '';
-
-    for (var key in this.messages) {
-      output += "<li>" + this.messages[key] + "</li>";
+  draw() {
+    for (var key in this.entities) {
+      this.entities[key].draw(this.game);
     }
+  }
 
-    document.querySelector('.in-game .messages' ).innerHTML = output;
+  destroy(entityID) {
+    delete this.entities[entityID]
+  }
+}
 
+class UIText {
+  constructor(pos, text) {
+    this.id       = +Date.now();
+    this.text     = text;
+    this.pos      = pos;
+    this.alpha    = 1;
+    this.angle    = 1;
+    this.speed    = 100;
+    this.velocity = { x: 0.2, y: -1 };
+
+    this.createdTime = +Date.now();
+    this.lastTime    = +Date.now();
+    this.lifetime    = 1000;
+    this.timeElapsed = 0;
+  }
+
+  update(dt) {
+    this.lastTime = +Date.now();
+
+    this.timeElapsed = this.lastTime - this.createdTime;
+
+    this.pos.x += dt * this.speed * this.velocity.x * Math.cos(this.angle);
+    this.pos.y += dt * this.speed * this.velocity.y * Math.sin(this.angle);
+
+    if (this.timeElapsed >= this.lifetime) {
+      this.ui.destroy(this.id);
+    }
+  }
+
+  draw(game) {
+    this.alpha = (this.lifetime - this.timeElapsed) / 1000 * 1;
+    game.ctx.globalAlpha = this.alpha;
+    game.ctx.fillText('-10', this.pos.x - game.camera.x, this.pos.y - game.camera.y);
+    game.ctx.globalAlpha = 1;
   }
 }
