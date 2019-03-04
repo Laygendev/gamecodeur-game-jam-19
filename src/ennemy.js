@@ -1,6 +1,6 @@
 class Ennemy extends Entity {
-  constructor(id, game, pos) {
-    super(id, game, pos);
+  constructor(id, room, game, pos) {
+    super(id, room, game, pos);
 
     this.speed = 3;
     this.maxlife = 5;

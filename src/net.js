@@ -1,15 +1,15 @@
 class Net {
   constructor(game) {
-    this.game             = game;
-    this.id               = undefined;
-    this.init             = false;
-    this.isLookingForRoom = false;
-    this.pseudo            = '';
-    this.room              = undefined;
-    this.startTime         = undefined;
-    this.latency           = 0;
-    this.messages          = [];
-    this.pending_inputs    = [];
+    this.game                  = game;
+    this.id                    = undefined;
+    this.init                  = false;
+    this.isLookingForRoom      = false;
+    this.pseudo                = '';
+    this.room                  = undefined;
+    this.startTime             = undefined;
+    this.latency               = 0;
+    this.messages              = [];
+    this.pending_inputs        = [];
     this.input_sequence_number = 0;
 
     this.socket = io.connect("https://trackball-game.com:8080", {
@@ -22,6 +22,7 @@ class Net {
 
 
     this.socket.on('connect_error', () => {
+      // @todo: Move to UI Class.
         if (this.room != undefined) {
             document.querySelector(".menu").style.display = "block";
             document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
@@ -56,6 +57,7 @@ class Net {
     this.socket.on('JoinedRoom', (room) => {
         this.room = room;
 
+        // @todo: Move to UI Class.
         document.querySelector(".network-ready .state").innerHTML = "Room #" + room.id + "<br />Waiting for other players (" + room.numberPlayer + "/" + room.maxPlayer + ")";
     });
 
@@ -69,7 +71,9 @@ class Net {
 
         game.start();
 
-        let tank = new Player(data.player.id, game, data.player.pos);
+        console.log(this.room);
+
+        let tank = new Player(data.player.id, this.room, game, data.player.pos);
         tank.pseudo = data.player.pseudo;
         game.tanks[data.player.id] = tank;
 
@@ -79,13 +83,14 @@ class Net {
         this.id = data.player.id;
         this.roomID = this.room.id;
 
+        // @todo: Move to UI Class.
         document.querySelector(".menu").style.display = "none";
         document.querySelector(".in-game").style.display = "block";
 
     });
 
     this.socket.on('addPlayer', (data) => {
-      let tank = new Ennemy(data.player.id, game, data.player.pos);
+      let tank = new Ennemy(data.player.id, this.room, game, data.player.pos);
       tank.pseudo = data.player.pseudo;
       game.tanks[data.player.id] = tank;
     });
@@ -153,6 +158,8 @@ class Net {
   lookingForRoom(pseudo) {
       if (!this.isLookingForRoom) {
           this.isLookingForRoom = true;
+
+          // @todo: Move to UI Class.
           document.querySelector(".network-ready .state").innerHTML = "Looking for room...";
 
           this.pseudo = pseudo ? pseudo : document.querySelector(".pseudo").value;

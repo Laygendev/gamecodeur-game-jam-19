@@ -75,7 +75,7 @@ class Server {
   joinRoom(data) {
     var currentSocket = this.sockets[data.id];
 
-      var player           = new Entity(0,0,0);
+      var player           = new Entity();
       player.id            = data.id;
       player.pseudo        = data.pseudo;
       player.socket        = currentSocket;
@@ -87,7 +87,7 @@ class Server {
               this.rooms[key].add(player);
 
               player.roomID = this.rooms[key].id;
-              currentRoom = this.rooms[key];
+              currentRoom   = this.rooms[key];
               break;
           }
       }
@@ -96,6 +96,7 @@ class Server {
           currentRoom = new Room(this.io, width, height);
           currentRoom.add(player);
           player.roomID = currentRoom.id;
+          player.room   = currentRoom;
 
           this.rooms[currentRoom.id] = currentRoom;
       }
@@ -105,6 +106,8 @@ class Server {
 
       this.io.to(currentRoom.id).emit('JoinedRoom', {
           id: currentRoom.id,
+          width: currentRoom.width,
+          height: currentRoom.height,
           numberPlayer: currentRoom.numberPlayer,
           maxPlayer: currentRoom.maxPlayer
       });
