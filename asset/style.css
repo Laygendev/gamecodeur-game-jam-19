@@ -3,6 +3,17 @@
     src: url("MotionControl-Bold.otf") format("opentype");
 }
 
+* {
+  margin:0;padding:0;
+}
+
+
+html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
+
+canvas {
+    background: #77f;  /* to show the canvas bounds */
+    display:block;     /* to remove the scrollbars */
+}
 
 .mask {
     position: absolute;

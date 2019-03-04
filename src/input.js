@@ -21,6 +21,7 @@ class Input {
         window.addEventListener('mousemove', (e) => { this.mousemove(e) }, false);
         window.addEventListener('mousedown', (e) => { this.mousedown(e) }, false);
         window.addEventListener('mouseup', (e) => { this.mouseup(e) }, false);
+        window.addEventListener('resize', (e) => { this.resizeCanvas(e); }, false);
     }
 
     keydown(e) {
@@ -79,5 +80,15 @@ class Input {
       if (e.which == 1) {
         this.leftClickPressed = false;
       }
+    }
+
+    resizeCanvas(e) {
+      this.game.canvas.width               = window.innerWidth;
+      this.game.canvas.height              = window.innerHeight;
+      this.game.camera.width               = this.game.canvas.width;
+      this.game.camera.xDeadZone           = this.game.canvas.width / 2;
+      this.game.camera.yDeadZone           = this.game.canvas.height / 2;
+      this.game.camera.viewportRect.width  = this.game.canvas.width;
+      this.game.camera.viewportRect.height = this.game.canvas.height;
     }
 }

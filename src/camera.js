@@ -24,19 +24,18 @@ class Camera {
 
     update() {
       if (this.target != null && this.worldRect != null) {
-        if(this.target.pos.x - this.x + this.xDeadZone > this.game.canvas.width)
-            this.x = this.target.pos.x - (this.game.canvas.width - this.xDeadZone);
+        if(this.target.pos.x - this.x + this.xDeadZone > this.width)
+            this.x = this.target.pos.x - (this.width - this.xDeadZone);
         else if(this.target.pos.x - this.xDeadZone < this.x)
             this.x = this.target.pos.x  - this.xDeadZone;
 
-        if(this.target.pos.y - this.y + this.yDeadZone > this.game.canvas.height)
-            this.y = this.target.pos.y - (this.game.canvas.height - this.yDeadZone);
+        if(this.target.pos.y - this.y + this.yDeadZone > this.height)
+            this.y = this.target.pos.y - (this.height - this.yDeadZone);
         else if(this.target.pos.y - this.yDeadZone < this.y)
             this.y = this.target.pos.y - this.yDeadZone;
 
       this.viewportRect.set(this.x, this.y);
-        // don't let camera leaves the world's boundary
-        if(!this.viewportRect.within(this.worldRect))
+        if(! this.viewportRect.within(this.worldRect))
         {
           if(this.viewportRect.left < this.worldRect.left)
             this.x = this.worldRect.left;
