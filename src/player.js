@@ -43,8 +43,13 @@ class Player extends Entity {
     this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y - this.game.camera.y);
     this.game.ctx.rotate(this.angle * Math.PI / 180);
 
+    this.game.ctx.globalAlpha = 0.4;
+    this.game.ctx.fillRect(-this.width / 2 - 2, -this.height / 2 - 2, this.width + 4, this.height + 4);
+
     if (this.isSpectator) {
       this.game.ctx.globalAlpha = 0.5;
+    } else {
+      this.game.ctx.globalAlpha = 1;
     }
 
     this.game.ctx.drawImage(this.game.ressources['tank'], -this.width / 2, -this.height / 2);

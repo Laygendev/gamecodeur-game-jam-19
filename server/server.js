@@ -2,8 +2,8 @@ var Entity = require('./entity.js');
 var Room = require('./room.js');
 var Utils = require('./utils.js');
 
-var width = 3000;
-var height = 3000;
+var width = 18000;
+var height = 18000;
 
 class Server {
   constructor(io) {

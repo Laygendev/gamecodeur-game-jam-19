@@ -21,11 +21,13 @@ class Game {
     this.net    = undefined;
 
     this.loader = new Loader(this);
-    this.loader.load('tile', 'asset/tile.png');
-    this.loader.load('tank', 'asset/tank.png');
-    this.loader.load('canon', 'asset/canon.png');
-    this.loader.load('fire', 'asset/fire.png');
-    this.loader.load('endcanon', 'asset/endcanon.png');
+    this.loader.loadImage('tile', 'asset/tile.png');
+    this.loader.loadImage('tank', 'asset/tank.png');
+    this.loader.loadImage('canon', 'asset/canon.png');
+    this.loader.loadImage('fire', 'asset/fire.png');
+    this.loader.loadImage('endcanon', 'asset/endcanon.png');
+    this.loader.loadImage('ile', 'asset/ile.png');
+    this.loader.loadJSON('worldCollider', 'asset/worldCollider.json');
 
     this.loader.start();
   }
@@ -91,8 +93,18 @@ class Game {
         }
       }
 
+      this.ctx.drawImage(this.ressources['ile'], 2000 - this.camera.x, 2000 - this.camera.y );
+
       for (var key in this.tanks) {
         this.tanks[key].draw();
+
+        if (this.tanks[key] instanceof Player) {
+          this.ctx.save();
+          this.ctx.font = "20px Arial";
+          this.ctx.fillText('X: ' + parseInt(this.tanks[key].pos.x) + ' Y: ' + parseInt(this.tanks[key].pos.y), 20, 40);
+          this.ctx.restore();
+        }
+        // if (typeof this.tanks[key])
       }
 
 

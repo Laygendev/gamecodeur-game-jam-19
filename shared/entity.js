@@ -1,5 +1,7 @@
 var UtilsObject = module ? require('./utils.js') : Utils;
 
+// var worldColliderServer = module ? require('./../asset/worldCollider.json') : undefined;
+
 class Entity  {
   constructor(id = 0, room = undefined, game = undefined, pos = undefined) {
     this.id                   = id;
@@ -78,11 +80,17 @@ class Entity  {
     tmpPos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
     tmpPos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
 
-    if (tmpPos.x >= 0 && tmpPos.x <= this.room.width ) {
+    var haveCollision = false;
+
+    if (!module) {
+      // haveCollision = this.game.world.checkCollision();
+    }
+
+    if (tmpPos.x >= 0 && tmpPos.x <= this.room.width && !haveCollision ) {
       this.pos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
     }
 
-    if (tmpPos.y >= 0 && tmpPos.y <= this.room.height ) {
+    if (tmpPos.y >= 0 && tmpPos.y <= this.room.height && !haveCollision ) {
       this.pos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
     }
   }

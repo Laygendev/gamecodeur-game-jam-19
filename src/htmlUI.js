@@ -34,4 +34,12 @@ class htmlUI {
     document.querySelector('.in-game .messages' ).innerHTML = output;
 
   }
+
+  reset() {
+    document.querySelector('.in-game .alives span' ).innerHTML = 0;
+    document.querySelector('.in-game .kills span' ).innerHTML  = 0;
+
+    this.messages = [];
+    document.querySelector('.in-game .messages' ).innerHTML = "";
+  }
 }

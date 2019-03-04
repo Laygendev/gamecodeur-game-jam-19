@@ -57,8 +57,10 @@ class UIText {
 
   draw(game) {
     this.alpha = (this.lifetime - this.timeElapsed) / 1000 * 1;
+    game.ctx.save();
     game.ctx.globalAlpha = this.alpha;
+    game.ctx.fillStyle = "#eb2f06";
     game.ctx.fillText('-10', this.pos.x - game.camera.x, this.pos.y - game.camera.y);
-    game.ctx.globalAlpha = 1;
+    game.ctx.restore();
   }
 }

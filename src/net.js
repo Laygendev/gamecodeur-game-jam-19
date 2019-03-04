@@ -16,10 +16,10 @@ class Net {
       forceNew: true
     });
 
+
     this.socket.on('pongto', () => {
       this.latency = +Date.now() - this.startTime;
     });
-
 
     this.socket.on('connect_error', () => {
       // @todo: Move to UI Class.
