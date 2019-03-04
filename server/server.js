@@ -2,8 +2,8 @@ var Entity = require('./entity.js');
 var Room = require('./room.js');
 var Utils = require('./utils.js');
 
-var width = 18000;
-var height = 18000;
+var width = 5000;
+var height = 5000;
 
 class Server {
   constructor(io) {
@@ -47,6 +47,7 @@ class Server {
           this.io.to(socket.player.roomID).emit("Message", socket.player.pseudo + ' s\'est déconnecté(e)' );
         }
 
+        room.numberPlayerAlive--;
         room.delete(socket.player.id);
     }
 
@@ -78,41 +79,44 @@ class Server {
       player.id            = data.id;
       player.pseudo        = data.pseudo;
       player.socket        = currentSocket;
-      currentSocket.player = player;
-      var currentRoom      = undefined;
 
-      for (var key in this.rooms) {
-          if (! this.rooms[key].isStarted && this.rooms[key].numberPlayer < this.rooms[key].maxPlayer) {
-              this.rooms[key].add(player);
+      if (currentSocket) {
+        currentSocket.player = player;
+        var currentRoom      = undefined;
 
-              player.roomID = this.rooms[key].id;
-              player.room   = this.rooms[key];
-              currentRoom   = this.rooms[key];
-              break;
-          }
-      }
+        for (var key in this.rooms) {
+            if (! this.rooms[key].isStarted && this.rooms[key].numberPlayer < this.rooms[key].maxPlayer) {
+                this.rooms[key].add(player);
 
-      if (! currentRoom) {
-          currentRoom = new Room(this.io, width, height);
-          currentRoom.add(player);
-          player.roomID = currentRoom.id;
-          player.room   = currentRoom;
+                player.roomID = this.rooms[key].id;
+                player.room   = this.rooms[key];
+                currentRoom   = this.rooms[key];
+                break;
+            }
+        }
 
-          this.rooms[currentRoom.id] = currentRoom;
-      }
+        if (! currentRoom) {
+            currentRoom = new Room(this.io, width, height);
+            currentRoom.add(player);
+            player.roomID = currentRoom.id;
+            player.room   = currentRoom;
 
-      currentSocket.join(currentRoom.id);
+            this.rooms[currentRoom.id] = currentRoom;
+        }
 
-      this.io.to(currentRoom.id).emit('JoinedRoom', {
-          id: currentRoom.id,
-          width: currentRoom.width,
-          height: currentRoom.height,
-          numberPlayer: currentRoom.numberPlayer,
-          maxPlayer: currentRoom.maxPlayer
-      });
+        currentSocket.join(currentRoom.id);
 
-      if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
-          currentRoom.start();
+        this.io.to(currentRoom.id).emit('JoinedRoom', {
+            id: currentRoom.id,
+            width: currentRoom.width,
+            height: currentRoom.height,
+            numberPlayer: currentRoom.numberPlayer,
+            maxPlayer: currentRoom.maxPlayer
+        });
+
+        if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
+            currentRoom.start();
+        }
       }
   }
 
@@ -123,7 +127,10 @@ class Server {
       var player = room.players[data.id];
 
       if (player) {
-        if (room.isFinish && room.numberPlayer == 1) {
+        delete room.players[data.id];
+        room.numberPlayer--;
+
+        if (room.isFinish) {
           delete this.rooms[room.id];
         }
       }

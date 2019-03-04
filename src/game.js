@@ -47,6 +47,7 @@ class Game {
     this.tanks   = [];
     this.bullets = [];
     this.net.reset();
+    this.htmlUI.reset();
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 

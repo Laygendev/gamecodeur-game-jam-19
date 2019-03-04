@@ -6,7 +6,8 @@ class Room {
         this.io           = io;
         this.id           = new Date().getTime();
         this.numberPlayer = 0;
-        this.maxPlayer    = 10;
+        this.numberPlayerAlive = 0;
+        this.maxPlayer    = 2;
         this.players      = [];
         this.bullets      = [];
         this.isStarted    = false;
@@ -42,6 +43,7 @@ class Room {
 
     start() {
       this.isStarted = true;
+      this.numberPlayerAlive = this.numberPlayer;
         for (var key in this.players) {
             this.players[key].life = 5;
             this.players[key].isAlive = true;
@@ -90,8 +92,8 @@ class Room {
 
                     if (this.players[key_player].life <= 0) {
                       this.players[this.bullets[key].id].kill++;
+                      this.numberPlayerAlive--;
                       this.players[key_player].isAlive = false;
-                      this.numberPlayer--;
                       this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
                       this.io.to(this.bullets[key].id).emit("UpdateKill", this.players[this.bullets[key].id].kill);
                       this.io.to(this.bullets[key].roomID).emit("Message", this.players[this.bullets[key].id].pseudo + ' à pulvérisé ' + this.players[key_player].pseudo );
@@ -105,7 +107,7 @@ class Room {
                           pos: this.players[key_player].pos,
                           life: this.players[key_player].life,
                           isAlive: this.players[key_player].isAlive,
-                          top: this.numberPlayer + 1
+                          top: this.numberPlayerAlive + 1
                         }
                       };
 
@@ -197,7 +199,7 @@ class Room {
     }
 
     checkWinner() {
-      if (this.numberPlayer == 1) {
+      if (this.numberPlayerAlive == 1) {
         var winner = undefined;
         for(var key_player in this.players) {
           if (this.players[key_player].isAlive) {

@@ -110,6 +110,7 @@ class Net {
     });
 
     this.socket.on("HitPlayer", (hit) => {
+      if (game.tanks[hit.playerID]) {
         game.tanks[hit.playerID].life = hit.player.life;
         game.tanks[hit.playerID].isAlive = hit.player.isAlive;
 
@@ -127,7 +128,7 @@ class Net {
             game.tanks[hit.playerID].isSpectator = true;
           }
         }
-
+      }
     });
 
       this.socket.on("Winner", (winner) => {
@@ -177,8 +178,14 @@ class Net {
   }
 
   reset() {
-      this.isLookingForRoom = false;
-      this.room = undefined;
+      this.isLookingForRoom      = false;
+      this.room                  = undefined;
+      this.pseudo                = '';
+      this.startTime             = undefined;
+      this.latency               = 0;
+      this.messages              = [];
+      this.pending_inputs        = [];
+      this.input_sequence_number = 0;
   }
 
   start(roomID) {
@@ -259,17 +266,22 @@ class Net {
     input.up_press_time = 0;
     input.left_press_time = 0;
     input.right_press_time = 0;
+    input.down_press_time = 0;
 
-    if (this.game.input.keyPressed.up) {
+    if (this.game.input.keyPressed.up || this.game.input.keyPressed.Z) {
       input.up_press_time = dt_sec;
     }
 
-    if (this.game.input.keyPressed.left) {
+    if (this.game.input.keyPressed.left || this.game.input.keyPressed.Q) {
       input.left_press_time = dt_sec;
     }
 
-    if (this.game.input.keyPressed.right) {
+    if (this.game.input.keyPressed.right || this.game.input.keyPressed.D) {
       input.right_press_time = dt_sec;
+    }
+
+    if (this.game.input.keyPressed.down || this.game.input.keyPressed.S) {
+      input.down_press_time = dt_sec;
     }
 
     this.game.tanks[this.id].update();
@@ -279,7 +291,6 @@ class Net {
     input.colliderPoint = this.game.tanks[this.id].colliderPoint;
     input.colliderPointServer = this.game.tanks[this.id].colliderPointServer;
     input.shoot = this.game.tanks[this.id].shoot;
-
 
     input.input_sequence_number = this.input_sequence_number++;
     input.id = this.id;

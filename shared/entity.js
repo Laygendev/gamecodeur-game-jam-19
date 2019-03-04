@@ -72,27 +72,44 @@ class Entity  {
 
     this.angleMove = UtilsObject.degreesToRadians(this.angle);
 
-    this.angle -= input.left_press_time * this.speedRotation;
-    this.angle += input.right_press_time * this.speedRotation;
+    // this.angle -= input.left_press_time * this.speedRotation;
+    // this.angle += input.right_press_time * this.speedRotation;
 
     let tmpPos = { x: this.pos.x, y: this.pos.y };
+    let nextPos = { x: this.pos.x, y: this.pos.y };
 
-    tmpPos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
-    tmpPos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
+
+    if (input.right_press_time) {
+      this.pos.x += input.right_press_time * this.speed;
+      nextPos.x = this.pos.x + 10;
+    } else if (input.left_press_time) {
+      this.pos.x -= input.left_press_time * this.speed;
+      nextPos.x = this.pos.x - 10;
+    }
+
+    if (input.up_press_time) {
+      this.pos.y -= input.up_press_time * this.speed;
+      nextPos.y = this.pos.y - 10;
+    } else if(input.down_press_time) {
+      this.pos.y += input.down_press_time * this.speed;
+      nextPos.y = this.pos.y + 10;
+    }
+
+    this.angle = UtilsObject.radiansToDegrees(Math.atan2(nextPos.y - this.pos.y, nextPos.x - this.pos.x));
 
     var haveCollision = false;
 
     if (!module) {
       // haveCollision = this.game.world.checkCollision();
     }
-
-    if (tmpPos.x >= 0 && tmpPos.x <= this.room.width && !haveCollision ) {
-      this.pos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
-    }
-
-    if (tmpPos.y >= 0 && tmpPos.y <= this.room.height && !haveCollision ) {
-      this.pos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
-    }
+    //
+    // if (tmpPos.x >= 0 && tmpPos.x <= this.room.width && !haveCollision ) {
+    //   this.pos.x += input.up_press_time * this.speed * Math.cos(this.angleMove);
+    // }
+    //
+    // if (tmpPos.y >= 0 && tmpPos.y <= this.room.height && !haveCollision ) {
+    //   this.pos.y += input.up_press_time * this.speed * Math.sin(this.angleMove);
+    // }
   }
 
   shoot() {

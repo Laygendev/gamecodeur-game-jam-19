@@ -32,12 +32,17 @@ canvas {
 }
 
 .center-bloc {
-    width: 50%;
+    position: absolute;
+    width: 90%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 40vh;
+    margin-top: 30vh;
     transform: translateY(-50%);
     text-align: center;
+}
+
+.center-bloc input {
+  width: 50%;
 }
 
 input {
@@ -103,4 +108,10 @@ h1 {
 }
 .icons li span {
   margin-left: 5px;
+}
+
+.menu img {
+  position: absolute;
+  top: 30%;
+  right: 10%;
 }

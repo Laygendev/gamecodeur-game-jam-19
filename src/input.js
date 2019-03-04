@@ -7,6 +7,10 @@ class Input {
             down: false,
             right: false,
             left: false,
+            Z: false,
+            Q: false,
+            S: false,
+            D: false
         };
 
         this.mousePosition = {
@@ -27,7 +31,6 @@ class Input {
     keydown(e) {
         var code = e.keyCode;
 
-
         switch (code) {
             case 38:
                 this.keyPressed.up = true;
@@ -41,6 +44,18 @@ class Input {
             case 37:
                 this.keyPressed.left = true;
                 break;
+            case 81: // Q
+              this.keyPressed.Q = true;
+              break;
+            case 83: // S
+              this.keyPressed.S = true;
+              break;
+            case 90: // Z
+              this.keyPressed.Z = true;
+              break;
+            case 68: // D
+              this.keyPressed.D = true;
+              break;
         }
     }
 
@@ -60,6 +75,18 @@ class Input {
             case 37:
                 this.keyPressed.left = false;
                 break;
+            case 81: // Q
+              this.keyPressed.Q = false;
+              break;
+            case 83: // S
+              this.keyPressed.S = false;
+              break;
+            case 90: // Z
+              this.keyPressed.Z = false;
+              break;
+            case 68: // D
+              this.keyPressed.D = false;
+              break;
         }
     }
 
