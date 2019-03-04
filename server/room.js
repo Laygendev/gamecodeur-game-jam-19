@@ -1,3 +1,5 @@
+var Collider = require('./collider.js');
+
 class Room {
     constructor(io, width, height) {
         this.io           = io;
@@ -19,6 +21,7 @@ class Room {
     delete(playerID) {
       delete this.players[playerID];
       this.numberPlayer--;
+      this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
     }
 
     addBullet(bullet) {
@@ -70,7 +73,7 @@ class Room {
 
           for(var key_player in this.players) {
               if ( this.players[key_player].id != this.bullets[key].id && this.players[key_player].isAlive ) {
-                  if (collision(this.players[key_player].colliderPointServer, this.bullets[key].pos)) {
+                  if (Collider.OBB(this.players[key_player].colliderPointServer, this.bullets[key].pos)) {
                     this.players[key_player].life--;
 
                     if (this.players[key_player].life <= 0) {
@@ -154,7 +157,7 @@ class Room {
           }
         }
 
-        io.to(this.id).emit("Winner", {
+        this.io.to(this.id).emit("Winner", {
           id: winner.id,
           pseudo: winner.pseudo,
           top: 1

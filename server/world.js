@@ -1,0 +1,11 @@
+class World {
+  constructor() {
+
+  }
+
+  update() {
+
+  }
+
+  
+}

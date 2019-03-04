@@ -40,10 +40,6 @@ class Game {
 
     stop() {
         this.started = false;
-        for (var key in this.tanks) {
-            this.tanks[key].destroy();
-        }
-
         this.tanks   = [];
         this.bullets = [];
         this.net.reset();

@@ -82,8 +82,4 @@ class Player extends Entity {
        this.game.ctx.font = "26px Arial";
        this.game.ctx.fillText(this.pseudo, posPseudo.x - this.game.ctx.measureText(this.pseudo).width / 2, posPseudo.y - 20);
   }
-
-  destroy() {
-      clearInterval(this.intervalPlayer);
-  }
 }

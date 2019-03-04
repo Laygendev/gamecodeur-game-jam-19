@@ -1,281 +1,204 @@
-//======================================================
-// File: server.js
-// Descr: Nodejs server for Wizard Warz.
-//
-// Author: Magnus Persson
-// Date: 2014-01-31
-//======================================================
-
-//======================================================
-// Configuration
-//======================================================
-var version = "0.1";
-var port = 8080;
-
-//======================================================
-// Initialization
-//======================================================
-var server = require("https");
-var fs = require("fs");
-
-const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/trackball-game.com/cert.pem')
-};
-
-server = server.createServer(options);
-
-var io = require("socket.io").listen(server).set('log level',1);
-
-io = io.sockets.on("connection", SocketHandler);
-
-
-var path = require("path");
-var logger = require('util');
-var sys = require('sys');
-server.listen(port);
-console.log("===================================");
-console.log("Server for Tank.io");
-logger.log("Started server on port "+port);
-
-var sockets = new Array();
-var players = [];
-var bullets = [];
-var rooms = [];
-var unique_count = 1;
-
-var width = 3000;
-var height = 3000;
-
 var Entity = require('./entity.js');
 var Room = require('./room.js');
 var Utils = require('./utils.js');
 
+var width = 3000;
+var height = 3000;
 
-function SocketHandler(socket, data) {
-    var ip = socket.handshake.address;
-    logger.log("Incoming connection from "+ip.address+":"+ip.port);
+class Server {
+  constructor(io) {
+    this.io = io;
 
-    socket.on('disconnect', Disconnect);
-    socket.on('JoinRoom', JoinRoom);
-    socket.on('0', ReceiveMessages);
-    socket.on('Start', Start);
+    this.sockets  = new Array();
+    this.players  = [];
+    this.bullets  = [];
+    this.rooms    = [];
+    this.messages = [];
+    this.last_ts  = 0;
+
+    setInterval(() => { this.update(); }, 1000 / 60);
+  }
+
+  handleSocket(socket) {
+    socket.on('disconnect', () => { this.disconnect(socket); });
+    socket.on('JoinRoom', (data) => { this.joinRoom(data); });
+    socket.on('0', (data) => { this.receiveMessages(data); });
+    socket.on('Start', (data) => { this.start(data); });
     socket.on('pingto', function() {
       socket.emit('pongto');
     })
 
     socket.emit("connected", socket.id);
-    sockets.push(socket);
-}
 
-function Start(roomID) {
-  var room = rooms[this.player.roomID];
-  room.start();
-}
+    this.sockets[socket.id] = socket;
+  }
 
-function Disconnect() {
-    var i = sockets.indexOf(this);
-    if(this.player != undefined) {
-        logger.log("disconnected user: "+this.player.name);
+  disconnect(socket) {
+    var i = this.sockets.indexOf(socket);
 
-        var room = rooms[this.player.roomID];
+    if(socket.player != undefined) {
+        var room = this.rooms[socket.player.roomID];
 
         if (room.isStarted) {
-          this.broadcast.to(this.player.roomID).emit("RemovePlayer", {
-            id: this.player.id
+          this.io.to(socket.player.roomID).emit("RemovePlayer", {
+            id: socket.player.id
           });
 
-          this.broadcast.to(this.player.roomID).emit("Message", this.player.pseudo + ' s\'est déconnecté(e)' );
+          this.io.to(socket.player.roomID).emit("Message", socket.player.pseudo + ' s\'est déconnecté(e)' );
         }
 
-        room.delete(this.player.id);
-    }
-    sockets.splice(i, 1);
-}
-
-function JoinRoom(data) {
-    var player = new Entity(0,0,0);
-    player.id = data.id;
-    player.pseudo = data.pseudo;
-    player.kill = 0;
-
-    this.player = player;
-    player.socket = this;
-
-    var currentRoom = undefined;
-
-    for (var key in rooms) {
-        if (! rooms[key].isStarted && rooms[key].numberPlayer < rooms[key].maxPlayer) {
-            rooms[key].add(player);
-
-            player.roomID = rooms[key].id;
-            currentRoom = rooms[key];
-            break;
-        }
+        room.delete(socket.player.id);
     }
 
-    if (! currentRoom) {
-        currentRoom = new Room(io, width, height);
-        currentRoom.add(player);
-        player.roomID = currentRoom.id;
-
-        rooms[currentRoom.id] = currentRoom;
-    }
-
-
-    this.join(currentRoom.id);
-
-    io.to(currentRoom.id).emit('JoinedRoom', {
-        id: currentRoom.id,
-        numberPlayer: currentRoom.numberPlayer,
-        maxPlayer: currentRoom.maxPlayer
-    });
-
-    if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
-        currentRoom.start();
-    }
-}
-
-function Length(obj) {
-    return Object.keys(obj).length;
-}
-
-function Shoot(data) {
-  var room = rooms[data.roomID];
-  if (room) {
-    var player = room.players[data.id];
-
-    if (player) {
-
-        var bullet = {
-            'roomID': data.roomID,
-            'id': data.id,
-            'bulletid': new Date().getTime(),
-            'basePos': JSON.parse(JSON.stringify(player.posCanonServer)),
-            'speed': 500,
-            'distanceMax': 600,
-            'endcanonangle': Utils.radiansToDegrees(player.canonAngle),
-            'angleRadians': player.canonAngle,
-            'pos': JSON.parse(JSON.stringify(player.posCanonServer))
-        };
-
-        io.to(data.roomID).emit("Shoot", bullet);
-
-        room.addBullet(bullet);
-    }
+    this.sockets.splice(i, 1);
   }
-}
 
-Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };
-
-// Update player position
-function ReceiveMessages(data) {
-  var now = +new Date();
-  var room = rooms[data.room_id];
-  if (room) {
-    var player = room.players[data.id];
-    if (player) {
-      this.player.socket.lag = data.lag;
-
-      messages.push({
-        recv_ts: now + data.lag,
-        payload: data,
-      });
-    }
-  }
-}
-
-var dt;
-var lastframetime;
-var updateid;
-var startTime;
-var last_processed_input = [];
-var messages = [];
-var t = 0;
-var pt = 0;
-var last_ts;
-
-function update() {
+  update() {
     var now_ts = +new Date();
-    var lasts_ts = last_ts || now_ts;
-    var dt_sec = (now_ts - lasts_ts) / 1000.0;
-    last_ts = now_ts;
+    var last_ts = this.last_ts || now_ts;
+    var dt_sec = (now_ts - last_ts) / 1000.0;
+    this.last_ts = now_ts;
 
-    processInput();
+    this.processInput();
 
-    for (var key in rooms) {
-      rooms[key].update(dt_sec);
-      rooms[key].sendWorldState();
+    for (var key in this.rooms) {
+      this.rooms[key].update(dt_sec);
+      this.rooms[key].sendWorldState();
     }
-}
+  }
 
-function getAvailableMessage() {
-  var now = +new Date();
-	for (var i = 0; i < messages.length; i++) {
-		var message = messages[i];
-		if (message.recv_ts <= now) {
-			messages.splice(i, 1);
-			return message.payload;
-		}
-	}
-}
+  start(roomID) {
+    var room = this.rooms[roomID];
+    room.start();
+  }
+
+  joinRoom(data) {
+    var currentSocket = this.sockets[data.id];
+
+      var player           = new Entity(0,0,0);
+      player.id            = data.id;
+      player.pseudo        = data.pseudo;
+      player.socket        = currentSocket;
+      currentSocket.player = player;
+      var currentRoom      = undefined;
+
+      for (var key in this.rooms) {
+          if (! this.rooms[key].isStarted && this.rooms[key].numberPlayer < this.rooms[key].maxPlayer) {
+              this.rooms[key].add(player);
+
+              player.roomID = this.rooms[key].id;
+              currentRoom = this.rooms[key];
+              break;
+          }
+      }
+
+      if (! currentRoom) {
+          currentRoom = new Room(this.io, width, height);
+          currentRoom.add(player);
+          player.roomID = currentRoom.id;
+
+          this.rooms[currentRoom.id] = currentRoom;
+      }
 
 
-function processInput() {
-  while (true) {
-   var message = getAvailableMessage();
-   if (!message) {
-     break;
-   }
+      currentSocket.join(currentRoom.id);
 
-   var id      = message.id;
-   var room_id = message.room_id;
+      this.io.to(currentRoom.id).emit('JoinedRoom', {
+          id: currentRoom.id,
+          numberPlayer: currentRoom.numberPlayer,
+          maxPlayer: currentRoom.maxPlayer
+      });
 
-   var room = rooms[room_id];
-   var entity = room.players[id];
+      if(currentRoom.numberPlayer == currentRoom.maxPlayer) {
+          currentRoom.start();
+      }
+  }
 
-   if (entity) {
-     if (message.shoot) {
-       Shoot({
-         'roomID': message.room_id,
-         'id': message.id,
-         'basePos': JSON.parse(JSON.stringify(entity.posCanonServer)),
-         'endcanonangle': Utils.radiansToDegrees(entity.canonAngle),
-         'angleRadians': entity.canonAngle,
-         'pos': JSON.parse(JSON.stringify(entity.posCanonServer))
-       });
-     }
+  shoot(data) {
+    var room = this.rooms[data.roomID];
+    if (room) {
+      var player = room.players[data.id];
 
-     entity.applyInput(message);
-     entity.last_processed_input = message.input_sequence_number;
-   }
+      if (player) {
 
- }
-}
+          var bullet = {
+              'roomID': data.roomID,
+              'id': data.id,
+              'bulletid': new Date().getTime(),
+              'basePos': JSON.parse(JSON.stringify(player.posCanonServer)),
+              'speed': 500,
+              'distanceMax': 600,
+              'endcanonangle': Utils.radiansToDegrees(player.canonAngle),
+              'angleRadians': player.canonAngle,
+              'pos': JSON.parse(JSON.stringify(player.posCanonServer))
+          };
 
-setInterval(() => { update(); }, 1000 / 60);
+          this.io.to(data.roomID).emit("Shoot", bullet);
 
-function collision(tab, P) {
-    for (var i = 0; i < 4; i++) {
-        var A = tab[i].pos;
-        var B;
-  		if (i == 3) {
-  			B = tab[0].pos
-  		} else {
-            B = tab[i + 1].pos;
-        }
-  		var D = {X: 0, Y: 0};
-  		var T = {X: 0, Y: 0};
+          room.addBullet(bullet);
+      }
+    }
+  }
 
-  		D.X = B.x - A.x;
-  		D.Y = B.y - A.y;
-  		T.X = P.x - A.x;
-  		T.Y = P.y - A.y;
-  		var d = D.X*T.Y - D.Y*T.X;
-  		if (d > 0) {
-  			return false;
+  receiveMessages(data) {
+    var now = +new Date();
+    var room = this.rooms[data.room_id];
+    if (room) {
+      var player = room.players[data.id];
+      if (player) {
+        player.socket.lag = data.lag;
+
+        this.messages.push({
+          recv_ts: now + data.lag,
+          payload: data,
+        });
+      }
+    }
+  }
+
+  getAvailableMessage() {
+    var now = +new Date();
+  	for (var i = 0; i < this.messages.length; i++) {
+  		var message = this.messages[i];
+  		if (message.recv_ts <= now) {
+  			this.messages.splice(i, 1);
+  			return message.payload;
   		}
-    }
+  	}
+  }
 
-    return true;
+
+  processInput() {
+    while (true) {
+      var message = this.getAvailableMessage();
+      if (!message) {
+        break;
+      }
+
+      var id      = message.id;
+      var room_id = message.room_id;
+
+      var room   = this.rooms[room_id];
+      var entity = room.players[id];
+
+      if (entity) {
+        if (message.shoot) {
+          this.shoot({
+            'roomID': message.room_id,
+            'id': message.id,
+            'basePos': JSON.parse(JSON.stringify(entity.posCanonServer)),
+            'endcanonangle': Utils.radiansToDegrees(entity.canonAngle),
+            'angleRadians': entity.canonAngle,
+            'pos': JSON.parse(JSON.stringify(entity.posCanonServer))
+          });
+        }
+
+        entity.applyInput(message);
+        entity.last_processed_input = message.input_sequence_number;
+      }
+    }
+  }
 }
+
+
+module.exports = Server;
