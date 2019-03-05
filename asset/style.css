@@ -61,24 +61,27 @@ h1 {
   font-size: 80px;
 }
 
-.back {
-  margin-top: 50px;
+.button {
   background-color: white;
   padding: 10px;
-  width: 50%;
   margin-left: auto;
   margin-right: auto;
   transition: background-color 100ms linear;
   border: solid rgba(0,0,0,0.2) 1px;
 }
 
-.back:hover {
+.back {
+  margin-top: 50px;
+  width: 50%;
+}
+
+.button:hover {
   cursor: pointer;
   background-color: rgba(0,0,0,0.2);
   border: solid rgba(0,0,0,0.5) 1px;
 }
 
-.back:active {
+.button:active {
   background-color: rgba(0,0,0,0.1);
   border: solid rgba(0,0,0,0.5) 1px;
 }
@@ -114,4 +117,27 @@ h1 {
   position: absolute;
   top: 30%;
   right: 10%;
+}
+
+.red {
+  color: #eb2f06;
+}
+.green {
+  color: #b8e994;
+}
+
+.vote {
+  margin-top: 50px;
+}
+
+.vote p {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.votes {
+  display: flex;
+  width: 30%;
+  margin:auto;
 }

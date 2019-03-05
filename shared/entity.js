@@ -26,10 +26,25 @@ class Entity  {
     this.position_buffer = [];
     this.colliderPoint   = [];
 
-    this.colliderPoint[0] = { pos: { x: 0, y: 0 }, offset: { x: -35, y: 25 } };
-    this.colliderPoint[1] = { pos: { x: 0, y: 0 }, offset: { x: 35, y: 25 } };
-    this.colliderPoint[2] = { pos: { x: 0, y: 0 }, offset: { x: 35, y: -25 } };
-    this.colliderPoint[3] = { pos: { x: 0, y: 0 }, offset: { x: -35, y: -25 } };
+    this.colliderPoint[0] = { pos: { x: this.pos.x, y: this.pos.y }, offset: { x: -35, y: 25 } };
+    this.colliderPoint[1] = { pos: { x: this.pos.x, y: this.pos.y }, offset: { x: 35, y: 25 } };
+    this.colliderPoint[2] = { pos: { x: this.pos.x, y: this.pos.y }, offset: { x: 35, y: -25 } };
+    this.colliderPoint[3] = { pos: { x: this.pos.x, y: this.pos.y }, offset: { x: -35, y: -25 } };
+
+    this.colliderPointServer = JSON.parse(JSON.stringify(this.colliderPoint));
+  }
+
+  setPos(x, y) {
+    this.pos.x = x;
+    this.pos.y = y;
+
+    this.posLife.x = this.pos.x;
+    this.posLife.y = this.pos.y;
+
+    this.colliderPoint[0] = { pos: { x: this.pos.x - 35, y: this.pos.y + 25 }, offset: { x: -35, y: 25 } };
+    this.colliderPoint[1] = { pos: { x: this.pos.x + 35, y: this.pos.y - 25 }, offset: { x: 35, y: 25 } };
+    this.colliderPoint[2] = { pos: { x: this.pos.x + 35, y: this.pos.y - 25 }, offset: { x: 35, y: -25 } };
+    this.colliderPoint[3] = { pos: { x: this.pos.x - 35, y: this.pos.y - 25 }, offset: { x: -35, y: -25 } };
 
     this.colliderPointServer = JSON.parse(JSON.stringify(this.colliderPoint));
   }

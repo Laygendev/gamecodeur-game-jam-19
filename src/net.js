@@ -24,6 +24,7 @@ class Net {
     this.socket.on('connect_error', () => {
       // @todo: Move to UI Class.
         if (this.room != undefined) {
+            document.querySelector(".vote").style.display = "none";
             document.querySelector(".menu").style.display = "block";
             document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
             game.stop();
@@ -58,6 +59,7 @@ class Net {
         this.room = room;
 
         // @todo: Move to UI Class.
+        document.querySelector(".vote").style.display = "block";
         document.querySelector(".network-ready .state").innerHTML = "Room #" + room.id + "<br />Waiting for other players (" + room.numberPlayer + "/" + room.maxPlayer + ")";
     });
 
@@ -148,6 +150,10 @@ class Net {
 
     this.socket.on("RemovePlayer", (data) => {
       delete game.tanks[data.id];
+    });
+
+    this.socket.on("roomVote", (data) => {
+      game.htmlUI.updateRoomVote(data);
     });
   }
 

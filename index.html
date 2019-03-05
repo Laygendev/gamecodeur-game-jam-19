@@ -34,7 +34,7 @@
 
         <div class="center-bloc top">
           <h1>Top <span>1</span></h1>
-          <div class="back">Menu</div>
+          <div class="button back">Menu</div>
         </div>
 
 
@@ -74,6 +74,23 @@
                     <h2>This is the tank of...</h2>
                     <input type="text" class="pseudo" maxlength="20" />
                     <p class="state">Press enter to looking for a game</p>
+
+                    <div class="vote hidden">
+                      <button type="button" class="start-vote button">Lancer un vote pour démarrer la partie</button>
+
+                      <div class="bloc hidden">
+                        <ul>
+                          <li><button type="button" class="vote-yes button">Voter Oui</button></li>
+                          <li><button type="button" class="vote-no button">Voter Non</button></li>
+                        </ul>
+
+                        <p>En attente de la majorité pour lancer la partie.</p>
+
+                        <ul class="votes">
+
+                        </ul>
+                      </div>
+                    </div>
                 </div>
 
             </div>

@@ -3,6 +3,10 @@ class htmlUI {
     this.game = game;
 
     this.messages = [];
+
+    document.querySelector('.start-vote').addEventListener('click', (e) => { this.startVote(); });
+    document.querySelector('.vote-yes').addEventListener('click', (e) => { this.vote(true); });
+    document.querySelector('.vote-no').addEventListener('click', (e) => { this.vote(false); });
   }
 
   displayTop(top) {
@@ -32,6 +36,51 @@ class htmlUI {
     }
 
     document.querySelector('.in-game .messages' ).innerHTML = output;
+
+  }
+
+  startVote() {
+    this.game.net.socket.emit('startVote', {
+      id: this.game.net.id,
+      roomID: this.game.net.room.id
+    });
+
+    document.querySelector(".vote").style.display = "block;"
+
+  }
+
+  vote(ok) {
+    this.game.net.socket.emit('vote', {
+      ok: ok,
+      id: this.game.net.id,
+      roomID: this.game.net.room.id
+    });
+  }
+
+  updateRoomVote(data) {
+    var output = '';
+
+
+    if (data.length >= 0) {
+      document.querySelector(".vote .start-vote").style.display = "none";
+      document.querySelector(".vote .bloc").style.display = "block";
+
+      for (var key in data) {
+        var elementClass = '';
+
+        if (data[key].ok == true) {
+          elementClass = 'green';
+        } else if (data[key].ok == false) {
+          elementClass = 'red';
+        }
+        output += "<li><i class='" + elementClass + " fas fa-circle'</li>";
+      }
+    } else {
+      document.querySelector(".vote .start-vote").style.display = "block";
+      document.querySelector(".vote .bloc").style.display = "none";
+    }
+
+    document.querySelector(".vote .bloc .votes").innerHTML = output;
 
   }
 

@@ -24,6 +24,8 @@ class Server {
     socket.on('leaveRoom', (data) => { this.leaveRoom(data); });
     socket.on('0', (data) => { this.receiveMessages(data); });
     socket.on('Start', (data) => { this.start(data); });
+    socket.on('startVote', (data) => { this.startVote(data); });
+    socket.on('vote', (data) => { this.vote(data); });
     socket.on('pingto', function() {
       socket.emit('pongto');
     })
@@ -39,16 +41,18 @@ class Server {
     if(socket.player != undefined) {
         var room = this.rooms[socket.player.roomID];
 
-        if (room.isStarted) {
-          this.io.to(socket.player.roomID).emit("RemovePlayer", {
-            id: socket.player.id
-          });
+        if (room) {
+          if (room.isStarted) {
+            this.io.to(socket.player.roomID).emit("RemovePlayer", {
+              id: socket.player.id
+            });
 
-          this.io.to(socket.player.roomID).emit("Message", socket.player.pseudo + ' s\'est déconnecté(e)' );
+            this.io.to(socket.player.roomID).emit("Message", socket.player.pseudo + ' s\'est déconnecté(e)' );
+          }
+
+          room.numberPlayerAlive--;
+          room.delete(socket.player.id);
         }
-
-        room.numberPlayerAlive--;
-        room.delete(socket.player.id);
     }
 
     this.sockets.splice(i, 1);
@@ -150,6 +154,42 @@ class Server {
           payload: data,
         });
       }
+    }
+  }
+
+  startVote(data) {
+    var room = this.rooms[data.roomID];
+
+    if (room && !room.isStarted) {
+      room.addVote({
+        id: data.id,
+        ok: true
+      });
+
+      var votes = [];
+
+      for (var key in room.votes) {
+        votes.push(room.votes[key]);
+      }
+
+      this.io.to(room.id).emit('roomVote', votes);
+    }
+  }
+
+  vote(data) {
+    var room = this.rooms[data.roomID];
+
+    if (room && !room.isStarted) {
+      room.addVote({
+        id: data.id,
+        ok: data.od
+      });
+
+      for (var key in room.votes) {
+        votes.push(room.votes[key]);
+      }
+
+      this.io.to(room.id).emit('roomVote', votes);
     }
   }
 }

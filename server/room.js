@@ -15,15 +15,26 @@ class Room {
         this.height       = width;
         this.messages     = [];
         this.isFinish     = false;
+        this.votes        = [];
     }
 
     add(player) {
         this.players[player.id] = player;
+        this.votes[player.id] = {
+          id: player.id,
+          ok: undefined
+        };
+
         this.numberPlayer++;
+    }
+
+    addVote(vote) {
+      this.votes[vote.id] = vote;
     }
 
     delete(playerID) {
       delete this.players[playerID];
+      delete this.votes[playerID];
       this.numberPlayer--;
 
       if (this.isStarted) {
@@ -48,10 +59,7 @@ class Room {
             this.players[key].life = 5;
             this.players[key].isAlive = true;
 
-            this.players[key].pos = {
-                x: Math.floor(Math.random() * (this.width - 100)) + 100,
-                y: Math.floor(Math.random() * (this.height - 100)) + 100,
-            };
+            this.players[key].setPos(Math.floor(Math.random() * (this.width - 100)) + 100, Math.floor(Math.random() * (this.height - 100)) + 100)
 
             let dataPlayer = {
               id: this.players[key].id,
@@ -87,6 +95,7 @@ class Room {
 
           for(var key_player in this.players) {
               if ( this.players[key_player].id != this.bullets[key].id && this.players[key_player].isAlive ) {
+
                   if (Collider.OBB(this.players[key_player].colliderPointServer, this.bullets[key].pos)) {
                     this.players[key_player].life--;
 
@@ -188,6 +197,7 @@ class Room {
     			});
     		}
     	}
+
 
     	for (var key in this.players) {
         if ( this.players[key].socket ) {

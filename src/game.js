@@ -30,13 +30,14 @@ class Game {
     this.loader.loadJSON('worldCollider', 'asset/worldCollider.json');
 
     this.loader.start();
+
+    this.htmlUI = new htmlUI(this);
   }
 
   start() {
     this.started = true;
     this.input   = new Input(this);
     this.camera  = new Camera(this);
-    this.htmlUI  = new htmlUI(this);
     this.ui      = new UI(this);
 
     requestAnimationFrame(() => {this.gameLoop()});
