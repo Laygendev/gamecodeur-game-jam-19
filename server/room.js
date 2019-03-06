@@ -7,7 +7,7 @@ class Room {
         this.id           = new Date().getTime();
         this.numberPlayer = 0;
         this.numberPlayerAlive = 0;
-        this.maxPlayer    = 2;
+        this.maxPlayer    = 100;
         this.players      = [];
         this.bullets      = [];
         this.isStarted    = false;
@@ -30,6 +30,20 @@ class Room {
 
     addVote(vote) {
       this.votes[vote.id] = vote;
+    }
+
+    checkNumberVote() {
+      var numberVoteOk = 0;
+
+      for (var key in this.votes) {
+        if (this.votes[key].ok == true) {
+          numberVoteOk++;
+        }
+      }
+
+      if (numberVoteOk >= this.numberPlayer / 2) {
+        this.start();
+      }
     }
 
     delete(playerID) {

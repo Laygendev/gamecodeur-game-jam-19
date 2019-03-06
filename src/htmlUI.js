@@ -46,10 +46,11 @@ class htmlUI {
     });
 
     document.querySelector(".vote").style.display = "block;"
-
+    document.querySelector( '.buttons-vote' ).style.display = "none";
   }
 
   vote(ok) {
+    document.querySelector( '.buttons-vote' ).style.display = "none";
     this.game.net.socket.emit('vote', {
       ok: ok,
       id: this.game.net.id,
@@ -60,20 +61,20 @@ class htmlUI {
   updateRoomVote(data) {
     var output = '';
 
-
     if (data.length >= 0) {
       document.querySelector(".vote .start-vote").style.display = "none";
       document.querySelector(".vote .bloc").style.display = "block";
 
-      for (var key in data) {
+      for (var i = 0; i < data.length; ++i) {
         var elementClass = '';
 
-        if (data[key].ok == true) {
+        if (data[i].ok == true) {
           elementClass = 'green';
-        } else if (data[key].ok == false) {
+        } else if (data[i].ok == false) {
           elementClass = 'red';
         }
-        output += "<li><i class='" + elementClass + " fas fa-circle'</li>";
+
+        output += "<li><i class='" + elementClass + " fas fa-circle'></i></li>";
       }
     } else {
       document.querySelector(".vote .start-vote").style.display = "block";

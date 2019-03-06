@@ -173,6 +173,8 @@ class Server {
       }
 
       this.io.to(room.id).emit('roomVote', votes);
+
+      room.checkNumberVote();
     }
   }
 
@@ -182,14 +184,18 @@ class Server {
     if (room && !room.isStarted) {
       room.addVote({
         id: data.id,
-        ok: data.od
+        ok: data.ok
       });
+
+      var votes = [];
 
       for (var key in room.votes) {
         votes.push(room.votes[key]);
       }
 
       this.io.to(room.id).emit('roomVote', votes);
+
+      room.checkNumberVote();
     }
   }
 }
