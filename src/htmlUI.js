@@ -85,6 +85,15 @@ class htmlUI {
 
   }
 
+  resetVote() {
+    document.querySelector(".vote").style.display = "none";
+    document.querySelector( '.buttons-vote' ).style.display = "block";
+    document.querySelector(".vote .start-vote").style.display = "block";
+    document.querySelector(".vote .bloc").style.display = "none";
+    document.querySelector(".vote .bloc .votes").innerHTML = '';
+
+  }
+
   reset() {
     document.querySelector('.in-game .alives span' ).innerHTML = 0;
     document.querySelector('.in-game .kills span' ).innerHTML  = 0;

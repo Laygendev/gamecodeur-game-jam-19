@@ -62,7 +62,7 @@ class Game {
 
         this.update(dt_sec);
         this.net.update(dt_sec);
-        this.draw();
+        this.draw(dt_sec);
 
         requestAnimationFrame(() => {this.gameLoop()});
     }
@@ -81,7 +81,7 @@ class Game {
     }
   }
 
-  draw() {
+  draw(dt) {
     if (this.net.init) {
       var tile = 0;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -111,9 +111,34 @@ class Game {
 
 
       for (var key in this.bullets) {
+
+        var distance = Math.sqrt(sqr(this.tanks[this.bullets[key].id].pos.y - this.bullets[key].pos.y) + sqr(this.tanks[this.bullets[key].id].pos.x - this.bullets[key].pos.x));
+
+        if (distance > 200) {
+          for (var i = 0; i < 500; i++) {
+            this.ctx.save();
+
+            var copy = {
+              x: this.bullets[key].pos.x,
+              y: this.bullets[key].pos.y
+            };
+
+            copy.x -= i * 200 * dt * Math.cos(this.bullets[key].angleRadians);
+            copy.y -= i * 200 * dt * Math.sin(this.bullets[key].angleRadians);
+
+            this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
+            this.ctx.rotate(this.bullets[key].angleRadians);
+            this.ctx.globalAlpha = (1 / i);
+
+            this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
+            this.ctx.restore();
+          }
+        }
+
         this.ctx.save();
+
         this.ctx.translate(this.bullets[key].pos.x - this.camera.x + this.ressources['fire'].width, this.bullets[key].pos.y - this.camera.y + this.ressources['fire'].height);
-        this.ctx.rotate(this.bullets[key].angle * Math.PI / 180);
+        this.ctx.rotate(this.bullets[key].angleRadians);
 
         this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
         this.ctx.restore();
@@ -145,6 +170,10 @@ if ( !window.requestAnimationFrame ) {
 
     } )();
 
+}
+
+function sqr(a) {
+  return a*a;
 }
 
 Number.prototype.fixed = function(n) { n = n || 3; return parseFloat(this.toFixed(n)); };

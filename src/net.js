@@ -91,6 +91,8 @@ class Net {
         document.querySelector(".menu").style.display = "none";
         document.querySelector(".in-game").style.display = "block";
 
+        game.htmlUI.resetVote();
+
     });
 
     this.socket.on('addPlayer', (data) => {

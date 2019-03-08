@@ -2,7 +2,7 @@ class Player extends Entity {
   constructor(id, room, game, pos) {
     super(id, room, game, pos);
 
-    this.reloadShootTime = 0.2;
+    this.reloadShootTime = 0.6;
     this.canShoot = true;
 
     this.maxlife = 5;
