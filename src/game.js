@@ -19,6 +19,7 @@ class Game {
     this.htmlUI = undefined;
     this.ui     = undefined;
     this.net    = undefined;
+    this.world  = undefined;
 
     this.loader = new Loader(this);
     this.loader.loadImage('tile', 'asset/tile.png');
@@ -39,8 +40,9 @@ class Game {
     this.input   = new Input(this);
     this.camera  = new Camera(this);
     this.ui      = new UI(this);
+    this.world   = new World(this);
 
-    requestAnimationFrame(() => {this.gameLoop()});
+    setInterval(() => { this.gameLoop(); }, 1000 / 60);
   }
 
   stop() {
@@ -63,8 +65,6 @@ class Game {
         this.update(dt_sec);
         this.net.update(dt_sec);
         this.draw(dt_sec);
-
-        requestAnimationFrame(() => {this.gameLoop()});
     }
   }
 
@@ -72,8 +72,7 @@ class Game {
     if (this.net.init) {
 
       for (var key in this.bullets) {
-          this.bullets[key].pos.x += this.bullets[key].speed * dt * Math.cos(this.bullets[key].angleRadians);
-          this.bullets[key].pos.y += this.bullets[key].speed * dt * Math.sin(this.bullets[key].angleRadians);
+          this.bullets[key].update(dt);
       }
 
       this.ui.update(dt);
@@ -97,8 +96,10 @@ class Game {
 
       this.ctx.drawImage(this.ressources['ile'], 2000 - this.camera.x, 2000 - this.camera.y );
 
+      this.world.draw();
+
       for (var key in this.tanks) {
-        this.tanks[key].draw();
+        this.tanks[key].draw(dt);
 
         if (this.tanks[key] instanceof Player) {
           this.ctx.save();
@@ -106,42 +107,11 @@ class Game {
           this.ctx.fillText('X: ' + parseInt(this.tanks[key].pos.x) + ' Y: ' + parseInt(this.tanks[key].pos.y), 20, 40);
           this.ctx.restore();
         }
-        // if (typeof this.tanks[key])
       }
 
 
       for (var key in this.bullets) {
-
-        var distance = Math.sqrt(sqr(this.tanks[this.bullets[key].id].pos.y - this.bullets[key].pos.y) + sqr(this.tanks[this.bullets[key].id].pos.x - this.bullets[key].pos.x));
-
-        if (distance > 200) {
-          for (var i = 0; i < 500; i++) {
-            this.ctx.save();
-
-            var copy = {
-              x: this.bullets[key].pos.x,
-              y: this.bullets[key].pos.y
-            };
-
-            copy.x -= i * 200 * dt * Math.cos(this.bullets[key].angleRadians);
-            copy.y -= i * 200 * dt * Math.sin(this.bullets[key].angleRadians);
-
-            this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
-            this.ctx.rotate(this.bullets[key].angleRadians);
-            this.ctx.globalAlpha = (1 / i);
-
-            this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-            this.ctx.restore();
-          }
-        }
-
-        this.ctx.save();
-
-        this.ctx.translate(this.bullets[key].pos.x - this.camera.x + this.ressources['fire'].width, this.bullets[key].pos.y - this.camera.y + this.ressources['fire'].height);
-        this.ctx.rotate(this.bullets[key].angleRadians);
-
-        this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-        this.ctx.restore();
+        this.bullets[key].draw(dt);
       }
     }
 
@@ -164,7 +134,7 @@ if ( !window.requestAnimationFrame ) {
             window.msRequestAnimationFrame ||
             function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
 
-                    window.setTimeout( callback, 1000 / 60 );
+                    window.setTimeout( callback, 1000 / 1 );
 
             };
 

@@ -9,16 +9,18 @@ class Server {
   constructor(io) {
     this.io = io;
 
-    this.sockets  = new Array();
+    this.sockets  = [];
     this.players  = [];
     this.bullets  = [];
     this.rooms    = [];
     this.last_ts  = 0;
 
-    setInterval(() => { this.update(); }, 1000 / 60);
+    setInterval(() => { this.update(); }, 1000 / 10);
+    setInterval(() => { this.updatePhysic(); }, 1000 / 60);
   }
 
   handleSocket(socket) {
+    console.log('new socket');
     socket.on('disconnect', () => { this.disconnect(socket); });
     socket.on('JoinRoom', (data) => { this.joinRoom(data); });
     socket.on('leaveRoom', (data) => { this.leaveRoom(data); });
@@ -26,9 +28,7 @@ class Server {
     socket.on('Start', (data) => { this.start(data); });
     socket.on('startVote', (data) => { this.startVote(data); });
     socket.on('vote', (data) => { this.vote(data); });
-    socket.on('pingto', function() {
-      socket.emit('pongto');
-    })
+    socket.on('Shoot', (data) => { this.shoot(data); });
 
     socket.emit("connected", socket.id);
 
@@ -59,15 +59,26 @@ class Server {
   }
 
   update() {
+
+
+    for (var key in this.rooms) {
+      if (this.rooms[key].isStarted) {
+        this.rooms[key].processInput();
+        this.rooms[key].sendWorldState();
+      }
+    }
+  }
+
+  updatePhysic() {
     var now_ts = +new Date();
     var last_ts = this.last_ts || now_ts;
     var dt_sec = (now_ts - last_ts) / 1000.0;
     this.last_ts = now_ts;
 
     for (var key in this.rooms) {
-      this.rooms[key].processInput();
-      this.rooms[key].update(dt_sec);
-      this.rooms[key].sendWorldState();
+      if (this.rooms[key].isStarted) {
+        this.rooms[key].update(dt_sec);
+      }
     }
   }
 
@@ -82,11 +93,9 @@ class Server {
       var player           = new Entity();
       player.id            = data.id;
       player.pseudo        = data.pseudo;
-      player.socket        = currentSocket;
 
       if (currentSocket) {
-        currentSocket.player = player;
-        var currentRoom      = undefined;
+        var currentRoom = undefined;
 
         for (var key in this.rooms) {
             if (! this.rooms[key].isStarted && this.rooms[key].numberPlayer < this.rooms[key].maxPlayer) {
@@ -100,7 +109,7 @@ class Server {
         }
 
         if (! currentRoom) {
-            currentRoom = new Room(this.io, width, height);
+            currentRoom = new Room(this.sockets, this.io, width, height);
             currentRoom.add(player);
             player.roomID = currentRoom.id;
             player.room   = currentRoom;
@@ -143,16 +152,17 @@ class Server {
 
   receiveMessages(data) {
     var now = +new Date();
-    var room = this.rooms[data.room_id];
+    var room = this.rooms[data[13]];
     if (room) {
-      var player = room.players[data.id];
+      var player = room.players[data[0]];
       if (player) {
-        player.socket.lag = data.lag;
+        player.lag = data[1];
 
         room.messages.push({
-          recv_ts: now + data.lag,
+          recv_ts: now + data[1],
           payload: data,
         });
+
       }
     }
   }
@@ -197,6 +207,12 @@ class Server {
 
       room.checkNumberVote();
     }
+  }
+
+  shoot(data) {
+    var room = this.rooms[data[1]];
+
+    room.shoot(data);
   }
 }
 

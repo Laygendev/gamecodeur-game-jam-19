@@ -10,16 +10,32 @@ class Ennemy extends Entity {
   update() { }
 
   draw() {
+
+    var i = 1;
+    for (var key in this.speedEffect) {
+
+      this.game.ctx.save();
+
+      this.game.ctx.translate(this.speedEffect[key].pos.x - this.game.camera.x, this.speedEffect[key].pos.y - this.game.camera.y);
+      this.game.ctx.rotate(this.speedEffect[key].angle * Math.PI / 180);
+      this.game.ctx.globalAlpha = i * 0.005;
+
+      this.game.ctx.drawImage(this.game.ressources['tank'], -this.width / 2, -this.height / 2);
+
+      this.game.ctx.restore();
+      i++;
+    }
+
     this.game.ctx.save();
     this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y - this.game.camera.y);
-    this.game.ctx.rotate(this.angle * Math.PI / 180);
+    this.game.ctx.rotate(this.angle);
 
     this.game.ctx.drawImage(this.game.ressources['tank'], -this.width / 2, -this.height / 2);
     this.game.ctx.restore();
 
     this.game.ctx.save();
     this.game.ctx.translate(this.pos.x - this.game.camera.x, this.pos.y  - this.game.camera.y);
-    this.game.ctx.rotate(Utils.radiansToDegrees(this.canonAngle) * Math.PI / 180);
+    this.game.ctx.rotate(this.canonAngle  * Math.PI / 180);
 
     this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
     this.game.ctx.restore();

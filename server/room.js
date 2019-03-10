@@ -1,8 +1,11 @@
 var Collider = require('./collider.js');
 var Utils    = require('./utils.js');
+var BulletObject = module ? require('./bullet.js') : undefined;
+
 
 class Room {
-    constructor(io, width, height) {
+    constructor(sockets, io, width, height) {
+      this.sockets        = sockets;
         this.io           = io;
         this.id           = new Date().getTime();
         this.numberPlayer = 0;
@@ -83,7 +86,7 @@ class Room {
               pos: this.players[key].pos
             };
 
-            this.players[key].socket.emit("spawnPlayer", {
+            this.sockets[this.players[key].id].emit("spawnPlayer", {
               player: dataPlayer,
               map: {
                 width: this.width,
@@ -91,66 +94,35 @@ class Room {
               }
             });
 
-            this.players[key].socket.broadcast.to(this.players[key].roomID).emit("addPlayer", { player: dataPlayer });
+            this.sockets[this.players[key].id].broadcast.to(this.players[key].roomID).emit("addPlayer", { player: dataPlayer });
         }
 
         this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
-
     }
 
     update(dt) {
       for (var key in this.bullets) {
-          this.bullets[key].pos.x += this.bullets[key].speed * Math.cos(this.bullets[key].angleRadians) * dt;
-          this.bullets[key].pos.y += this.bullets[key].speed * Math.sin(this.bullets[key].angleRadians) * dt;
+        this.bullets[key].update(dt);
+        var hitInfo = this.bullets[key].collision(this.players);
 
-          var destroyBullet = false;
+        if (hitInfo) {
 
-          var playerHit = undefined
+          if (!hitInfo.player.isAlive) {
+            this.numberPlayerAlive--;
+            this.players[this.bullets[key].playerID].kill++;
 
-          for(var key_player in this.players) {
-              if ( this.players[key_player].id != this.bullets[key].id && this.players[key_player].isAlive ) {
-
-                  if (Collider.OBB(this.players[key_player].colliderPointServer, this.bullets[key].pos)) {
-                    this.players[key_player].life--;
-
-                    if (this.players[key_player].life <= 0) {
-                      this.players[this.bullets[key].id].kill++;
-                      this.numberPlayerAlive--;
-                      this.players[key_player].isAlive = false;
-                      this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayer);
-                      this.io.to(this.bullets[key].id).emit("UpdateKill", this.players[this.bullets[key].id].kill);
-                      this.io.to(this.bullets[key].roomID).emit("Message", this.players[this.bullets[key].id].pseudo + ' à pulvérisé ' + this.players[key_player].pseudo );
-                      this.checkWinner();
-                    }
-                      var hit = {
-                        damage: 10,
-                        bulletID: this.bullets[key].bulletid,
-                        playerID: this.players[key_player].id,
-                        player: {
-                          pos: this.players[key_player].pos,
-                          life: this.players[key_player].life,
-                          isAlive: this.players[key_player].isAlive,
-                          top: this.numberPlayerAlive + 1
-                        }
-                      };
-
-                      this.io.to(this.bullets[key].roomID).emit("HitPlayer", hit);
-                      this.bullets.splice(key, 1);
-                      destroyBullet = true;
-                      break;
-                  }
-              }
+            this.io.to(this.id).emit("UpdateNumberPlayer", this.numberPlayerAlive);
+            this.io.to(this.bullets[key].playerID).emit("UpdateKill", this.players[this.bullets[key].playerID].kill);
+            this.io.to(this.id).emit("Message", this.players[this.bullets[key].playerID].pseudo + ' à pulvérisé ' + this.players[hitInfo.playerID].pseudo );
           }
 
-          if ( destroyBullet ) {
-              continue;
-          }
+          this.io.to(this.id).emit("HitPlayer", hitInfo);
+        }
 
-          var dist = Math.sqrt( Math.pow((this.bullets[key].basePos.x-this.bullets[key].pos.x), 2) + Math.pow((this.bullets[key].basePos.y-this.bullets[key].pos.y), 2) );
-          if (dist >= this.bullets[key].distanceMax) {
-              this.io.to(this.bullets[key].roomID).emit("MissileDelete", this.bullets[key]);
-              this.bullets.splice(key, 1);
-          }
+        if (this.bullets[key].needToDeleted) {
+          this.io.to(this.id).emit("MissileDelete", this.bullets[key].id);
+          this.bullets.splice(key, 1);
+        }
       }
     }
 
@@ -172,19 +144,20 @@ class Room {
           break;
         }
 
-        var id      = message.id;
-        var room_id = message.room_id;
+        var id      = message[0];
+        var room_id = message[13];
 
         var entity = this.players[id];
 
         if (entity) {
-          if (message.shoot) {
-            var bullet = entity.shoot();
-            this.io.to(room_id).emit("Shoot", bullet);
-          }
+
+          // if (message.goSpeed) {
+          //   entity.speedBonus = 5;
+          //   // entity.socket.emit("GoSpeed", entity.id);
+          // }
 
           entity.applyInput(message);
-          entity.last_processed_input = message.input_sequence_number;
+          entity.last_processed_input = message[7];
         }
       }
     }
@@ -193,31 +166,25 @@ class Room {
     sendWorldState() {
       var data = {
     		send_ts: +new Date(),
-    		world_state: []
+    		world_state: [],
     	};
 
     	for (var key in this.players) {
     		if ( this.players[key] ) {
     			data.world_state.push({
-    				id: this.players[key].id,
-    				x: this.players[key].pos.x,
-            y: this.players[key].pos.y,
-            canonAngle: this.players[key].canonAngle,
-            angleMove: this.players[key].angleMove,
-            angle: this.players[key].angle,
-            colliderPoint: this.players[key].colliderPoint,
-            colliderPointServer: this.players[key].colliderPointServer,
-    				last_processed_input: this.players[key].last_processed_input
+    				0: this.players[key].id,
+    				2: this.players[key].pos.x,
+            3: this.players[key].pos.y,
+            4: this.players[key].canonAngle,
+            12: this.players[key].angle,
+            7: this.players[key].last_processed_input
     			});
     		}
     	}
 
-
     	for (var key in this.players) {
-        if ( this.players[key].socket ) {
-          data.lag = this.players[key].socket.lag;
-          this.players[key].socket.emit('1', data);
-        }
+        data[1] = this.players[key].lag;
+        this.sockets[key].emit('1', data);
       }
 
     }
@@ -244,6 +211,21 @@ class Room {
 
     remove(player) {
 
+    }
+
+    shoot(data) {
+      var entity = this.players[data[0]];
+      var bullet = new BulletObject(data[0], data[1], JSON.parse(JSON.stringify(entity.posCanon)), entity.canonAngle, undefined);
+      this.addBullet(bullet);
+
+      this.io.to(data[1]).emit("Shoot", {
+        0: bullet.id,
+        1: bullet.playerID,
+        2: bullet.roomID,
+        3: bullet.pos.x,
+        4: bullet.pos.y,
+        5: bullet.angle
+      });
     }
 }
 

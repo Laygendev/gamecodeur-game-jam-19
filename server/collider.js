@@ -1,12 +1,12 @@
 class Collider {
   static OBB(tab, P) {
       for (var i = 0; i < 4; i++) {
-          var A = tab[i].pos;
+          var A = tab[i];
           var B;
     		if (i == 3) {
-    			B = tab[0].pos
+    			B = tab[0]
     		} else {
-              B = tab[i + 1].pos;
+              B = tab[i + 1];
           }
     		var D = {X: 0, Y: 0};
     		var T = {X: 0, Y: 0};

@@ -12,7 +12,9 @@ const options = {
 
 server = server.createServer(options);
 
-var io         = require("socket.io").listen(server);
+var io = require("socket.io")(server, {
+  'pingInterval': 2000,
+});
 var tankServer = new TankServer(io);
 
 io = io.sockets.on("connection", (socket) => { tankServer.handleSocket(socket); });

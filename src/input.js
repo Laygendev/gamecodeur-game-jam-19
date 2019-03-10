@@ -7,6 +7,7 @@ class Input {
             down: false,
             right: false,
             left: false,
+            space: false,
             Z: false,
             Q: false,
             S: false,
@@ -32,6 +33,9 @@ class Input {
         var code = e.keyCode;
 
         switch (code) {
+            case 32:
+              this.keyPressed.space = true;
+                break;
             case 38:
                 this.keyPressed.up = true;
                 break;
@@ -63,6 +67,9 @@ class Input {
         var code = e.keyCode;
 
         switch (code) {
+          case 32:
+            this.keyPressed.space = false;
+              break;
             case 38:
                 this.keyPressed.up = false;
                 break;
