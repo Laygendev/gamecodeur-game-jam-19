@@ -45,9 +45,6 @@ class Net {
         document.querySelector(".network-not-ready").style.display = 'none';
 
         this.id = id;
-
-        tankGame.net.lookingForRoom();
-
     });
 
     this.socket.on('UpdateNumberPlayer', (numberPlayer) => {
