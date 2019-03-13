@@ -12,7 +12,7 @@ class Net {
     this.pending_inputs        = [];
     this.input_sequence_number = 0;
 
-    this.socket = io.connect("https://trackball-game.com:8080", {
+    this.socket = io.connect("http://93.90.195.225:8080", {
       forceNew: true
     });
 
