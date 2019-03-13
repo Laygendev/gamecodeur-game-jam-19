@@ -2,6 +2,8 @@ var version = "0.1";
 var port    = 8080;
 var server  = require("http");
 var fs      = require("fs");
+const url = require('url');
+const path = require('path');
 
 var TankServer = require('./server.js');
 
