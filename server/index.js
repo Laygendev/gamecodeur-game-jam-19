@@ -15,7 +15,7 @@ app.get('/', function(req, res){
   res.sendFile(path.resolve('index.html'));
 });
 
-io.on('connection', tankServer.handleSocket);
+io.on('connection', () => { tankServer.handleSocket(); });
 
 http.listen(8080, function(){
   console.log('listening on *:8080');
