@@ -13,6 +13,8 @@ server = server.createServer(function(req, res) {
   const sanitizePath = path.normalize(parsedUrl.pathname).replace(/^(\.\.[\/\\])+/, '');
   let pathname = path.join(__dirname, sanitizePath);
 
+  console.log(pathname);
+
   fs.exists(pathname, function (exist) {
     if(!exist) {
       // if the file is not found, return 404
