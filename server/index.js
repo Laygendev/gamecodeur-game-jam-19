@@ -2,7 +2,8 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http, {
-  pingInterval: 1000
+  pingInterval: 1000,
+  upgradeTimeout: 5000
 });
 var TankServer = require('./server.js');
 var tankServer = new TankServer(io);
