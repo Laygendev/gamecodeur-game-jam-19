@@ -78,7 +78,7 @@ class Player extends Entity {
        this.game.ctx.globalAlpha = 0.5;
      }
 
-     this.game.ctx.drawImage(this.game.ressources['canon'], 16 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
+     this.game.ctx.drawImage(this.game.ressources['canon'], 20 + -this.game.ressources['canon'].width / 2, -this.game.ressources['canon'].height / 2);
      this.game.ctx.restore();
 
        if (!this.isSpectator) {

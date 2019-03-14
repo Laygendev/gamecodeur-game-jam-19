@@ -22,18 +22,18 @@ class Net {
     });
 
     this.socket.on('connect_error', () => {
-      // @todo: Move to UI Class.
-        if (this.room != undefined) {
-            document.querySelector(".vote").style.display = "none";
-            document.querySelector(".menu").style.display = "block";
-            document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
-            game.stop();
-        }
-
-        document.querySelector(".network-ready").style.display = 'none';
-        document.querySelector(".network-not-ready").style.display = 'block';
-
-        document.querySelector(".network-not-ready").innerHTML = "Server offline";
+      // // @todo: Move to UI Class.
+      //   if (this.room != undefined) {
+      //       document.querySelector(".vote").style.display = "none";
+      //       document.querySelector(".menu").style.display = "block";
+      //       document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+      //       game.stop();
+      //   }
+      //
+      //   document.querySelector(".network-ready").style.display = 'none';
+      //   document.querySelector(".network-not-ready").style.display = 'block';
+      //
+      //   document.querySelector(".network-not-ready").innerHTML = "Server offline";
     });
 
     this.socket.on('reconnecting', (n) => {

@@ -19,7 +19,7 @@ function generateName(){
 }
 
 
-for (var i = 0; i < 100; i++) {
+for (var i = 0; i < 50; i++) {
   let socket = require('socket.io-client')('https://trackball-game.com:8080', {rejectUnauthorized: false, transports: ['websocket']});
   socket.latency = 0;
   socket.input_sequence_number = 0;
@@ -58,64 +58,64 @@ for (var i = 0; i < 100; i++) {
   sockets.push(socket);
 }
 
-// setInterval(function() {
-//   for (var key in sockets) {
-//     if (sockets[key].room.id && sockets[key].alive) {
-//       sockets[key].startTime = +Date.now();
-//
-//       var now_ts = +new Date();
-//       var last_ts = sockets[key].last_ts || now_ts;
-//       var dt_sec = (now_ts - last_ts) / 1000.0;
-//       sockets[key].last_ts = now_ts;
-//
-//       sockets[key].timerToShoot += dt_sec;
-//
-//       var randomDirection = Math.floor(Math.random() * Math.floor(4));
-//
-//       var input = {};
-//
-//       input[8] = 0; // UP
-//       input[9] = 0; // LEFT
-//       input[10] = 0; // RIGHT
-//       input[11] = 0; // DOWN
-//
-//       switch (randomDirection) {
-//         case 0:
-//           input[8] = dt_sec; // UP
-//           break;
-//         case 1:
-//           input[9] = dt_sec; // LEFT
-//           break;
-//         case 2:
-//           input[10] = dt_sec; // RIGHT
-//           break;
-//         case 3:
-//           input[11] = dt_sec; // DOWN
-//           break;
-//       }
-//
-//
-//
-//       input[4] = Math.floor(Math.random() * Math.floor(360));
-//
-//       if (sockets[key].timerToShoot >= 1) {
-//         sockets[key].emit('Shoot', {
-//           0: sockets[key].id,
-//           1: sockets[key].room.id
-//         });
-//         sockets[key].timerToShoot = 0;
-//       } else {
-//       }
-//       input[7] = sockets[key].input_sequence_number++;
-//       input[0] = sockets[key].id;
-//       input[1] = sockets[key].latency;
-//       input[13] = sockets[key].room.id;
-//       sockets[key].emit(0, input);
-//
-//       sockets[key].canShoot = false;
-//     }
-//   }
-// }, 1000 / 60 );
+setInterval(function() {
+  for (var key in sockets) {
+    if (sockets[key].room.id && sockets[key].alive) {
+      sockets[key].startTime = +Date.now();
+
+      var now_ts = +new Date();
+      var last_ts = sockets[key].last_ts || now_ts;
+      var dt_sec = (now_ts - last_ts) / 1000.0;
+      sockets[key].last_ts = now_ts;
+
+      sockets[key].timerToShoot += dt_sec;
+
+      var randomDirection = Math.floor(Math.random() * Math.floor(4));
+
+      var input = {};
+
+      input[8] = 0; // UP
+      input[9] = 0; // LEFT
+      input[10] = 0; // RIGHT
+      input[11] = 0; // DOWN
+
+      switch (randomDirection) {
+        case 0:
+          input[8] = dt_sec; // UP
+          break;
+        case 1:
+          input[9] = dt_sec; // LEFT
+          break;
+        case 2:
+          input[10] = dt_sec; // RIGHT
+          break;
+        case 3:
+          input[11] = dt_sec; // DOWN
+          break;
+      }
+
+
+
+      input[4] = Math.floor(Math.random() * Math.floor(360));
+
+      if (sockets[key].timerToShoot >= 1) {
+        sockets[key].emit('Shoot', {
+          0: sockets[key].id,
+          1: sockets[key].room.id
+        });
+        sockets[key].timerToShoot = 0;
+      } else {
+      }
+      input[7] = sockets[key].input_sequence_number++;
+      input[0] = sockets[key].id;
+      input[1] = sockets[key].latency;
+      input[13] = sockets[key].room.id;
+      sockets[key].emit(0, input);
+
+      sockets[key].canShoot = false;
+    }
+  }
+}, 1000 / 60 );
 
 function roughSizeOfObject( object ) {
 

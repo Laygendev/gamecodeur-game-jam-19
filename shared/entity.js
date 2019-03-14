@@ -25,6 +25,8 @@ class Entity  {
     this.forwardPos           = { x: this.pos.x, y: this.pos.y };
     this.speedEffect          = [];
     this.kill                 = 0;
+    this.halfWidth            = 35;
+    this.halfHeight           = 30;
 
     if (this.game) {
       this.width  = this.game.ressources['tank'].width;
@@ -40,10 +42,10 @@ class Entity  {
     this.colliderPoint[3] = { x: this.pos.x, y: this.pos.y };
 
     this.offsetCollider = [];
-    this.offsetCollider[0] = {x: -35, y: 25};
-    this.offsetCollider[1] = {x: 35, y: 25};
-    this.offsetCollider[2] = {x: 35, y: -25};
-    this.offsetCollider[3] = {x: -35, y: -25};
+    this.offsetCollider[0] = {x: -this.halfWidth, y: this.halfHeight};
+    this.offsetCollider[1] = {x: this.halfWidth, y: this.halfHeight};
+    this.offsetCollider[2] = {x: this.halfWidth, y: -this.halfHeight};
+    this.offsetCollider[3] = {x: -this.halfWidth, y: -this.halfHeight};
   }
 
   setPos(x, y) {
@@ -53,28 +55,13 @@ class Entity  {
     this.posLife.x = this.pos.x;
     this.posLife.y = this.pos.y;
 
-    this.colliderPoint[0] = { x: this.pos.x - 35, y: this.pos.y + 25 };
-    this.colliderPoint[1] = { x: this.pos.x + 35, y: this.pos.y - 25 };
-    this.colliderPoint[2] = { x: this.pos.x + 35, y: this.pos.y - 25 };
-    this.colliderPoint[3] = { x: this.pos.x - 35, y: this.pos.y - 25 };
+    this.colliderPoint[0] = { x: this.pos.x - this.halfWidth, y: this.pos.y + this.halfHeight };
+    this.colliderPoint[1] = { x: this.pos.x + this.halfWidth, y: this.pos.y - this.halfHeight };
+    this.colliderPoint[2] = { x: this.pos.x + this.halfWidth, y: this.pos.y - this.halfHeight };
+    this.colliderPoint[3] = { x: this.pos.x - this.halfWidth, y: this.pos.y - this.halfHeight };
   }
 
   update() {
-    //
-    // for( var i = 0; i < 4; i++) {
-    //     var currentPos = {
-    //         x: this.pos.x - this.game.camera.x - this.offsetCollider[i].x,
-    //         y: this.pos.y - this.game.camera.y - this.offsetCollider[i].y
-    //     };
-    //
-    //     var currentPosSource = {
-    //         x: this.pos.x - this.game.camera.x,
-    //         y: this.pos.y - this.game.camera.y
-    //     };
-    //
-    //     this.colliderPoint[i].x = (currentPos.x - currentPosSource.x) * Math.cos(UtilsObject.degreesToRadians(this.angle)) - (currentPos.y - currentPosSource.y) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.x;
-    //     this.colliderPoint[i].y = (currentPos.y - currentPosSource.y) * Math.cos(UtilsObject.degreesToRadians(this.angle)) + (currentPos.x - currentPosSource.x) * Math.sin(UtilsObject.degreesToRadians(this.angle)) + currentPosSource.y;
-    //   }
   }
 
   applyInput(input) {
@@ -130,12 +117,13 @@ class Entity  {
 
 
     if (tmpTestPos.x >= 0 && tmpTestPos.x <= this.room.width && someKeyIsPressed && ! haveCollision) {
-      this.pos.x = tmpTestPos.x;
+      this.pos.x = parseInt(tmpTestPos.x);
     }
 
     if (tmpTestPos.y >= 0 && tmpTestPos.y <= this.room.height && someKeyIsPressed && ! haveCollision) {
-      this.pos.y = tmpTestPos.y;
+      this.pos.y = parseInt(tmpTestPos.y);
     }
+
 
     if (someKeyIsPressed) {
       this.angle = Math.atan2(this.forwardPos.y - this.pos.y, this.forwardPos.x - this.pos.x);

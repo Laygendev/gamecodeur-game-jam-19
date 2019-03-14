@@ -42,7 +42,7 @@ class Game {
     this.ui      = new UI(this);
     this.world   = new World(this);
 
-    setInterval(() => { this.gameLoop(); }, 1000 / 60);
+    requestAnimationFrame(() => { this.gameLoop(); });
   }
 
   stop() {
@@ -62,10 +62,14 @@ class Game {
       var dt_sec = (now_ts - last_ts) / 1000.0;
       this.last_ts = now_ts;
 
-        this.update(dt_sec);
-        this.net.update(dt_sec);
-        this.draw(dt_sec);
+      this.net.update(dt_sec);
+      this.update(dt_sec);
+      this.draw(dt_sec);
+
     }
+
+    requestAnimationFrame(() => { this.gameLoop(); });
+
   }
 
   update(dt) {
@@ -123,24 +127,6 @@ class Game {
 
 }
 
-
-if ( !window.requestAnimationFrame ) {
-
-    window.requestAnimationFrame = ( function() {
-
-            return window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame || // comment out if FF4 is slow (it caps framerate at ~30fps: https://bugzilla.mozilla.org/show_bug.cgi?id=630127)
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function( /* function FrameRequestCallback */ callback, /* DOMElement Element */ element ) {
-
-                    window.setTimeout( callback, 1000 / 1 );
-
-            };
-
-    } )();
-
-}
 
 function sqr(a) {
   return a*a;

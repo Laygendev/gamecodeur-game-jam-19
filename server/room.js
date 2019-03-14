@@ -76,7 +76,8 @@ class Room {
             this.players[key].life = 5;
             this.players[key].isAlive = true;
 
-            this.players[key].setPos(Math.floor(Math.random() * (this.width - 100)) + 100, Math.floor(Math.random() * (this.height - 100)) + 100)
+            this.players[key].setPos(10, 10);
+            // this.players[key].setPos(Math.floor(Math.random() * (this.width - 100)) + 100, Math.floor(Math.random() * (this.height - 100)) + 100)
 
             let dataPlayer = {
               id: this.players[key].id,
