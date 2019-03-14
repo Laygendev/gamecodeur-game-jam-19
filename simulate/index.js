@@ -20,7 +20,7 @@ function generateName(){
 
 
 for (var i = 0; i < 50; i++) {
-  let socket = require('socket.io-client')('http://93.90.195.225:8080');
+  let socket = require('socket.io-client')('http://93.90.195.225:8080', { rejectUnauthorized: false });
   socket.latency = 0;
   socket.input_sequence_number = 0;
   socket.startTime;
