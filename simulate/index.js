@@ -20,7 +20,7 @@ function generateName(){
 
 
 for (var i = 0; i < 50; i++) {
-  let socket = require('socket.io-client')('https://trackball-game.com:8080', {rejectUnauthorized: false, transports: ['websocket']});
+  let socket = require('socket.io-client')('http://93.90.195.225:8080');
   socket.latency = 0;
   socket.input_sequence_number = 0;
   socket.startTime;
