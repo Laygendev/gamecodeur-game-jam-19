@@ -28,7 +28,6 @@ class Server {
     socket.on('Start', (data) => { this.start(data); });
     socket.on('startVote', (data) => { this.startVote(data); });
     socket.on('vote', (data) => { this.vote(data); });
-    socket.on('Shoot', (data) => { this.shoot(data); });
 
     socket.emit("connected", socket.id);
 
@@ -207,12 +206,6 @@ class Server {
 
       room.checkNumberVote();
     }
-  }
-
-  shoot(data) {
-    var room = this.rooms[data[1]];
-
-    room.shoot(data);
   }
 }
 

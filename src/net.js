@@ -12,7 +12,7 @@ class Net {
     this.pending_inputs        = [];
     this.input_sequence_number = 0;
 
-    this.socket = io.connect("http://93.90.195.225:8080", {
+    this.socket = io.connect("http://51.38.60.46:8080", {
       forceNew: true
     });
 
@@ -22,18 +22,18 @@ class Net {
     });
 
     this.socket.on('connect_error', () => {
-      // // @todo: Move to UI Class.
-      //   if (this.room != undefined) {
-      //       document.querySelector(".vote").style.display = "none";
-      //       document.querySelector(".menu").style.display = "block";
-      //       document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
-      //       game.stop();
-      //   }
-      //
-      //   document.querySelector(".network-ready").style.display = 'none';
-      //   document.querySelector(".network-not-ready").style.display = 'block';
-      //
-      //   document.querySelector(".network-not-ready").innerHTML = "Server offline";
+      // @todo: Move to UI Class.
+        if (this.room != undefined) {
+            document.querySelector(".vote").style.display = "none";
+            document.querySelector(".menu").style.display = "block";
+            document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+            game.stop();
+        }
+
+        document.querySelector(".network-ready").style.display = 'none';
+        document.querySelector(".network-not-ready").style.display = 'block';
+
+        document.querySelector(".network-not-ready").innerHTML = "Server offline";
     });
 
     this.socket.on('reconnecting', (n) => {
@@ -110,12 +110,6 @@ class Net {
         });
     });
 
-    this.socket.on('Shoot', (data) => {
-        var bullet = new Bullet(data[1], data[2], {x: data[3], y: data[4]}, data[5], game);
-        bullet.id  = data[0];
-        game.bullets[bullet.id] = bullet;
-    });
-
     this.socket.on("HitPlayer", (hit) => {
       if (game.tanks[hit.playerID]) {
         game.tanks[hit.playerID].life = hit.player.life;
@@ -176,15 +170,6 @@ class Net {
   updatePos(data) {
       data.roomID = this.room.id;
       this.socket.emit('UpdatePlayerPosition', data);
-  }
-
-  Shoot() {
-    var data = {
-      0: this.id,
-      1: this.room.id
-    };
-
-    this.socket.emit('Shoot', data);
   }
 
   lookingForRoom(pseudo) {
@@ -316,8 +301,12 @@ class Net {
 
     this.game.tanks[this.id].update();
 
+    if ( this.game.tanks[this.id].shoot ) {
+      this.game.bullets.push(this.game.tanks[this.id].Shoot());
+    }
+
     input[4] = Utils.radiansToDegrees(this.game.tanks[this.id].canonAngle);
-    // input[6] = this.game.tanks[this.id].shoot;
+    input[6] = this.game.tanks[this.id].shoot;
     input[7] = this.input_sequence_number++;
     input[0] = this.id;
     input[1] = this.latency;

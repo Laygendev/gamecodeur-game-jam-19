@@ -21,8 +21,7 @@ class Player extends Entity {
 
     if (this.game.input.leftClickPressed && this.canShoot && !this.isSpectator) {
       this.canShoot = false;
-
-      this.game.net.Shoot();
+      this.shoot    = true;
 
       setTimeout(() => {
         this.canShoot = true;

@@ -215,17 +215,17 @@ class Room {
 
     shoot(data) {
       var entity = this.players[data[0]];
-      var bullet = new BulletObject(data[0], data[1], JSON.parse(JSON.stringify(entity.posCanon)), entity.canonAngle, undefined);
+      bullet = entity.Shoot();
       this.addBullet(bullet);
 
-      this.io.to(data[1]).emit("Shoot", {
-        0: bullet.id,
-        1: bullet.playerID,
-        2: bullet.roomID,
-        3: bullet.pos.x,
-        4: bullet.pos.y,
-        5: bullet.angle
-      });
+      // this.io.to(data[1]).emit("Shoot", {
+      //   0: bullet.id,
+      //   1: bullet.playerID,
+      //   2: bullet.roomID,
+      //   3: bullet.pos.x,
+      //   4: bullet.pos.y,
+      //   5: bullet.angle
+      // });
     }
 }
 

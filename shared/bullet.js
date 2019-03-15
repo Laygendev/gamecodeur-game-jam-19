@@ -18,8 +18,8 @@ class Bullet {
 
   update(dt) {
     if (!this.needToDeleted) {
-      this.pos.x += this.speed * Math.cos(UtilsObject.degreesToRadians(this.angle)) * dt;
-      this.pos.y += this.speed * Math.sin(UtilsObject.degreesToRadians(this.angle)) * dt;
+      this.pos.x += this.speed * Math.cos(this.angle) * dt;
+      this.pos.y += this.speed * Math.sin(this.angle) * dt;
 
       if (!this.game) {
         var dist = Math.sqrt( Math.pow((this.initPos.x-this.pos.x), 2) + Math.pow((this.initPos.y-this.pos.y), 2) );
@@ -75,8 +75,8 @@ class Bullet {
             y: this.pos.y
           };
 
-          copy.x -= i * 200 * dt * Math.cos(UtilsObject.degreesToRadians(this.angle));
-          copy.y -= i * 200 * dt * Math.sin(UtilsObject.degreesToRadians(this.angle));
+          copy.x -= i * 200 * dt * Math.cos(this.angle);
+          copy.y -= i * 200 * dt * Math.sin(this.angle);
 
           this.game.ctx.translate(copy.x - this.game.camera.x + this.game.ressources['fire'].width, copy.y - this.game.camera.y + this.game.ressources['fire'].height);
           this.game.ctx.rotate(this.angle);

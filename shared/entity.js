@@ -1,7 +1,7 @@
 var UtilsObject = module ? require('./utils.js') : Utils;
 var world = module ? require('./world.js') : undefined;
 var worldColliderServer = module ? require('./../asset/worldCollider.json') : undefined;
-var BulletObject = module ? require('./bullet.js') : undefined;
+var BulletObject = module ? require('./bullet.js') : Bullet;
 
 if (world) {
   world.setCollider(worldColliderServer);
@@ -18,6 +18,7 @@ class Entity  {
     this.speedRotation        = 150;
     this.angleMove            = 0;
     this.angle                = 0;
+    this.shoot                = false;
     this.canonAngle           = 0;
     this.posCanon             = {x: 0, y: 0};
     this.last_processed_input = 0;
@@ -129,7 +130,7 @@ class Entity  {
       this.angle = Math.atan2(this.forwardPos.y - this.pos.y, this.forwardPos.x - this.pos.x);
     }
 
-    if (!this.game && this.posCanon) {
+    if (this.posCanon) {
       this.posCanon.x = (this.pos.x + (this.pos.x + (100 * Math.cos(UtilsObject.degreesToRadians(this.canonAngle))))) * 0.5;
       this.posCanon.y = (this.pos.y + (this.pos.y + (100 * Math.sin(UtilsObject.degreesToRadians(this.canonAngle))))) * 0.5;
     }
@@ -151,7 +152,10 @@ class Entity  {
         this.colliderPoint[i].y = (currentPos.y - currentPosSource.y) * Math.cos(this.angle) + (currentPos.x - currentPosSource.x) * Math.sin(this.angle) + currentPosSource.y;
       }
     }
+  }
 
+  Shoot() {
+    return new BulletObject(this.id, this.room.id, JSON.parse(JSON.stringify(this.posCanon)), this.canonAngle, this.game);
   }
 }
 
