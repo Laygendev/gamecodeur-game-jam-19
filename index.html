@@ -7,25 +7,6 @@
     <link rel="stylesheet" type="text/css" href="asset/style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="lib/socket.io.js"></script>
-
-    <script>
-      var module = undefined;
-    </script>
-    <script src="src/input.js"></script>
-    <script src="shared/utils.js"></script>
-    <script src="src/xhr-json.js"></script>
-    <script src="src/htmlUI.js"></script>
-    <script src="src/ui.js"></script>
-    <script src="src/rectangle.js"></script>
-    <script src="shared/bullet.js"></script>
-    <script src="src/loader.js"></script>
-    <script src="src/camera.js"></script>
-    <script src="shared/world.js"></script>
-    <script src="src/game.js"></script>
-    <script src="shared/entity.js"></script>
-    <script src="src/player.js"></script>
-    <script src="src/ennemy.js"></script>
-    <script src="src/net.js"></script>
 </head>
 <body>
     <canvas id="canvas"></canvas>
@@ -73,7 +54,7 @@
                 </div>
                 <div class="network-ready hidden">
                     <h2>This is the tank of...</h2>
-                    <input type="text" class="pseudo" maxlength="20" />
+                    <input type="text" class="name" maxlength="20" />
                     <p class="state">Press enter to looking for a game</p>
 
                     <div class="vote hidden">
@@ -96,34 +77,17 @@
         </div>
     </div>
 
-    <script>
-        winW = window.innerWidth;
-        winH = window.innerHeight;
-         var tankGame = new Game();
-        window.addEventListener('keydown', (e) => {
-            var code = e.keyCode;
-            if (13 == code) {
-                tankGame.net.lookingForRoom();
-            }
-        });
-
-        document.querySelector('.back').addEventListener('click', function() {
-          tankGame.stop();
-
-          document.querySelector( '.end-game' ).style.display = "none";
-          document.querySelector( '.in-game' ).style.display = "none";
-          document.querySelector( '.menu' ).style.display = "block";
-          document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
-
-          tankGame.net.leaveRoom();
-        });
-
-
-        function start() {
-          if (tankGame.net.room) {
-            tankGame.net.start(tankGame.net.room.id);
-          }
-        }
-    </script>
+    <script src="shared/Util.js"></script>
+    <script src="shared/Constants.js"></script>
+    <script src="src/Camera.js"></script>
+    <script src="src/Game.js"></script>
+    <script src="src/HtmlUI.js"></script>
+    <script src="src/Input.js"></script>
+    <script src="src/Loader.js"></script>
+    <script src="src/Rectangle.js"></script>
+    <script src="src/Room.js"></script>
+    <script src="src/UI.js"></script>
+    <script src="src/XHRJson.js"></script>
+    <script src="src/Client.js"></script>
 </body>
 </html>

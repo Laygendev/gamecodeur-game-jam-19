@@ -1,5 +1,4 @@
 class Loader {
-
     constructor(game) {
         this.game             = game;
         this.ressourcesToLoad = [];
@@ -46,9 +45,9 @@ class Loader {
     }
 
     checkAllLoad() {
-      if (this.nbLoad == Utils.length(this.ressourcesToLoad)) {
+      if (this.nbLoad == Util.length(this.ressourcesToLoad)) {
         this.isLoaded = true;
-        this.game.net = new Net(this.game);
+        // this.game.net = new Net(this.game);
       }
     }
 }

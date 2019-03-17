@@ -4,7 +4,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http, {
   pingInterval: 1000
 });
-var TankServer = require('./server.js');
+var TankServer = require('./Server');
 var tankServer = new TankServer(io);
 var path = require('path');
 

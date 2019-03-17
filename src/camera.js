@@ -1,17 +1,17 @@
 class Camera {
     constructor(game) {
       this.game      = game;
-        this.x         = 0;
-        this.y         = 0;
-        this.width     = this.game.canvas.width;
-        this.height    = this.game.canvas.height;
-        this.maxX      = 0;
-        this.maxY      = 0;
-        this.xDeadZone = 0;
-        this.yDeadZone = 0;
-        this.target    = null;
-        this.viewportRect   = new Rectangle(this.x, this.y, this.width, this.height);
-        this.worldRect      = null;
+      this.x         = 0;
+      this.y         = 0;
+      this.width     = this.game.canvas.width;
+      this.height    = this.game.canvas.height;
+      this.maxX      = 0;
+      this.maxY      = 0;
+      this.xDeadZone = this.width / 2;
+      this.yDeadZone = this.height / 2;
+      this.target    = null;
+      this.viewportRect   = new Rectangle(this.x, this.y, this.width, this.height);
+      this.worldRect      = new Rectangle(0, 0, Constants.WORLD_MAX, Constants.WORLD_MAX);
     }
 
     setTarget(target, xDeadZone, yDeadZone) {
@@ -24,18 +24,18 @@ class Camera {
 
     update() {
       if (this.target != null && this.worldRect != null) {
-        if(this.target.pos.x - this.x + this.xDeadZone > this.width)
-            this.x = this.target.pos.x - (this.width - this.xDeadZone);
-        else if(this.target.pos.x - this.xDeadZone < this.x)
-            this.x = this.target.pos.x  - this.xDeadZone;
+        if(this.target.position[0] - this.x + this.xDeadZone > this.width)
+            this.x = this.target.position[0] - (this.width - this.xDeadZone);
+        else if(this.target.position[0] - this.xDeadZone < this.x)
+            this.x = this.target.position[0]  - this.xDeadZone;
 
-        if(this.target.pos.y - this.y + this.yDeadZone > this.height)
-            this.y = this.target.pos.y - (this.height - this.yDeadZone);
-        else if(this.target.pos.y - this.yDeadZone < this.y)
-            this.y = this.target.pos.y - this.yDeadZone;
+        if(this.target.position[1] - this.y + this.yDeadZone > this.height)
+            this.y = this.target.position[1] - (this.height - this.yDeadZone);
+        else if(this.target.position[1] - this.yDeadZone < this.y)
+            this.y = this.target.position[1] - this.yDeadZone;
 
       this.viewportRect.set(this.x, this.y);
-        if(! this.viewportRect.within(this.worldRect))
+        if(!this.viewportRect.within(this.worldRect))
         {
           if(this.viewportRect.left < this.worldRect.left)
             this.x = this.worldRect.left;

@@ -19,8 +19,8 @@ function generateName(){
 }
 
 
-for (var i = 0; i < 50; i++) {
-  let socket = require('socket.io-client')('http://93.90.195.225:8080', { rejectUnauthorized: false });
+for (var i = 0; i < 99; i++) {
+  let socket = require('socket.io-client')('http://51.38.60.46:8080', { rejectUnauthorized: false });
   socket.latency = 0;
   socket.input_sequence_number = 0;
   socket.startTime;
@@ -39,18 +39,18 @@ for (var i = 0; i < 50; i++) {
     }
   });
 
-  //
-  // socket.on('connect_error', (err) => {
-  //   console.log(err);
-  // });
-  //
+
   socket.on('connected', (id) => {
     socket.emit('JoinRoom', {
       id: id,
-      pseudo: 'test'
+      pseudo: 'test',
+      screen: {
+        halfWidth: 500,
+        halfHeight: 500
+      }
     })
   })
-  //
+
   socket.on('JoinedRoom', (room) => {
     socket.room = room;
   })
@@ -72,81 +72,38 @@ setInterval(function() {
 
       var randomDirection = Math.floor(Math.random() * Math.floor(4));
 
-      var input = {};
+      var input = []
+      input[1] = sockets[key].id;
+      input[2] = sockets[key].room.id;
 
-      input[8] = 0; // UP
-      input[9] = 0; // LEFT
-      input[10] = 0; // RIGHT
-      input[11] = 0; // DOWN
+      input[3] = 0; // UP
+      input[4] = 0; // LEFT
+      input[5] = 0; // RIGHT
+      input[6] = 0; // DOWN
 
       switch (randomDirection) {
         case 0:
-          input[8] = dt_sec; // UP
+          input[3] = true; // UP
           break;
         case 1:
-          input[9] = dt_sec; // LEFT
+          input[4] = true; // LEFT
           break;
         case 2:
-          input[10] = dt_sec; // RIGHT
+          input[5] = true; // RIGHT
           break;
         case 3:
-          input[11] = dt_sec; // DOWN
+          input[6] = true; // DOWN
           break;
       }
 
-
-
-      input[4] = Math.floor(Math.random() * Math.floor(360));
-
       if (sockets[key].timerToShoot >= 1) {
-        sockets[key].emit('Shoot', {
-          0: sockets[key].id,
-          1: sockets[key].room.id
-        });
+        input[8] = true;
         sockets[key].timerToShoot = 0;
-      } else {
       }
-      input[7] = sockets[key].input_sequence_number++;
-      input[0] = sockets[key].id;
-      input[1] = sockets[key].latency;
-      input[13] = sockets[key].room.id;
-      sockets[key].emit(0, input);
 
-      sockets[key].canShoot = false;
+      input[7] = Math.floor(Math.random() * Math.floor(360));
+
+      sockets[key].emit(0, input);
     }
   }
-}, 1000 / 60 );
-
-function roughSizeOfObject( object ) {
-
-    var objectList = [];
-    var stack = [ object ];
-    var bytes = 0;
-
-    while ( stack.length ) {
-        var value = stack.pop();
-
-        if ( typeof value === 'boolean' ) {
-            bytes += 4;
-        }
-        else if ( typeof value === 'string' ) {
-            bytes += value.length * 2;
-        }
-        else if ( typeof value === 'number' ) {
-            bytes += 8;
-        }
-        else if
-        (
-            typeof value === 'object'
-            && objectList.indexOf( value ) === -1
-        )
-        {
-            objectList.push( value );
-
-            for( var i in value ) {
-                stack.push( value[ i ] );
-            }
-        }
-    }
-    return bytes;
-}
+}, 1000 / 30 );

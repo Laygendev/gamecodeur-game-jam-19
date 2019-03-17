@@ -1,4 +1,4 @@
-class Utils {
+class Util {
   static degreesToRadians(degrees) {
     var pi = Math.PI;
     return degrees * (pi/180);
@@ -11,6 +11,22 @@ class Utils {
 
   static length(obj) {
       return Object.keys(obj).length;
+  }
+
+  static randRange(min, max) {
+    return (Math.random() * (max -min)) + min;
+  }
+
+  static inBound(val, min, max) {
+    if (min > max) {
+      return val >= max && val <= min;
+    }
+
+    return val >= min && val <= max;
+  }
+
+  static sqr(a) {
+    return a * a;
   }
 
   static OBB(tab, P) {
@@ -57,14 +73,51 @@ class Utils {
     }
 
     static CollisionSegSeg(A, B, O, P) {
-      if (Utils.CollisionDroiteSeg(A,B,O,P)==false)
+      if (Util.CollisionDroiteSeg(A,B,O,P)==false)
       return false;  // inutile d'aller plus loin si le segment [OP] ne touche pas la droite (AB)
-      if (Utils.CollisionDroiteSeg(O,P,A,B)==false)
+      if (Util.CollisionDroiteSeg(O,P,A,B)==false)
          return false;
       return true;
     }
+
+    static roughSizeOfObject( object ) {
+
+        var objectList = [];
+        var stack = [ object ];
+        var bytes = 0;
+
+        while ( stack.length ) {
+            var value = stack.pop();
+
+            if ( typeof value === 'boolean' ) {
+                bytes += 4;
+            }
+            else if ( typeof value === 'string' ) {
+                bytes += value.length * 2;
+            }
+            else if ( typeof value === 'number' ) {
+                bytes += 8;
+            }
+            else if
+            (
+                typeof value === 'object'
+                && objectList.indexOf( value ) === -1
+            )
+            {
+                objectList.push( value );
+
+                for( var i in value ) {
+                    stack.push( value[ i ] );
+                }
+            }
+        }
+        return bytes;
+    }
+
 }
 
-if (module) {
-  module.exports = Utils;
+if (typeof module === 'object') {
+  module.exports = Util;
+} else {
+  window.util = Util;
 }

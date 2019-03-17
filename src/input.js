@@ -98,10 +98,8 @@ class Input {
     }
 
     mousemove(e) {
-        let rect = this.game.canvas.getBoundingClientRect();
-
-        this.mousePosition.x = e.clientX - rect.left;
-        this.mousePosition.y = e.clientY - rect.top;
+        this.mousePosition.x = event.offsetX;
+        this.mousePosition.y = event.offsetY;
     }
 
     mousedown(e) {
