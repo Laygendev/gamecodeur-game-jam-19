@@ -2,7 +2,10 @@ class Client {
   constructor() {
     this.socket = io('http://51.38.60.46:8080');
     this.game = new Game(this.socket);
-    this.input = new Input(this.game);
+
+    this.socket.on('pong', (ms) => {
+      this.game.latency = ms;
+    });
   }
 }
 

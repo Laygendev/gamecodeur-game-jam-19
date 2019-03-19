@@ -6,7 +6,8 @@ class htmlUI {
 
     this.messages = [];
 
-    this.socket.on('connected', () => { this.displayConnected(); });
+    this.socket.on('connected', (id) => { this.displayConnected(id); });
+
     window.addEventListener('keydown', (e) => { this.lookingForRoom(e); });
     document.querySelector('.start-vote').addEventListener('click', (e) => { this.startVote(); });
     document.querySelector('.vote-yes').addEventListener('click', (e) => { this.vote(true); });
@@ -14,7 +15,9 @@ class htmlUI {
 
   }
 
-  displayConnected() {
+  displayConnected(id) {
+    this.game.id = id;
+
     document.querySelector(".network-ready").style.display = 'block';
     document.querySelector(".network-not-ready").style.display = 'none';
   }
@@ -28,8 +31,15 @@ class htmlUI {
 
         if (name && name.length < 20) {
           this.isLookingForRoom = true;
+          console.log(this.game.canvas.width);
           this.socket.emit('join-room', {
-            name: name
+            name: name,
+            screen: {
+              w: this.game.canvas.width,
+              h: this.game.canvas.height,
+              hW: this.game.canvas.width / 2,
+              hH: this.game.canvas.height / 2
+            }
           });
         } else {
           window.alert('Your name cannot be blank or over 20 characters.');

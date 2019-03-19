@@ -29,6 +29,10 @@ class Util {
     return a * a;
   }
 
+  static getEuclideanDistance2(x1, y1, x2, y2) {
+    return ((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2));
+  };
+
   static OBB(tab, P) {
       for (var i = 0; i < tab.length; i++) {
           var A = tab[i];
@@ -118,6 +122,4 @@ class Util {
 
 if (typeof module === 'object') {
   module.exports = Util;
-} else {
-  window.util = Util;
 }

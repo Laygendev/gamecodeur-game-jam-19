@@ -15,16 +15,17 @@ class Server {
     this.clients = new HashMap();
     this.rooms = new HashMap();
 
-    this.last_ts = 0;
+    this.lastTimestamp = 0;
 
     setInterval(() => { this.update(); }, 1000 / 60);
+    setInterval(() => { this.updatePlayers(); }, 1000 / 10);
   }
 
   handleSocket(socket) {
     socket.on('join-room', (data) => { this.addNewPlayer(socket, data); });
-    socket.on('player-action', (data) => { this.updatePlayer(socket, data); });
+    socket.on('player-action', (data) => { this.receiveMessages(socket, data); });
 
-    socket.emit('connected');
+    socket.emit('connected', socket.id);
   }
 
   /**
@@ -35,9 +36,10 @@ class Server {
     var foundedRoom = null;
 
     var ids = this.rooms.keys();
-    for (var i = 0; i < ids.length; ++i) {
-      if (!this.rooms[i].isStarted) {
-        foundedRoom = this.rooms.get(ids[i]);
+    for (var key in ids) {
+      var currentRoom = this.rooms.get(ids[key]);
+      if (currentRoom && !currentRoom.isStarted) {
+        foundedRoom = currentRoom;
         break;
       }
     }
@@ -51,26 +53,28 @@ class Server {
 
     this.clients.set(socket.id, {
       socket: socket,
-      latency: 0,
       room: foundedRoom
     });
 
     // Now, we can add new player in the founded room.
-    foundedRoom.addNewPlayer(socket, data);
-    foundedRoom.start();
+    var numberPlayer = foundedRoom.addNewPlayer(socket, data);
+
+    socket.join(foundedRoom.id);
+
+    if (numberPlayer == 2) {
+      foundedRoom.start();
+    }
   }
 
-  updatePlayer(socket, data) {
+  receiveMessages(socket, data) {
     var client = this.clients.get(socket.id);
 
     if (client) {
-      client.latency = (new Date()).getTime() - data.timestamp;
-    }
+      var room = this.rooms.get(client.room.id);
 
-    var room = this.rooms.get(client.room.id);
-
-    if (room) {
-      room.updatePlayer(socket.id, data.keyboardState, data.turretAngle);
+      if (room) {
+        room.receiveMessages(socket, client, data);
+      }
     }
   }
 
@@ -78,12 +82,29 @@ class Server {
   }
 
   update() {
+    var nowTimestamp = +new Date();
+    var lastTimestamp = this.lastTimestamp || nowTimestamp;
+    var dtSec = (nowTimestamp - lastTimestamp) / 1000.0;
+    this.lastTimestamp = nowTimestamp;
+
+
     var ids = this.rooms.keys();
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i]);
       if (currentRoom.isStarted) {
-        currentRoom.update();
+        currentRoom.processInput();
+        currentRoom.update(dtSec);
         currentRoom.sendState();
+      }
+    }
+  }
+
+  updatePlayers() {
+    var ids = this.rooms.keys();
+    for (var i = 0; i < ids.length; ++i) {
+      var currentRoom = this.rooms.get(ids[i]);
+      if (currentRoom.isStarted) {
+        currentRoom.sendWorldState();
       }
     }
   }

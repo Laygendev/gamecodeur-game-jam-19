@@ -24,6 +24,11 @@ class UI {
   destroy(entityID) {
     delete this.entities[entityID]
   }
+
+  displayDamage(data) {
+    var text = new UIText(data.position, 10);
+    this.add(text)
+  }
 }
 
 class UIText {
@@ -47,8 +52,8 @@ class UIText {
 
     this.timeElapsed = this.lastTime - this.createdTime;
 
-    this.pos.x += dt * this.speed * this.velocity.x * Math.cos(this.angle);
-    this.pos.y += dt * this.speed * this.velocity.y * Math.sin(this.angle);
+    this.pos[0] += dt * this.speed * this.velocity.x * Math.cos(this.angle);
+    this.pos[1] += dt * this.speed * this.velocity.y * Math.sin(this.angle);
 
     if (this.timeElapsed >= this.lifetime) {
       this.ui.destroy(this.id);
@@ -60,7 +65,7 @@ class UIText {
     game.ctx.save();
     game.ctx.globalAlpha = this.alpha;
     game.ctx.fillStyle = "#eb2f06";
-    game.ctx.fillText('-10', this.pos.x - game.camera.x, this.pos.y - game.camera.y);
+    game.ctx.fillText('-10', this.pos[0] - game.camera.x, this.pos[1] - game.camera.y);
     game.ctx.restore();
   }
 }

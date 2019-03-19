@@ -1,67 +1,53 @@
+var Entity = require('./Entity');
+var Constants = require('./Constants');
 
+class Bullet extends Entity {
+  constructor(position, angle, playerID) {
+    super(position);
 
-class Bullet {
-  constructor(playerID, roomID, pos, angle) {
-    this.id            = +new Date().getTime();
-    this.playerID      = playerID;
-    this.roomID        = roomID;
-    this.initPos       = {x: pos.x, y: pos.y};
-    this.pos           = {x: pos.x, y: pos.y};
-    this.angle         = angle;
-    this.speed         = 1500;
-    this.distanceMax   = 800;
+    this.position = position;
+    this.angle = angle;
+    this.playerID = playerID;
+
+    this.initPos = JSON.parse(JSON.stringify(position));
+    this.speed = 1500;
+    this.distanceMax = 800;
     this.needToDeleted = false;
-
-    this.position_buffer = [];
   }
 
-  update(dt) {
+  update(clients, dt) {
     if (!this.needToDeleted) {
-      this.pos.x += this.speed * Math.cos(this.angle) * dt;
-      this.pos.y += this.speed * Math.sin(this.angle) * dt;
+      this.position[0] += this.speed * Math.cos(this.angle) * dt;
+      this.position[1] += this.speed * Math.sin(this.angle) * dt;
 
-      var dist = Math.sqrt( Math.pow((this.initPos.x-this.pos.x), 2) + Math.pow((this.initPos.y-this.pos.y), 2) );
+      var dist = Math.sqrt( Math.pow((this.initPos[0] - this.position[0]), 2) + Math.pow((this.initPos[1] - this.position[1]), 2) );
       if (dist >= this.distanceMax) {
           this.needToDeleted = true;
       }
     }
-  }
 
-  collision(players) {
-    players.each((key, player) => {
-      if ( player.id != this.playerID && player.isAlive ) {
+    var players = clients.values();
+    for (var i = 0; i < players.length; ++i) {
+      if (this.playerID != players[i].id && !players[i].death &&
+          players[i].isCollidedWith(this.getX(), this.getY(),
+                                    Constants.BULLET_HITBOX_SIZE)) {
+        var killingPlayer = null;
 
-        if (Collider.OBB(player.colliderPoint, this.pos)) {
-          player.life--;
+        players[i].damage(1);
 
-          if (player.life <= 0) {
-            player.isAlive = false;
-          }
-
-            var hit = {
-              damage: 10,
-              bulletID: this.bulletid,
-              playerID: player.id,
-              player: {
-                pos: player.pos,
-                life: player.life,
-                isAlive: player.isAlive,
-                top: this.numberPlayerAlive + 1
-              }
-            };
-
-            this.needToDeleted = true;
-            this.hitPlayer = hit;
+        if (players[i].death) {
+          killingPlayer = clients.get(this.playerID);
+          killingPlayer.kills++;
         }
+
+        this.needToDeleted = true;
+        return {
+          hitPlayer: players[i],
+          killingPlayer: killingPlayer
+        };
       }
-    });
-  }
-
-  values() {
-    return [this.id, this.pos, this.angle, this.initPos];
+    }
   }
 }
 
-if (module) {
-  module.exports = Bullet;
-}
+module.exports = Bullet;

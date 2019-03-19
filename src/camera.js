@@ -7,11 +7,10 @@ class Camera {
       this.height    = this.game.canvas.height;
       this.maxX      = 0;
       this.maxY      = 0;
-      this.xDeadZone = this.width / 2;
-      this.yDeadZone = this.height / 2;
+      this.xDeadZone = 0;
+      this.yDeadZone = 0;
       this.target    = null;
       this.viewportRect   = new Rectangle(this.x, this.y, this.width, this.height);
-      this.worldRect      = new Rectangle(0, 0, Constants.WORLD_MAX, Constants.WORLD_MAX);
     }
 
     setTarget(target, xDeadZone, yDeadZone) {
@@ -19,7 +18,7 @@ class Camera {
         this.xDeadZone = xDeadZone;
         this.yDeadZone = yDeadZone;
 
-        this.worldRect = new Rectangle(0, 0, this.game.width, this.game.height);
+        this.worldRect = new Rectangle(0, 0, Constants.WORLD_MAX, Constants.WORLD_MAX);
     }
 
     update() {
@@ -34,7 +33,8 @@ class Camera {
         else if(this.target.position[1] - this.yDeadZone < this.y)
             this.y = this.target.position[1] - this.yDeadZone;
 
-      this.viewportRect.set(this.x, this.y);
+        this.viewportRect.set(this.x, this.y);
+
         if(!this.viewportRect.within(this.worldRect))
         {
           if(this.viewportRect.left < this.worldRect.left)

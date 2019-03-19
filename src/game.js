@@ -2,20 +2,25 @@ class Game {
   constructor(socket) {
     this.socket = socket;
 
+    this.id = null;
+    this.pendingInputs = [];
+
     this.started = false;
     this.canvas = document.getElementById('canvas');
     this.ctx = this.canvas.getContext('2d');
 
     this.t = 0;
-    this.last_ts = 0;
+    this.lastTimestamp = 0;
+    this.inputSequenceNumber = 0;
 
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
 
     this.ressources = [];
     this.tanks = [];
-    this.bullets = [];
+    this.projectiles = [];
 
+    this.input = null;
     this.camera = undefined;
     this.ui = undefined;
     this.room = new Room(this, this.socket);
@@ -40,11 +45,8 @@ class Game {
 
     this.htmlUI.switchUI();
 
-    this.input   = new Input(this);
-    // this.camera  = new Camera(this);
-    this.ui      = new UI(this);
-
-    this.socket.on('update', (data) => { this.receiveGameState(data); });
+    this.input = new Input(this);
+    this.ui = new UI(this);
 
     requestAnimationFrame(() => { this.gameLoop(); });
   }
@@ -57,22 +59,24 @@ class Game {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  receiveGameState(state) {
-    this.self = state['self'];
-    // this.camera.target = this.self;
-    this.tanks = state['players'];
+  addPlayer(data) {
+    this.tanks[data.id] = new Player(data.position, data.orientation, data.name, data.id, data.screen);
+
+    if (this.id === data.id) {
+      this.camera = new Camera(this);
+      this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH);
+    }
   }
 
   gameLoop() {
     if (this.started) {
-      var now_ts = +new Date();
-      var last_ts = this.last_ts || now_ts;
-      var dt_sec = (now_ts - last_ts) / 1000.0;
-      this.last_ts = now_ts;
+      var nowTimestamp = +new Date();
+      var lastTimestamp = this.lastTimestamp || nowTimestamp;
+      var dtSec = (nowTimestamp - lastTimestamp) / 1000.0;
+      this.lastTimestamp = nowTimestamp;
 
-      this.update(dt_sec);
-      this.draw(dt_sec);
-
+      this.update(dtSec);
+      this.draw(dtSec);
     }
 
     requestAnimationFrame(() => { this.gameLoop(); });
@@ -80,105 +84,150 @@ class Game {
 
   update(dt) {
     this.ui.update(dt);
+    this.processInput(dt);
+    this.camera.update();
+    this.room.update();
+  }
 
-    var packet = {
-      'keyboardState': {
-        'up': this.input.keyPressed.up || this.input.keyPressed.Z,
-        'left': this.input.keyPressed.left || this.input.keyPressed.Q,
-        'right': this.input.keyPressed.right || this.input.keyPressed.D,
-        'down': this.input.keyPressed.down || this.input.keyPressed.S
-      },
-      'timestamp': (new Date()).getTime()
-    };
+  processInput(dtSec) {
+    this.tanks[this.id].turretAngle = Math.atan2((this.input.mousePosition.y + this.camera.y) - this.tanks[this.id].position[1],
+                                                (this.input.mousePosition.x + this.camera.x) - this.tanks[this.id].position[0]);
+    var input = {};
 
-    this.socket.emit('player-action', packet);
+    input[0] = this.id;
+    input[1] = this.latency;
+    input[2] = this.inputSequenceNumber++;
+    input[3] = this.tanks[this.id].turretAngle;
+    input[4] = this.input.leftClickPressed;
 
-    // this.camera.update();
+    input[8] = 0; // UP
+    input[9] = 0; // LEFT
+    input[10] = 0; // RIGHT
+    input[11] = 0; // DOWN
+
+    if (this.input.keyPressed.up || this.input.keyPressed.Z) {
+      input[8] = dtSec;
+    }
+
+    if (this.input.keyPressed.left || this.input.keyPressed.Q) {
+      input[9] = dtSec;
+    }
+
+    if (this.input.keyPressed.right || this.input.keyPressed.D) {
+      input[10] = dtSec;
+    }
+
+    if (this.input.keyPressed.down || this.input.keyPressed.S) {
+      input[11] = dtSec;
+    }
+
+    this.tanks[this.id].updateOnInput(input);
+    this.socket.emit('player-action', input);
+
+    this.pendingInputs.push(input);
   }
 
   draw(dt) {
     var tile = 0;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (var x = 0; x < 1000; x += 40) {
-      for (var y = 0; y < 1000; y += 40) {
-        // if (this.camera.inViewport(x, y)) {
-          this.ctx.drawImage(this.ressources['tile'], x, y);
+    for (var x = 0; x < Constants.WORLD_MAX; x += 40) {
+      for (var y = 0; y < Constants.WORLD_MAX; y += 40) {
+        if (this.camera.inViewport(x, y)) {
+          this.ctx.drawImage(this.ressources['tile'], x - this.camera.x, y - this.camera.y);
           tile++;
-        // }
+        }
       }
     }
 
-    if (this.self) {
-      this.drawTanks(this.self);
+    for (var key in this.projectiles) {
+      this.drawBullets(this.projectiles[key], dt);
     }
 
     for (var key in this.tanks) {
       this.drawTanks(this.tanks[key]);
     }
 
-    if (this.self) {
+    if (this.tanks[this.id]) {
       this.ctx.save();
       this.ctx.font = "20px Arial";
-      this.ctx.fillText('X: ' + parseInt(this.self.position[0]) + ' Y: ' + parseInt(this.self.position[1]), 20, 40);
+      this.ctx.fillText('X: ' + parseInt(this.tanks[this.id].position[0]) + ' Y: ' + parseInt(this.tanks[this.id].position[1]), 20, 40);
       this.ctx.restore();
-    }
-
-
-    for (var key in this.bullets) {
-      this.drawBullets(this.bullets[key], dt);
     }
 
     this.ui.draw();
   }
 
   drawTanks(tank) {
-    this.ctx.save();
-    this.ctx.translate(tank.position[0], tank.position[1]);
-    // this.ctx.rotate(tank[2]);
+    if (tank.isVisibleTo(this.tanks[this.id]) && !tank.waitMessage || tank.id == this.id) {
+      this.ctx.save();
+      this.ctx.translate(tank.position[0] - this.camera.x, tank.position[1] - this.camera.y);
+      this.ctx.rotate(tank.orientation);
 
-    this.ctx.drawImage(this.ressources['tank'], -70 / 2, -60 / 2);
-    this.ctx.restore();
+      if (tank.death) {
+        this.ctx.globalAlpha = 0.5;
+      }
 
-    this.ctx.save();
-    this.ctx.translate(tank.position[0], tank.position[1]);
-    // this.ctx.rotate(tank[3]);
+      this.ctx.drawImage(this.ressources['tank'], -70 / 2, -60 / 2);
+      this.ctx.restore();
 
-    this.ctx.drawImage(this.ressources['canon'], 20 + -this.ressources['canon'].width / 2, -this.ressources['canon'].height / 2);
-    this.ctx.restore();
+      this.ctx.save();
+      this.ctx.translate(tank.position[0] - this.camera.x, tank.position[1] - this.camera.y);
+      this.ctx.rotate(tank.turretAngle);
+
+      if (tank.death) {
+        this.ctx.globalAlpha = 0.5;
+      }
+
+      this.ctx.drawImage(this.ressources['canon'], 20 + -this.ressources['canon'].width / 2, -this.ressources['canon'].height / 2);
+      this.ctx.restore();
+
+      if (!tank.death) {
+        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, 100, 10);
+        this.ctx.save();
+        this.ctx.fillStyle = "#556B2F";
+        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, tank.health * 100 / Constants.PLAYER_MAX_HEALTH, 10);
+        this.ctx.restore();
+
+        this.ctx.font = "26px Arial";
+        this.ctx.fillText(tank.name, tank.position[0] - this.camera.x - this.ctx.measureText(tank.name).width / 2, tank.position[1] - this.camera.y - 70);
+      }
+    } else {
+      tank.waitMessage = true;
+    }
   }
 
   drawBullets(bullet, dt) {
-    var distance = Math.sqrt(Util.sqr(bullet[3].y - bullet[1].y) + Util.sqr(bullet[3].x - bullet[1].x));
-    distance *= 0.3;
-
-    if (distance > 100) {
-      distance = 100;
-    }
-
-    for (var i = 0; i < distance; i++) {
-      this.ctx.save();
-
-      var copy = {
-        x: bullet[1].x,
-        y: bullet[1].y
-      };
-
-      copy.x -= i * 200 * dt * Math.cos(bullet[2]);
-      copy.y -= i * 200 * dt * Math.sin(bullet[2]);
-
-      this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
-      this.ctx.rotate(bullet[2]);
-      this.ctx.globalAlpha = (0.9 / i);
-
-      this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-      this.ctx.restore();
-    }
+    // var distance = Math.sqrt(Util.sqr(bullet[3].y - bullet[1].y) + Util.sqr(bullet[3].x - bullet[1].x));
+    // distance *= 0.3;
+    //
+    // if (distance > 100) {
+    //   distance = 100;
+    // }
+    //
+    // for (var i = 0; i < distance; i++) {
+    //   this.ctx.save();
+    //
+    //   var copy = {
+    //     x: bullet[1].x,
+    //     y: bullet[1].y
+    //   };
+    //
+    //   copy.x -= i * 200 * dt * Math.cos(bullet[2]);
+    //   copy.y -= i * 200 * dt * Math.sin(bullet[2]);
+    //
+    //   this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
+    //   this.ctx.rotate(bullet[2]);
+    //   this.ctx.globalAlpha = (0.9 / i);
+    //
+    //   this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
+    //   this.ctx.restore();
+    // }
 
     this.ctx.save();
 
-    this.ctx.translate(bullet[1].x - this.camera.x + this.ressources['fire'].width, bullet[1].y - this.camera.y + this.ressources['fire'].height);
-    this.ctx.rotate(bullet[2]);
+    this.ctx.translate(bullet.position[0] - this.camera.x + this.ressources['fire'].width, bullet.position[1] - this.camera.y + this.ressources['fire'].height);
+    this.ctx.rotate(bullet.angle);
 
     this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
     this.ctx.restore();
