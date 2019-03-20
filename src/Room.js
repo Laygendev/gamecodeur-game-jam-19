@@ -42,12 +42,12 @@ class Room {
       }
     }
 
-    this.game.htmlUI.updateLeftPlayer(data.numberAlive);
+    if (data.numberAlive) {
+      this.game.htmlUI.updateLeftPlayer(data.numberAlive);
+    }
 
-    if (data.deathsInfo) {
-      for (var i = 0; i < data.deathsInfo.length; ++i) {
-        this.game.htmlUI.addMessage(data.deathsInfo[i].killingPlayer.name + ' kill ' + data.deathsInfo[i].hitPlayer.name);
-      }
+    if (data.message) {
+      this.game.htmlUI.addMessage(data.message);
     }
 
     if (data.kills) {

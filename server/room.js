@@ -55,11 +55,15 @@ class Room {
       if (hitInfo) {
         if (hitInfo.hitPlayer.death) {
           this.numberAlive--;
-          this.server.io.to(this.id).emit('room-update-ui', {numberAlive: this.numberAlive});
+          this.server.io.to(this.id).emit('room-update-ui', {
+            numberAlive: this.numberAlive,
+            message: hitInfo.killingPlayer.name + ' kill ' + hitInfo.hitPlayer.name
+          });
         }
 
         if (hitInfo.killingPlayer) {
-
+          var currentClient = this.server.clients.get(hitInfo.killingPlayer.id);
+          currentClient.socket.emit('room-update-ui', {kills: hitInfo.killingPlayer.kills});
         }
       }
 
