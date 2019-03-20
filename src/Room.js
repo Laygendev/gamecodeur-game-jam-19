@@ -53,6 +53,10 @@ class Room {
     if (data.kills) {
       this.game.htmlUI.updateKill(data.kills);
     }
+
+    if (data.top) {
+      this.game.htmlUI.displayTop(data.top);
+    }
   }
 
   update() {

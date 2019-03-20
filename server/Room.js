@@ -13,6 +13,7 @@ class Room {
     this.messages = [];
     this.projectiles = [];
     this.numberAlive = 0;
+    this.needToDeleted = false;
   }
 
   addNewPlayer(socket, data) {
@@ -48,11 +49,39 @@ class Room {
     }
   }
 
+  removePlayer(id) {
+    var name = '';
+    if (this.players.has(id)) {
+      var player = this.players.get(id);
+      name = player.name;
+
+      this.players.remove(id);
+      this.numberAlive--;
+      this.checkNumberAlive();
+    }
+
+    this.checkCloseRoom();
+
+    return name;
+  }
+
+  checkCloseRoom() {
+    if (this.players.size === 0) {
+      this.needToDeleted = true;
+      console.log('closeRoom');
+    }
+  }
+
   update(dtSec) {
     for (var i = 0; i < this.projectiles.length; ++i) {
       var hitInfo = this.projectiles[i].update(this.players, dtSec);
 
       if (hitInfo) {
+        if (hitInfo.killingPlayer) {
+          var currentClient = this.server.clients.get(hitInfo.killingPlayer.id);
+          currentClient.socket.emit('room-update-ui', {kills: hitInfo.killingPlayer.kills});
+        }
+
         if (hitInfo.hitPlayer.death) {
           this.numberAlive--;
           this.server.io.to(this.id).emit('room-update-ui', {
@@ -61,16 +90,33 @@ class Room {
           });
           var currentClient = this.server.clients.get(hitInfo.hitPlayer.id);
           currentClient.socket.emit('room-update-ui', {top: (this.numberAlive + 1)});
-        }
 
-        if (hitInfo.killingPlayer) {
-          var currentClient = this.server.clients.get(hitInfo.killingPlayer.id);
-          currentClient.socket.emit('room-update-ui', {kills: hitInfo.killingPlayer.kills});
+          this.checkNumberAlive();
         }
       }
 
       if (this.projectiles[i].needToDeleted) {
         this.projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  checkNumberAlive() {
+    if (this.numberAlive <= 1) {
+      var alivePlayer = null;
+      var ids = this.players.keys();
+      for (var i = 0; i < ids.length; i++) {
+        var player = this.players.get(ids[i]);
+
+        if (!player.death) {
+          alivePlayer = player;
+          break;
+        }
+      }
+
+      if (alivePlayer) {
+        var currentClient = this.server.clients.get(alivePlayer.id);
+        currentClient.socket.emit('room-update-ui', {top: this.numberAlive });
       }
     }
   }
