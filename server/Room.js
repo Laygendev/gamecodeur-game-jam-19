@@ -3,6 +3,8 @@ var HashMap = require('hashmap');
 var Player = require('./Player');
 var Entity = require('./Entity');
 var Bullet = require('./Bullet');
+var World = require('./World');
+var Constants = require('./Constants');
 
 class Room {
   constructor(id, server) {
@@ -14,6 +16,11 @@ class Room {
     this.projectiles = [];
     this.numberAlive = 0;
     this.needToDeleted = false;
+
+    this.isStarted = false;
+    this.timerTryToStart = 0;
+    this.onTryToStart = false;
+    this.isWaitingForStart = false;
   }
 
   addNewPlayer(socket, data) {
@@ -22,29 +29,65 @@ class Room {
     return this.players.size;
   }
 
+  spawn(id) {
+    this.isWaitingForStart = true;
+
+    var currentClient = this.server.clients.get(id);
+    var currentPlayer = this.players.get(id);
+
+    currentClient.socket.emit('room-spawn', {
+      id: id,
+      name: currentPlayer.name,
+      position: currentPlayer.position,
+      orientation: currentPlayer.orientation,
+      screen: currentPlayer.screen,
+      numberAlive: this.players.size,
+      players: this.players.values().filter(function(player) {
+        if (player.id == currentPlayer.id) {
+          return false;
+        }
+
+        return true;
+      })
+    });
+
+    var ids = this.players.keys();
+    // envoies son spawn a tout e monde
+    for (var i = 0; i < ids.length; i++) {
+      var otherClient = this.server.clients.get(ids[i]);
+
+      if ( id != ids[i] ) {
+        otherClient.socket.emit('room-spawn', {
+          numberAlive: this.players.size,
+          id: id,
+          name: currentPlayer.name,
+          position: currentPlayer.position,
+        })
+      }
+    }
+  }
+
+  tryToStart() {
+    this.onTryToStart = true;
+    this.timerTryToStart = (new Date()).getTime();
+    console.log('ok');
+
+    // Envoies au autres quand veut lancer la game
+  }
+
   start() {
     this.isStarted = true;
 
     var ids = this.players.keys();
-    this.numberAlive = ids.length;
-    for (var i = 0; i < ids.length; ++i) {
+    for (var i = 0; i < ids.length; i++) {
       var currentClient = this.server.clients.get(ids[i]);
       var currentPlayer = this.players.get(ids[i]);
 
-      currentClient.socket.emit('room-started', {
-        id: ids[i],
-        name: currentPlayer.name,
-        position: currentPlayer.position,
-        orientation: currentPlayer.orientation,
-        screen: currentPlayer.screen,
-        numberAlive: this.numberAlive,
-        players: this.players.values().filter(function(player) {
-          if (player.id == currentPlayer.id) {
-            return false;
-          }
+      currentPlayer.position = World.getRandomPoint();
 
-          return true;
-        })
+      currentClient.socket.emit('room-start', {
+        id: ids[i],
+        position: currentPlayer.position
       });
     }
   }
@@ -56,6 +99,8 @@ class Room {
       name = player.name;
 
       this.players.remove(id);
+      this.server.io.to(this.id).emit('room-remove-player', id);
+
       this.numberAlive--;
       this.checkNumberAlive();
     }
@@ -68,13 +113,20 @@ class Room {
   checkCloseRoom() {
     if (this.players.size === 0) {
       this.needToDeleted = true;
-      console.log('closeRoom');
     }
   }
 
   update(dtSec) {
+    if (this.onTryToStart) {
+      // Lance la partie au bout de 10 secondes
+      if ((new Date()).getTime() > this.timerTryToStart + Constants.DEFAULT_TIME_TO_START_ROOM) {
+        this.onTryToStart = false;
+        this.start();
+      }
+    }
+
     for (var i = 0; i < this.projectiles.length; ++i) {
-      var hitInfo = this.projectiles[i].update(this.players, dtSec);
+      var hitInfo = this.projectiles[i].update(this, this.players, dtSec);
 
       if (hitInfo) {
         if (hitInfo.killingPlayer) {

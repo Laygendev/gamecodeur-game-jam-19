@@ -4,13 +4,15 @@ class Room {
     this.socket = socket;
     this.messages = [];
 
-    this.socket.on('room-started', (data) => { this.start(data); });
+    this.socket.on('room-spawn', (data) => { this.spawn(data); });
+    this.socket.on('room-start', (data) => { this.start(data); });
     this.socket.on('room-messages', (data) => { this.receiveMessage(data); });
     this.socket.on('room-update', (data) => { this.receiveUpdate(data); });
     this.socket.on('room-update-ui', (data) => { this.receiveUpdateUI(data); });
+    this.socket.on('room-remove-player', (id) => { this.removePlayer(id); });
   }
 
-  start(data) {
+  spawn(data) {
     this.game.addPlayer(data);
 
     for (var key in data.players) {
@@ -20,6 +22,10 @@ class Room {
     this.game.htmlUI.updateLeftPlayer(data.numberAlive);
 
     this.game.start();
+  }
+
+  start(data) {
+    this.game.tanks[data.id].position = data.position;
   }
 
   receiveMessage(data) {
@@ -36,10 +42,8 @@ class Room {
   }
 
   receiveUpdateUI(data) {
-    if (data.hits) {
-      for (var i = 0; i < data.hits.length; ++i) {
-        this.game.ui.displayDamage(data.hits[i]);
-      }
+    if (data.hit) {
+      this.game.ui.displayDamage(data.hit);
     }
 
     if (data.numberAlive) {
@@ -57,6 +61,10 @@ class Room {
     if (data.top) {
       this.game.htmlUI.displayTop(data.top);
     }
+  }
+
+  removePlayer(id) {
+    this.game.removePlayer(id);
   }
 
   update() {

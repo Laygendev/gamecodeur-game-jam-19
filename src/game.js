@@ -54,8 +54,8 @@ class Game {
   stop() {
     this.started = false;
     this.tanks   = [];
-    this.bullets = [];
-    this.net.reset();
+    this.projectiles = [];
+    this.htmlUI.isLookingForRoom = false;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -66,6 +66,10 @@ class Game {
       this.camera = new Camera(this);
       this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH);
     }
+  }
+
+  removePlayer(id) {
+    delete this.tanks[id];
   }
 
   gameLoop() {
@@ -198,31 +202,31 @@ class Game {
   }
 
   drawBullets(bullet, dt) {
-    // var distance = Math.sqrt(Util.sqr(bullet[3].y - bullet[1].y) + Util.sqr(bullet[3].x - bullet[1].x));
-    // distance *= 0.3;
-    //
-    // if (distance > 100) {
-    //   distance = 100;
-    // }
-    //
-    // for (var i = 0; i < distance; i++) {
-    //   this.ctx.save();
-    //
-    //   var copy = {
-    //     x: bullet[1].x,
-    //     y: bullet[1].y
-    //   };
-    //
-    //   copy.x -= i * 200 * dt * Math.cos(bullet[2]);
-    //   copy.y -= i * 200 * dt * Math.sin(bullet[2]);
-    //
-    //   this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
-    //   this.ctx.rotate(bullet[2]);
-    //   this.ctx.globalAlpha = (0.9 / i);
-    //
-    //   this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
-    //   this.ctx.restore();
-    // }
+    var distance = Math.sqrt(Util.sqr(bullet.initPos[1] - bullet.position[1]) + Util.sqr(bullet.initPos[0] - bullet.position[0]));
+    distance *= 0.3;
+
+    if (distance > 100) {
+      distance = 100;
+    }
+
+    for (var i = 0; i < distance; i++) {
+      this.ctx.save();
+
+      var copy = {
+        x: bullet.position[0],
+        y: bullet.position[1]
+      };
+
+      copy.x -= i * 200 * dt * Math.cos(bullet.angle);
+      copy.y -= i * 200 * dt * Math.sin(bullet.angle);
+
+      this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height);
+      this.ctx.rotate(bullet.angle);
+      this.ctx.globalAlpha = (0.9 / i);
+
+      this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2);
+      this.ctx.restore();
+    }
 
     this.ctx.save();
 

@@ -4,7 +4,8 @@ const Constants = {
   DEFAULT_SHOT_COOLDOWN: 100,
   DEFAULT_HITBOX_SIZE: 30,
   BULLET_HITBOX_SIZE: 10,
-  PLAYER_MAX_HEALTH: 5
+  PLAYER_MAX_HEALTH: 5,
+  DEFAULT_TIME_TO_START_ROOM: 10000
 };
 
 if (typeof module === 'object') {

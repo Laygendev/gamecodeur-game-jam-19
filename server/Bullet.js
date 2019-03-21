@@ -15,7 +15,7 @@ class Bullet extends Entity {
     this.needToDeleted = false;
   }
 
-  update(clients, dt) {
+  update(room, clients, dt) {
     if (!this.needToDeleted) {
       this.position[0] += this.speed * Math.cos(this.angle) * dt;
       this.position[1] += this.speed * Math.sin(this.angle) * dt;
@@ -33,7 +33,13 @@ class Bullet extends Entity {
                                     Constants.BULLET_HITBOX_SIZE)) {
         var killingPlayer = null;
 
-        players[i].damage(1);
+        if (room.isStarted) {
+          players[i].damage(1);
+        }
+
+        room.server.io.to(room.id).emit('room-update-ui', { hit: {
+          position: players[i].position
+        }});
 
         if (players[i].death) {
           killingPlayer = clients.get(this.playerID);

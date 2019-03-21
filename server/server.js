@@ -24,6 +24,7 @@ class Server {
   handleSocket(socket) {
     socket.on('join-room', (data) => { this.addNewPlayer(socket, data); });
     socket.on('leave-room', () => { this.leaveRoom(socket); });
+    socket.on('room-ask-to-start', () => { this.askToStart(socket); });
     socket.on('player-action', (data) => { this.receiveMessages(socket, data); });
     socket.on('disconnect', () => { this.disconnect(socket); });
 
@@ -63,7 +64,9 @@ class Server {
 
     socket.join(foundedRoom.id);
 
-    if (numberPlayer == 2) {
+    foundedRoom.spawn(socket.id);
+
+    if (numberPlayer == 3) {
       foundedRoom.start();
     }
   }
@@ -78,6 +81,18 @@ class Server {
         var name = room.removePlayer(socket.id);
         this.io.to(client.room.id).emit('room-update-ui', { message: name + ' is disconnected' });
         room.checkCloseRoom();
+      }
+    }
+  }
+
+  askToStart(socket) {
+    var client = this.clients.get(socket.id);
+
+    if (client) {
+      var room = this.rooms.get(client.room.id);
+
+      if (room) {
+        room.tryToStart();
       }
     }
   }
@@ -99,13 +114,16 @@ class Server {
 
     if (client) {
       var room = this.rooms.get(client.room.id);
-
       if (room) {
-        var name = room.removePlayer(socket.id);
-        this.io.to(client.room.id).emit('room-update-ui', {
-          message: name + ' is disconnected',
-          numberAlive: room.numberAlive
-        });
+        var player = room.players.get(socket.id);
+        if (player) {
+          var name = room.removePlayer(socket.id);
+
+          this.io.to(client.room.id).emit('room-update-ui', {
+            message: name + ' is disconnected',
+            numberAlive: room.numberAlive
+          });
+        }
       }
 
       this.clients.remove(socket.id);
@@ -122,7 +140,7 @@ class Server {
     var ids = this.rooms.keys();
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i]);
-      if (currentRoom.isStarted) {
+      if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
         currentRoom.processInput();
         currentRoom.update(dtSec);
         currentRoom.sendState();
@@ -138,7 +156,7 @@ class Server {
     var ids = this.rooms.keys();
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i]);
-      if (currentRoom.isStarted) {
+      if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
         currentRoom.sendWorldState();
       }
     }
