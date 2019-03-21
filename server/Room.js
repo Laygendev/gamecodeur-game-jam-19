@@ -100,7 +100,10 @@ class Room {
 
       this.players.remove(id);
       this.server.io.to(this.id).emit('room-remove-player', id);
+<<<<<<< HEAD
 
+=======
+>>>>>>> f264d8943c31e24748e807a2e9c72adf38c9bafa
       this.numberAlive--;
       this.checkNumberAlive();
     }
