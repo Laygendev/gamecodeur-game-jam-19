@@ -54,8 +54,8 @@ class Game {
   stop() {
     this.started = false;
     this.tanks   = [];
-    this.bullets = [];
-    this.net.reset();
+    this.projectiles = [];
+    this.htmlUI.isLookingForRoom = false;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -66,6 +66,10 @@ class Game {
       this.camera = new Camera(this);
       this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH);
     }
+  }
+
+  removePlayer(id) {
+    delete this.tanks[id];
   }
 
   gameLoop() {

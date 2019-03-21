@@ -8,7 +8,27 @@ class htmlUI {
 
     this.socket.on('connected', (id) => { this.displayConnected(id); });
 
+    this.socket.on('connect_error', () => {
+       if (document.querySelector(".in-game").style.display == 'block') {
+           document.querySelector(".vote").style.display = "none";
+           document.querySelector(".menu").style.display = "block";
+           document.querySelector(".in-game").style.display = 'none';
+           document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+           this.game.stop();
+       }
+
+       document.querySelector(".network-ready").style.display = 'none';
+       document.querySelector(".network-not-ready").style.display = 'block';
+
+       document.querySelector(".network-not-ready").innerHTML = "Server offline";
+   });
+
+    this.socket.on('reconnecting', (n) => {
+      document.querySelector(".network-not-ready").innerHTML = "Try reconnecting #" + n;
+    });
+
     window.addEventListener('keydown', (e) => { this.lookingForRoom(e); });
+    document.querySelector('.back').addEventListener('click', (e) => { this.backToMenu() });
     document.querySelector('.start-vote').addEventListener('click', (e) => { this.startVote(); });
     document.querySelector('.vote-yes').addEventListener('click', (e) => { this.vote(true); });
     document.querySelector('.vote-no').addEventListener('click', (e) => { this.vote(false); });
@@ -48,6 +68,22 @@ class htmlUI {
     }
   }
 
+  backToMenu() {
+    this.messages = [];
+    this.updateLeftPlayer(0);
+    this.updateKill(0);
+
+    document.querySelector(".vote").style.display = "none";
+    document.querySelector(".in-game").style.display = 'none';
+    document.querySelector('.end-game').style.display = 'none';
+    document.querySelector(".menu").style.display = "block";
+    document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
+    this.socket.emit('leave-room');
+    document.querySelector('.in-game .messages' ).innerHTML = "";
+
+    this.game.stop();
+  }
+
   switchUI() {
     document.querySelector(".menu").style.display = "none";
     document.querySelector(".in-game").style.display = "block";
@@ -67,20 +103,21 @@ class htmlUI {
   }
 
   addMessage(message) {
-    this.messages.push(message);
+    if (document.querySelector(".in-game").style.display == 'block') {
+      this.messages.push(message);
 
-    if ( this.messages.length > 4 ) {
-      this.messages.splice(0, 1);
+      if ( this.messages.length > 4 ) {
+        this.messages.splice(0, 1);
+      }
+
+      var output = '';
+
+      for (var key in this.messages) {
+        output += "<li>" + this.messages[key] + "</li>";
+      }
+
+      document.querySelector('.in-game .messages' ).innerHTML = output;
     }
-
-    var output = '';
-
-    for (var key in this.messages) {
-      output += "<li>" + this.messages[key] + "</li>";
-    }
-
-    document.querySelector('.in-game .messages' ).innerHTML = output;
-
   }
 
   startVote() {

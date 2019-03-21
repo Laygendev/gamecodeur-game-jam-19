@@ -23,7 +23,9 @@ class Server {
 
   handleSocket(socket) {
     socket.on('join-room', (data) => { this.addNewPlayer(socket, data); });
+    socket.on('leave-room', () => { this.leaveRoom(socket); });
     socket.on('player-action', (data) => { this.receiveMessages(socket, data); });
+    socket.on('disconnect', () => { this.disconnect(socket); });
 
     socket.emit('connected', socket.id);
   }
@@ -66,6 +68,20 @@ class Server {
     }
   }
 
+  leaveRoom(socket) {
+    var client = this.clients.get(socket.id);
+
+    if (client) {
+      var room = this.rooms.get(client.room.id);
+
+      if (room) {
+        var name = room.removePlayer(socket.id);
+        this.io.to(client.room.id).emit('room-update-ui', { message: name + ' is disconnected' });
+        room.checkCloseRoom();
+      }
+    }
+  }
+
   receiveMessages(socket, data) {
     var client = this.clients.get(socket.id);
 
@@ -79,6 +95,21 @@ class Server {
   }
 
   disconnect(socket) {
+    var client = this.clients.get(socket.id);
+
+    if (client) {
+      var room = this.rooms.get(client.room.id);
+
+      if (room) {
+        var name = room.removePlayer(socket.id);
+        this.io.to(client.room.id).emit('room-update-ui', {
+          message: name + ' is disconnected',
+          numberAlive: room.numberAlive
+        });
+      }
+
+      this.clients.remove(socket.id);
+    }
   }
 
   update() {
@@ -95,6 +126,10 @@ class Server {
         currentRoom.processInput();
         currentRoom.update(dtSec);
         currentRoom.sendState();
+
+        if (currentRoom.needToDeleted) {
+          this.rooms.remove(currentRoom.id);
+        }
       }
     }
   }
