@@ -8,6 +8,7 @@ class Room {
     this.socket.on('room-messages', (data) => { this.receiveMessage(data); });
     this.socket.on('room-update', (data) => { this.receiveUpdate(data); });
     this.socket.on('room-update-ui', (data) => { this.receiveUpdateUI(data); });
+    this.socket.on('room-remove-player', (id) => { this.removePlayer(id); });
   }
 
   start(data) {
@@ -57,6 +58,10 @@ class Room {
     if (data.top) {
       this.game.htmlUI.displayTop(data.top);
     }
+  }
+
+  removePlayer(id) {
+    this.game.removePlayer(id);
   }
 
   update() {

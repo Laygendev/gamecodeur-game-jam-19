@@ -56,6 +56,7 @@ class Room {
       name = player.name;
 
       this.players.remove(id);
+      this.server.io.to(this.id).emit('room-remove-player', id);
       this.numberAlive--;
       this.checkNumberAlive();
     }
