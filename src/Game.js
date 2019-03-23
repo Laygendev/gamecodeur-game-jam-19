@@ -47,6 +47,7 @@ class Game {
 
     this.input = new Input(this);
     this.ui = new UI(this);
+    this.room.load();
 
     requestAnimationFrame(() => { this.gameLoop(); });
   }
@@ -89,6 +90,7 @@ class Game {
   update(dt) {
     this.ui.update(dt);
     this.processInput(dt);
+    this.tanks[this.id].update();
     this.camera.update();
     this.room.update();
   }
@@ -108,6 +110,7 @@ class Game {
     input[9] = 0; // LEFT
     input[10] = 0; // RIGHT
     input[11] = 0; // DOWN
+    input[12] = false; // Space
 
     if (this.input.keyPressed.up || this.input.keyPressed.Z) {
       input[8] = dtSec;
@@ -125,7 +128,11 @@ class Game {
       input[11] = dtSec;
     }
 
-    this.tanks[this.id].updateOnInput(input);
+    if (this.input.keyPressed.space && this.tanks[this.id].canSpeed) {
+      input[12] = true;
+    }
+
+    this.tanks[this.id].updateOnInput(input, this.room.world);
     this.socket.emit('player-action', input);
 
     this.pendingInputs.push(input);
@@ -143,6 +150,8 @@ class Game {
         }
       }
     }
+
+    this.ctx.drawImage(this.ressources['ile'], 2000 - this.camera.x, 2000 - this.camera.y );
 
     for (var key in this.projectiles) {
       this.drawBullets(this.projectiles[key], dt);

@@ -11,6 +11,8 @@ class Room {
     this.id = id;
     this.server = server;
 
+    this.world = new World();
+
     this.players = new HashMap();
     this.messages = [];
     this.projectiles = [];
@@ -31,6 +33,7 @@ class Room {
 
   spawn(id) {
     this.isWaitingForStart = true;
+    this.onTryToStart = false;
 
     var currentClient = this.server.clients.get(id);
     var currentPlayer = this.players.get(id);
@@ -52,7 +55,6 @@ class Room {
     });
 
     var ids = this.players.keys();
-    // envoies son spawn a tout e monde
     for (var i = 0; i < ids.length; i++) {
       var otherClient = this.server.clients.get(ids[i]);
 
@@ -70,9 +72,6 @@ class Room {
   tryToStart() {
     this.onTryToStart = true;
     this.timerTryToStart = (new Date()).getTime();
-    console.log('ok');
-
-    // Envoies au autres quand veut lancer la game
   }
 
   start() {
@@ -100,10 +99,6 @@ class Room {
 
       this.players.remove(id);
       this.server.io.to(this.id).emit('room-remove-player', id);
-<<<<<<< HEAD
-
-=======
->>>>>>> f264d8943c31e24748e807a2e9c72adf38c9bafa
       this.numberAlive--;
       this.checkNumberAlive();
     }
@@ -121,11 +116,20 @@ class Room {
 
   update(dtSec) {
     if (this.onTryToStart) {
-      // Lance la partie au bout de 10 secondes
+      this.server.io.to(this.id).emit('room-timer-start', {
+        message: 'Lancement de la partie dans ' + (parseInt((Constants.DEFAULT_TIME_TO_START_ROOM - ((new Date()).getTime() - this.timerTryToStart)) / 1000) + 1) + ' secondes'
+      });
+
       if ((new Date()).getTime() > this.timerTryToStart + Constants.DEFAULT_TIME_TO_START_ROOM) {
         this.onTryToStart = false;
         this.start();
       }
+    }
+
+    var ids = this.players.keys();
+    for (var i = 0; i < ids.length; ++i) {
+      var currentPlayer = this.players.get(ids[i]);
+      currentPlayer.update();
     }
 
     for (var i = 0; i < this.projectiles.length; ++i) {
@@ -213,7 +217,8 @@ class Room {
       var player = this.players.get(id);
 
       if (player) {
-        player.updateOnInput(message);
+
+        player.updateOnInput(message, this.world);
 
         if (message[4] && player.canShoot()) {
           this.projectiles.push(new Bullet(JSON.parse(JSON.stringify(player.position)), player.turretAngle, player.id))
@@ -245,6 +250,7 @@ class Room {
     for (var i = 0; i < ids.length; ++i) {
       var currentClient = this.server.clients.get(ids[i]);
       var currentPlayer = this.players.get(ids[i]);
+      currentPlayer.canSpeed = currentPlayer.canISpeed();
 
       currentClient.socket.emit('room-messages', {
         1: currentClient.lag,

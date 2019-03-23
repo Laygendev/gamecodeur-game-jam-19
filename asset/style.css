@@ -62,6 +62,7 @@ h1 {
 }
 
 .button {
+  text-align: center;
   background-color: white;
   padding: 10px;
   margin-left: auto;
@@ -91,6 +92,13 @@ h1 {
   top: 10px;
   right: 10px;
   font-size: 20px;
+}
+
+.top-center {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .messages {

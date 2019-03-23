@@ -10,7 +10,6 @@ class htmlUI {
 
     this.socket.on('connect_error', () => {
        if (document.querySelector(".in-game").style.display == 'block') {
-           document.querySelector(".vote").style.display = "none";
            document.querySelector(".menu").style.display = "block";
            document.querySelector(".in-game").style.display = 'none';
            document.querySelector(".network-ready .state").innerHTML = "Press enter to looking for a game";
@@ -70,7 +69,6 @@ class htmlUI {
     this.updateLeftPlayer(0);
     this.updateKill(0);
 
-    document.querySelector(".vote").style.display = "none";
     document.querySelector(".in-game").style.display = 'none';
     document.querySelector('.end-game').style.display = 'none';
     document.querySelector(".menu").style.display = "block";
@@ -83,6 +81,16 @@ class htmlUI {
 
   askToStart() {
     this.socket.emit('room-ask-to-start');
+
+    document.querySelector('.start-game').style.display = "none";
+  }
+
+  updateTimeToStart(message) {
+    document.querySelector('.top-center .message').innerHTML = message;
+  }
+
+  hideStartMessage() {
+    document.querySelector('.top-center' ).style.display = "none";
   }
 
   switchUI() {

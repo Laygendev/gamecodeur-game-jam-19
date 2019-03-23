@@ -2,9 +2,12 @@ class Room {
   constructor(game, socket) {
     this.game = game;
     this.socket = socket;
+
+    this.world = undefined;
     this.messages = [];
 
     this.socket.on('room-spawn', (data) => { this.spawn(data); });
+    this.socket.on('room-timer-start', (data) => { this.updateTimeToStart(data); });
     this.socket.on('room-start', (data) => { this.start(data); });
     this.socket.on('room-messages', (data) => { this.receiveMessage(data); });
     this.socket.on('room-update', (data) => { this.receiveUpdate(data); });
@@ -20,12 +23,23 @@ class Room {
     }
 
     this.game.htmlUI.updateLeftPlayer(data.numberAlive);
+    this.game.htmlUI.updateTimeToStart('En attente d\'autre joueur');
+    document.querySelector('.start-game').style.display = "true";
 
     this.game.start();
   }
 
+  updateTimeToStart(data) {
+    this.game.htmlUI.updateTimeToStart(data.message);
+  }
+
+  load() {
+    this.world = new World(this.game.ressources['worldCollider'], this.game);
+  }
+
   start(data) {
     this.game.tanks[data.id].position = data.position;
+    this.game.htmlUI.hideStartMessage();
   }
 
   receiveMessage(data) {
@@ -102,6 +116,9 @@ class Room {
 
         if (state.id == this.game.id) {
           entity.position = state.position;
+          entity.speed = state.speed;
+          entity.canSpeed = state.canSpeed;
+          entity.velocity = state.velocity;
           entity.orientation = state.orientation;
           entity.turretAngle = state.turretAngle;
           entity.health = state.health;
@@ -114,7 +131,7 @@ class Room {
             if (input[2] <= state.lastProcessedInput) {
               this.game.pendingInputs.splice(j, 1);
             } else {
-              entity.updateOnInput(input);
+              entity.updateOnInput(input, this.world);
               j++;
             }
           }

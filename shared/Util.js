@@ -59,18 +59,18 @@ class Util {
     }
 
     static CollisionDroiteSeg(A, B, O, P) {
-      var AO = {x: 0, y: 0};
-      var AP = {x: 0, y: 0};
-      var AB = {x: 0, y: 0};
+      var AO = [0,0];
+      var AP = [0,0];
+      var AB = [0,0];
 
-      AB.x = B.x - A.x;
-      AB.y = B.y - A.y;
-      AP.x = P.x - A.x;
-      AP.y = P.y - A.y;
-      AO.x = O.x - A.x;
-      AO.y = O.y - A.y;
+      AB[0] = B[0] - A[0];
+      AB[1] = B[1] - A[1];
+      AP[0] = P[0] - A[0];
+      AP[1] = P[1] - A[1];
+      AO[0] = O[0] - A[0];
+      AO[1] = O[1] - A[1];
 
-      if ((AB.x*AP.y - AB.y*AP.x)*(AB.x*AO.y - AB.y*AO.x)<0)
+      if ((AB[0]*AP[1] - AB[1]*AP[0])*(AB[0]*AO[1] - AB[1]*AO[0])<0)
         return true;
       else
         return false;
@@ -78,7 +78,7 @@ class Util {
 
     static CollisionSegSeg(A, B, O, P) {
       if (Util.CollisionDroiteSeg(A,B,O,P)==false)
-      return false;  // inutile d'aller plus loin si le segment [OP] ne touche pas la droite (AB)
+        return false;  // inutile d'aller plus loin si le segment [OP] ne touche pas la droite (AB)
       if (Util.CollisionDroiteSeg(O,P,A,B)==false)
          return false;
       return true;
