@@ -1,15 +1,31 @@
-class xhrJSON {
-  static loadJSON(path, callback) {
+/**
+ * @fileOverview XHRJson able to make XHR Request and return an Object from
+ * JSON file.
+ *
+ * @author BwooGames
+ * @version 0.1.0
+ */
 
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', path, true);
-    xobj.onreadystatechange = function() {
-        if (xobj.readyState == 4 && xobj.status == "200") {
-            callback(xobj.responseText);
-        }
-    };
+var XMLHttpRequest = window.XMLHttpRequest
 
-    xobj.send(null);
+/** Class representing a xhrJSON. */
+class xhrJSON { // eslint-disable-line
+  /**
+   * Can a path and return with a CB an Object from the JSON file.
+   *
+   * @param {String} path   - The ABS path to the JSON File.
+   * @param {Func} callback - A callback function.
+   */
+  static loadJSON (path, callback) {
+    var xobj = new XMLHttpRequest()
+    xobj.overrideMimeType('application/json')
+    xobj.open('GET', path, true)
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState === 4 && xobj.status === '200') {
+        callback(xobj.responseText)
+      }
+    }
+
+    xobj.send(null)
   }
 }

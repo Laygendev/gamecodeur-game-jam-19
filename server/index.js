@@ -1,24 +1,34 @@
-var express = require('express');
-var app = express();
-var http = require('http').Server(app);
-var io = require('socket.io')(http, {
-  pingInterval: 1000
-});
-var TankServer = require('./Server');
-var tankServer = new TankServer(io);
-var path = require('path');
+/**
+ * @fileOverview Create express Server, add static folder: lib, shared, asset
+ * and src.
+ *
+ * Send index.html file and call create tankServer.
+ * When io connection is called, call handleSocket method from tankServer
+ * Object.
+ *
+ * @author BwooGames
+ * @version 0.1.0
+ */
 
-app.use('/lib', express.static('lib'));
-app.use('/shared', express.static('shared'));
-app.use('/asset', express.static('asset'));
-app.use('/src', express.static('src'));
+const express = require('express')
+const app = express()
+const http = require('http').Server(app)
+const io = require('socket.io')(http, { pingInterval: 1000 })
+const path = require('path')
 
-app.get('/', function(req, res){
-  res.sendFile(path.resolve('index.html'));
-});
+const tankServer = require('./Server')(io)
 
-io.on('connection', (socket) => { tankServer.handleSocket(socket); });
+app.use('/lib', express.static('lib'))
+app.use('/shared', express.static('shared'))
+app.use('/asset', express.static('asset'))
+app.use('/src', express.static('src'))
 
-http.listen(8080, function(){
-  console.log('listening on *:8080');
-});
+app.get('/', function (req, res) {
+  res.sendFile(path.resolve('index.html'))
+})
+
+io.on('connection', (socket) => { tankServer.handleSocket(socket) })
+
+http.listen(8080, function () {
+  console.log('listening on *:8080')
+})

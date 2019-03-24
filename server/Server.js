@@ -1,167 +1,263 @@
-var HashMap = require('hashmap');
+/**
+ * @fileOverview Server class manage basic socket message and dispatch it to
+ * room Object.
+ *
+ * Also manage two intervals: the main update, and the updatePlayers.
+ * Also manage new player connection and room creation.
+ *
+ * @author BwooGames
+ * @version 0.1.0
+ */
 
-var Entity = require('./Entity');
-var Room = require('./Room');
+const HashMap = require('hashmap')
 
-var Util = require('./Util');
+const Room = require('./Room')
 
-var width = 8000;
-var height = 8000;
+const Constants = require('./Constants')
 
+/** Class represening a server. */
 class Server {
-  constructor(io) {
-    this.io = io;
+  /**
+   * Create a server.
+   *
+   * Init clients, room and lastTimestamp properties.
+   * Set interval update and updatePlayers.
+   *
+   * @param {Server} io - The Server instance from http node module with io.
+   */
+  constructor (io) {
+    /**
+     * The Server instance from http node module with io.
+     *
+     * @type {Server}
+     */
+    this.io = io
 
-    this.clients = new HashMap();
-    this.rooms = new HashMap();
+    /**
+     * A collection of clients.
+     *
+     * @type {HashMap}
+     */
+    this.clients = new HashMap()
 
-    this.lastTimestamp = 0;
+    /**
+     * A collection of rooms.
+     *
+     * @type {HashMap}
+     */
+    this.rooms = new HashMap()
 
-    setInterval(() => { this.update(); }, 1000 / 60);
-    setInterval(() => { this.updatePlayers(); }, 1000 / 10);
-  }
+    /**
+     * Last timestamp in the update loop. This property help calcul deltatime.
+     *
+     * @type {Number}
+     */
+    this.lastTimestamp = 0
 
-  handleSocket(socket) {
-    socket.on('join-room', (data) => { this.addNewPlayer(socket, data); });
-    socket.on('leave-room', () => { this.leaveRoom(socket); });
-    socket.on('room-ask-to-start', () => { this.askToStart(socket); });
-    socket.on('player-action', (data) => { this.receiveMessages(socket, data); });
-    socket.on('disconnect', () => { this.disconnect(socket); });
-
-    socket.emit('connected', socket.id);
+    setInterval(() => { this.update() }, 1000 / 60)
+    setInterval(() => { this.updatePlayers() }, 1000 / 10)
   }
 
   /**
-   * Add new player
+   * Initialize events listener.
+   *
+   * Send connected to the current socket when this method is called.
+   *
+   * @param {Socket} socket - The current socket.
    */
-  addNewPlayer(socket, data) {
-    // Search not started room.
-    var foundedRoom = null;
+  handleSocket (socket) {
+    socket.on('join-room', (data) => { this.joinRoom(socket, data) })
+    socket.on('leave-room', () => { this.leaveRoom(socket) })
+    socket.on('room-ask-to-start', () => { this.askToStart(socket) })
+    socket.on('player-action', (data) => { this.receivePlayerAction(socket, data) })
+    socket.on('disconnect', () => { this.disconnect(socket) })
 
-    var ids = this.rooms.keys();
+    socket.emit('connected', socket.id)
+  }
+
+  /**
+   * When socket receive message "join-room".
+   *
+   * Looking for a room not full. If all rooms is full, create a new room.
+   * Add the new player to the foundedRoom.
+   *
+   * @todo: Passer les variables au lieu d'un objet, car la c'est pas trop
+   * compréhensible pour le coup.
+   *
+   * @param {Socket} socket - The current socket.
+   * @param {Object} data   -
+   */
+  joinRoom (socket, data) {
+    var foundedRoom = null
+
+    var ids = this.rooms.keys()
     for (var key in ids) {
-      var currentRoom = this.rooms.get(ids[key]);
+      var currentRoom = this.rooms.get(ids[key])
       if (currentRoom && !currentRoom.isStarted) {
-        foundedRoom = currentRoom;
-        break;
+        foundedRoom = currentRoom
+        break
       }
     }
 
     if (!foundedRoom) {
-      var roomID = (new Date()).getTime();
-      this.rooms.set(roomID, new Room(roomID, this));
+      var roomID = (new Date()).getTime()
+      this.rooms.set(roomID, new Room(roomID, this))
 
-      foundedRoom = this.rooms.get(roomID);
+      foundedRoom = this.rooms.get(roomID)
     }
 
     this.clients.set(socket.id, {
       socket: socket,
       room: foundedRoom
-    });
+    })
 
     // Now, we can add new player in the founded room.
-    var numberPlayer = foundedRoom.addNewPlayer(socket, data);
+    var numberPlayer = foundedRoom.addNewPlayer(socket, data)
 
-    socket.join(foundedRoom.id);
+    socket.join(foundedRoom.id)
 
-    foundedRoom.spawn(socket.id);
+    foundedRoom.spawn(socket.id)
 
-    if (numberPlayer == 3) {
-      foundedRoom.start();
+    if (numberPlayer === Constants.DEFAULT_ROOM_MAX_PLAYER) {
+      foundedRoom.start()
     }
   }
 
-  leaveRoom(socket) {
-    var client = this.clients.get(socket.id);
+  /**
+   * When socked receive message "leave-room".
+   *
+   * Found the room by this socket.id and call removePlayer method.
+   * Send a message "player left" by "room-update-ui" to all connected client
+   * in this room.
+   *
+   * Check if the room need to be close. (No more client is connected to it).
+   *
+   * @param {Socket} socket - The current socket.
+   */
+  leaveRoom (socket) {
+    var client = this.clients.get(socket.id)
 
     if (client) {
-      var room = this.rooms.get(client.room.id);
+      var room = this.rooms.get(client.room.id)
 
       if (room) {
-        var name = room.removePlayer(socket.id);
-        this.io.to(client.room.id).emit('room-update-ui', { message: name + ' is disconnected' });
-        room.checkCloseRoom();
+        var name = room.removePlayer(socket.id)
+        this.io.to(client.room.id).emit('room-update-ui', { message: name + ' is disconnected' })
+        room.checkCloseRoom()
       }
     }
   }
 
-  askToStart(socket) {
-    var client = this.clients.get(socket.id);
+  /**
+   * When socket receive message "room-ask-to-start".
+   *
+   * Found the room by this socket.id and call tryToStart method.
+   *
+   * @param {Socket} socket - The current socket.
+   */
+  askToStart (socket) {
+    var client = this.clients.get(socket.id)
 
     if (client) {
-      var room = this.rooms.get(client.room.id);
+      var room = this.rooms.get(client.room.id)
 
       if (room) {
-        room.tryToStart();
+        room.tryToStart()
       }
     }
   }
 
-  receiveMessages(socket, data) {
-    var client = this.clients.get(socket.id);
+  /**
+   * When socked receive message "player-action".
+   *
+   * Found the room by this.socket.id and call receiveAction method
+   */
+  receivePlayerAction (socket, data) {
+    var client = this.clients.get(socket.id)
 
     if (client) {
-      var room = this.rooms.get(client.room.id);
+      var room = this.rooms.get(client.room.id)
 
       if (room) {
-        room.receiveMessages(socket, client, data);
+        room.receiveAction(socket, client, data)
       }
     }
   }
 
-  disconnect(socket) {
-    var client = this.clients.get(socket.id);
+  /**
+   * When socket receive message "disconnect".
+   *
+   * Found the room and player by this.socket.id. If the room is founded (The
+   * player is not in a room ) call removePlayer method.
+   *
+   * Whatever, remove the client from the clients array.
+   *
+   * @param {Socket} socket - The current socket.
+   */
+  disconnect (socket) {
+    var client = this.clients.get(socket.id)
 
     if (client) {
-      var room = this.rooms.get(client.room.id);
+      var room = this.rooms.get(client.room.id)
       if (room) {
-        var player = room.players.get(socket.id);
+        var player = room.players.get(socket.id)
         if (player) {
-          var name = room.removePlayer(socket.id);
+          var name = room.removePlayer(socket.id)
 
           this.io.to(client.room.id).emit('room-update-ui', {
             message: name + ' is disconnected',
             numberAlive: room.numberAlive
-          });
+          })
         }
       }
 
-      this.clients.remove(socket.id);
+      this.clients.remove(socket.id)
     }
   }
 
-  update() {
-    var nowTimestamp = +new Date();
-    var lastTimestamp = this.lastTimestamp || nowTimestamp;
-    var dtSec = (nowTimestamp - lastTimestamp) / 1000.0;
-    this.lastTimestamp = nowTimestamp;
+  /**
+   * The main update loop (Called 60ms)
+   *
+   * Call for each room started, the processInput, update and sendState method.
+   *
+   * If a room need to be deleted (because, no player connected to it), remove
+   * it by call remove method from HashMap Object.
+   */
+  update () {
+    var nowTimestamp = +new Date()
+    var lastTimestamp = this.lastTimestamp || nowTimestamp
+    var dt = (nowTimestamp - lastTimestamp) / 1000.0
+    this.lastTimestamp = nowTimestamp
 
-
-    var ids = this.rooms.keys();
+    var ids = this.rooms.keys()
     for (var i = 0; i < ids.length; ++i) {
-      var currentRoom = this.rooms.get(ids[i]);
+      var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
-        currentRoom.processInput();
-        currentRoom.update(dtSec);
-        currentRoom.sendState();
+        currentRoom.processInput()
+        currentRoom.update(dt)
+        currentRoom.sendState()
 
         if (currentRoom.needToDeleted) {
-          this.rooms.remove(currentRoom.id);
+          this.rooms.remove(currentRoom.id)
         }
       }
     }
   }
 
-  updatePlayers() {
-    var ids = this.rooms.keys();
+  /**
+   * Update players loop (Called 10ms)
+   *
+   * Call for each room started, the state of players.
+   */
+  updatePlayers () {
+    var ids = this.rooms.keys()
     for (var i = 0; i < ids.length; ++i) {
-      var currentRoom = this.rooms.get(ids[i]);
+      var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
-        currentRoom.sendWorldState();
+        currentRoom.sendPlayersState()
       }
     }
   }
 }
 
-
-module.exports = Server;
+module.exports = Server
