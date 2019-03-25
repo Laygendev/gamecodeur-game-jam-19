@@ -78,10 +78,7 @@ setInterval(function() {
 
       input[3] = Math.floor(Math.random() * Math.floor(360));
 
-            this.tanks[this.id].updateOnInput(input, this.room.world)
-      this.socket.emit('player-action', input)
-
-      sockets[key].emit(0, input);
+      sockets[key].emit('player-action', input);
     }
   }
 }, 1000 / 30 );
