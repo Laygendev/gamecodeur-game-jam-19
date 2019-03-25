@@ -4,7 +4,7 @@ function getRandomInt(min, max) {
   	return Math.floor(Math.random() * (max - min)) + min;
 }
 
-for (var i = 0; i < 29; i++) {
+for (var i = 0; i < 28; i++) {
   let socket = require('socket.io-client')('http://51.38.60.46:80', { rejectUnauthorized: false });
   socket.latency = 0;
   socket.input_sequence_number = 0;
@@ -28,6 +28,7 @@ for (var i = 0; i < 29; i++) {
         hH: 500
       }
     })
+  })
 
   sockets.push(socket);
 }
