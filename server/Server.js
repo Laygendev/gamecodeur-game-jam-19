@@ -48,7 +48,7 @@ class Server {
     this.rooms = new HashMap()
 
     /**
-     * Last timestamp in the update loop. This property help calcul deltatime.
+     * Last timestamp in the update loop. This property help to calcul deltatime.
      *
      * @type {Number}
      */

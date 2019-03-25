@@ -296,6 +296,7 @@ class Room {
           })
           currentClient = this.server.clients.get(hitInfo.hitPlayer.id)
           currentClient.socket.emit('room-update-ui', { top: (this.numberAlive + 1) })
+          currentClient.socket.emit('room-u-death')
 
           this.checkNumberAlive()
         }

@@ -25,6 +25,10 @@ for (var i = 0; i < 28; i++) {
     })
   })
 
+  socket.on('room-u-death', () => {
+    socket.alive = false
+  })
+
   sockets.push(socket)
 }
 
