@@ -34,4 +34,4 @@ Go to 127.0.0.1
 # Creator
 
 Jimmy Latour (Laygendev)
-Jimmy Charpaigne (Hykios42)
+Jimmy Charpagne (Hykios42)
