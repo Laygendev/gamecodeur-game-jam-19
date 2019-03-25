@@ -30,7 +30,7 @@ for (var i = 0; i < 28; i++) {
 
 setInterval(function () {
   for (var key in sockets) {
-    if (sockets[key].room.id && sockets[key].alive) {
+    if (sockets[key].alive) {
       sockets[key].startTime = +Date.now()
 
       var nowTS = +new Date()
