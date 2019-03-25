@@ -4,8 +4,8 @@ for (var i = 0; i < 28; i++) {
   let socket = require('socket.io-client')('http://51.38.60.46:80', { rejectUnauthorized: false })
   socket.latency = 0
   socket.inputSequenceNumber = 0
-  socket.startTime
-  socket.lastTS
+  socket.startTime = undefined
+  socket.lastTS = undefined
   socket.timerToShoot = 0
   socket.alive = true
 
@@ -31,6 +31,13 @@ for (var i = 0; i < 28; i++) {
 setInterval(function () {
   for (var key in sockets) {
     if (sockets[key].alive) {
+      var leave = Math.floor(Math.random() * Math.floor(100))
+
+      if (leave === 100) {
+        sockets[key].emit('leave-room')
+        continue
+      }
+
       sockets[key].startTime = +Date.now()
 
       var nowTS = +new Date()
