@@ -35,6 +35,7 @@ setInterval(function () {
 
       if (leave >= 9998) {
         sockets[key].emit('leave-room')
+        sockets.splice(key, 1)
         continue
       }
 
