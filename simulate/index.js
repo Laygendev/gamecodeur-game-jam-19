@@ -31,9 +31,9 @@ for (var i = 0; i < 28; i++) {
 setInterval(function () {
   for (var key in sockets) {
     if (sockets[key].alive) {
-      var leave = Math.floor(Math.random() * Math.floor(100))
+      var leave = Math.floor(Math.random() * Math.floor(10000))
 
-      if (leave >= 98) {
+      if (leave >= 9998) {
         sockets[key].emit('leave-room')
         continue
       }
