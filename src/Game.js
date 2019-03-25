@@ -128,6 +128,13 @@ window.Game = class Game { // eslint-disable-line
     this.ui = undefined
 
     /**
+     * Drawing Object
+     *
+     * @type {Drawing}
+     */
+    this.drawing = new window.Drawing(this)
+
+    /**
      * Room Object.
      *
      * @type {Room}
@@ -180,9 +187,10 @@ window.Game = class Game { // eslint-disable-line
    */
   stop () {
     this.started = false
+    this.htmlUI.isLookingForRoom = false
+
     this.tanks = []
     this.projectiles = []
-    this.htmlUI.isLookingForRoom = false
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
@@ -301,124 +309,25 @@ window.Game = class Game { // eslint-disable-line
    * @param {Number} dt - The deltaTime.
    */
   draw (dt) {
-    var tile = 0 // eslint-disable-line
     var key
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    for (var x = 0; x < window.Constants.WORLD_MAX; x += 40) {
-      for (var y = 0; y < window.Constants.WORLD_MAX; y += 40) {
-        if (this.camera.inViewport(x, y)) {
-          this.ctx.drawImage(this.ressources['tile'], x - this.camera.x, y - this.camera.y)
-          tile++
-        }
-      }
-    }
-
-    this.ctx.drawImage(this.ressources['ile'], 2000 - this.camera.x, 2000 - this.camera.y)
+    this.drawing.drawTiles()
+    this.drawing.drawWorld()
 
     for (key in this.projectiles) {
-      this.drawBullets(this.projectiles[key], dt)
+      this.drawing.drawBullet(this.projectiles[key])
     }
 
     for (key in this.tanks) {
-      this.drawTanks(this.tanks[key])
+      this.drawing.drawTank(this.tanks[key])
     }
 
     if (this.tanks[this.id]) {
-      this.ctx.save()
-      this.ctx.font = '20px Arial'
-      this.ctx.fillText(this.latency + 'ms', 20, 40)
-      this.ctx.fillText('X: ' + parseInt(this.tanks[this.id].position[0]) + ' Y: ' + parseInt(this.tanks[this.id].position[1]), 20, 65)
-      this.ctx.restore()
+      this.drawing.drawText()
     }
 
     this.ui.draw()
-  }
-
-  /**
-   * Draw a Tank
-   *
-   * @param {Array} tank - Tank info: coordinate...
-   */
-  drawTanks (tank) {
-    if ((tank.isVisibleTo(this.tanks[this.id]) && !tank.waitMessage) || tank.id === this.id) {
-      this.ctx.save()
-      this.ctx.translate(tank.position[0] - this.camera.x, tank.position[1] - this.camera.y)
-      this.ctx.rotate(tank.orientation)
-
-      if (tank.death) {
-        this.ctx.globalAlpha = 0.5
-      }
-
-      this.ctx.drawImage(this.ressources['tank'], -70 / 2, -60 / 2)
-      this.ctx.restore()
-
-      this.ctx.save()
-      this.ctx.translate(tank.position[0] - this.camera.x, tank.position[1] - this.camera.y)
-      this.ctx.rotate(tank.turretAngle)
-
-      if (tank.death) {
-        this.ctx.globalAlpha = 0.5
-      }
-
-      this.ctx.drawImage(this.ressources['canon'], 20 + -this.ressources['canon'].width / 2, -this.ressources['canon'].height / 2)
-      this.ctx.restore()
-
-      if (!tank.death) {
-        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, 100, 10)
-        this.ctx.save()
-        this.ctx.fillStyle = '#556B2F'
-        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, tank.health * 100 / window.Constants.PLAYER_MAX_HEALTH, 10)
-        this.ctx.restore()
-
-        this.ctx.font = '26px Arial'
-        this.ctx.fillText(tank.name, tank.position[0] - this.camera.x - this.ctx.measureText(tank.name).width / 2, tank.position[1] - this.camera.y - 70)
-      }
-    } else {
-      tank.waitMessage = true
-    }
-  }
-
-  /**
-   * Draw a bullet
-   *
-   * @param {Array} bullet - Bullet info: coordinate...
-   * @param {Number} dt    - The deltaTime.
-   */
-  drawBullets (bullet, dt) {
-    var distance = Math.sqrt(window.Util.sqr(bullet.initPos[1] - bullet.position[1]) + window.Util.sqr(bullet.initPos[0] - bullet.position[0]))
-    distance *= 0.3
-
-    if (distance > 100) {
-      distance = 100
-    }
-
-    for (var i = 0; i < distance; i++) {
-      this.ctx.save()
-
-      var copy = {
-        x: bullet.position[0],
-        y: bullet.position[1]
-      }
-
-      copy.x -= i * 200 * dt * Math.cos(bullet.angle)
-      copy.y -= i * 200 * dt * Math.sin(bullet.angle)
-
-      this.ctx.translate(copy.x - this.camera.x + this.ressources['fire'].width, copy.y - this.camera.y + this.ressources['fire'].height)
-      this.ctx.rotate(bullet.angle)
-      this.ctx.globalAlpha = (0.9 / i)
-
-      this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2)
-      this.ctx.restore()
-    }
-
-    this.ctx.save()
-
-    this.ctx.translate(bullet.position[0] - this.camera.x + this.ressources['fire'].width, bullet.position[1] - this.camera.y + this.ressources['fire'].height)
-    this.ctx.rotate(bullet.angle)
-
-    this.ctx.drawImage(this.ressources['fire'], -this.ressources['fire'].width / 2, -this.ressources['fire'].height / 2)
-    this.ctx.restore()
   }
 }
