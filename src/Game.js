@@ -160,6 +160,7 @@ window.Game = class Game { // eslint-disable-line
     this.loader.loadImage('fire', 'asset/fire.png')
     this.loader.loadImage('endcanon', 'asset/endcanon.png')
     this.loader.loadImage('ile', 'asset/ile.png')
+    this.loader.loadImage('house', 'asset/house.png')
     this.loader.loadJSON('worldCollider', 'asset/worldCollider.json')
 
     this.loader.start()

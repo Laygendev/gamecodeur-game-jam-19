@@ -33,6 +33,7 @@ window.Drawing = class Drawing { // eslint-disable-line
   }
 
   drawWorld () {
+    this.game.ctx.drawImage(this.game.ressources['house'], 500 - this.game.camera.x, 300 - this.game.camera.y)
     this.game.ctx.drawImage(this.game.ressources['ile'], 2000 - this.game.camera.x, 2000 - this.game.camera.y)
   }
 
