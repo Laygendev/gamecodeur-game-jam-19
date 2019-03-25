@@ -23,13 +23,10 @@ window.Drawing = class Drawing { // eslint-disable-line
   }
 
   drawTiles () {
-    var tile = 0 // eslint-disable-line
-
     for (var x = 0; x < window.Constants.WORLD_MAX; x += 40) {
       for (var y = 0; y < window.Constants.WORLD_MAX; y += 40) {
         if (this.game.camera.inViewport(x, y)) {
           this.game.ctx.drawImage(this.game.ressources['tile'], x - this.game.camera.x, y - this.game.camera.y)
-          tile++
         }
       }
     }

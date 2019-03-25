@@ -128,6 +128,7 @@ class Room {
    * @param {Number} id - The id of current socket.
    */
   spawn (id) {
+    this.numberAlive++
     this.isWaitingForStart = true
     this.onTryToStart = false
 
