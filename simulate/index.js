@@ -33,7 +33,7 @@ setInterval(function () {
     if (sockets[key].alive) {
       var leave = Math.floor(Math.random() * Math.floor(100))
 
-      if (leave === 100) {
+      if (leave >= 98) {
         sockets[key].emit('leave-room')
         continue
       }
