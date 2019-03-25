@@ -374,10 +374,13 @@ class Room {
    * Send  to all client, the current state of the projectiles visible to him.
    */
   sendState () {
+    var currentClient
+    var currentPlayer
+
     var ids = this.players.keys()
     for (var i = 0; i < ids.length; ++i) {
-      var currentClient = this.server.clients.get(ids[i])
-      var currentPlayer = this.players.get(ids[i])
+      currentClient = this.server.clients.get(ids[i])
+      currentPlayer = this.players.get(ids[i])
 
       currentClient.socket.emit('room-update', {
         projectiles: this.projectiles.filter(function (projectile) {
@@ -391,10 +394,13 @@ class Room {
    * Send to all client, the current state of players visible to him.
    */
   sendPlayersState () {
+    var currentClient
+    var currentPlayer
+
     var ids = this.players.keys()
     for (var i = 0; i < ids.length; ++i) {
-      var currentClient = this.server.clients.get(ids[i])
-      var currentPlayer = this.players.get(ids[i])
+      currentClient = this.server.clients.get(ids[i])
+      currentPlayer = this.players.get(ids[i])
       currentPlayer.canSpeed = currentPlayer.canISpeed()
 
       currentClient.socket.emit('room-messages', {
@@ -413,6 +419,8 @@ class Room {
           if (!player.isVisible) {
             return false
           }
+
+          return true
         })
       })
     }

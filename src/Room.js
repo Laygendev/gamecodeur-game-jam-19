@@ -184,6 +184,8 @@ window.Room = class Room { // eslint-disable-line
         }
       }
     }
+
+    return undefined
   }
 
   /**

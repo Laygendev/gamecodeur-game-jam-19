@@ -100,7 +100,7 @@ window.Camera = class Camera { // eslint-disable-line
    * Set the position of camera by the target position.
    */
   update () {
-    if (this.target != null && this.worldRect != null) {
+    if (this.target !== null && this.worldRect !== null) {
       if (this.target.position[0] - this.x + this.xDeadZone > this.width) {
         this.x = this.target.position[0] - (this.width - this.xDeadZone)
       } else if (this.target.position[0] - this.xDeadZone < this.x) {
