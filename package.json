@@ -12,10 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.2",
+    "hashmap": "^2.3.0",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
-    "vectors": "^0.1.0",
-    "hashmap": "^2.3.0"
+    "vectors": "^0.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.0",

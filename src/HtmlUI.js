@@ -6,7 +6,7 @@
  */
 
 /** Class representing a HtmlUI. */
-window.HtmlUI = class htmlUI {  // eslint-disable-line
+window.HtmlUI = class htmlUI { // eslint-disable-line
   /**
    * Constuctor init data
    *
