@@ -5,7 +5,7 @@ function getRandomInt(min, max) {
 }
 
 for (var i = 0; i < 29; i++) {
-  let socket = require('socket.io-client')('http://51.38.60.46:8080', { rejectUnauthorized: false });
+  let socket = require('socket.io-client')('http://51.38.60.46:80', { rejectUnauthorized: false });
   socket.latency = 0;
   socket.input_sequence_number = 0;
   socket.startTime;
@@ -18,28 +18,17 @@ for (var i = 0; i < 29; i++) {
     socket.latency = ms;
   });
 
-  socket.on('HitPlayer', (hitInfo) => {
-    if (hitInfo.playerID == socket.id && !hitInfo.player.isAlive) {
-      socket.alive = false;
-    }
-  });
-
-
   socket.on('connected', (id) => {
-    socket.emit('JoinRoom', {
-      id: id,
-      pseudo: 'test',
+    socket.emit('join-room', {
+      name: 'test',
       screen: {
-        halfWidth: 500,
-        halfHeight: 500
+        w: 1000,
+        h: 1000,
+        hW: 500,
+        hH: 500
       }
     })
-  })
 
-  socket.on('JoinedRoom', (room) => {
-    socket.room = room;
-  })
-  //
   sockets.push(socket);
 }
 
