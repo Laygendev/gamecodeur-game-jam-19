@@ -142,7 +142,10 @@ class Server {
 
       if (room) {
         var name = room.removePlayer(socket.id)
-        this.io.to(client.room.id).emit('room-update-ui', { message: name + ' is disconnected' })
+        this.io.to(client.room.id).emit('room-update-ui', {
+          message: name + ' is disconnected',
+          numberAlive: room.numberAlive
+        })
         room.checkCloseRoom()
       }
     }
