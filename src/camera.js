@@ -6,7 +6,7 @@
  */
 
 /** Class represening a Camera. */
-class Camera { // eslint-disable-line
+window.Camera = class Camera { // eslint-disable-line
   /**
    * Initialize data
    *
