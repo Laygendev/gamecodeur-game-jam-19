@@ -378,16 +378,18 @@ class Room {
     var currentClient
     var currentPlayer
 
-    var ids = this.players.keys()
-    for (var i = 0; i < ids.length; ++i) {
-      currentClient = this.server.clients.get(ids[i])
-      currentPlayer = this.players.get(ids[i])
+    if (this.projectiles.length > 0) {
+      var ids = this.players.keys()
+      for (var i = 0; i < ids.length; ++i) {
+        currentClient = this.server.clients.get(ids[i])
+        currentPlayer = this.players.get(ids[i])
 
-      currentClient.socket.emit('room-update', {
-        projectiles: this.projectiles.filter(function (projectile) {
-          return projectile.isVisibleTo(currentPlayer)
+        currentClient.socket.emit('room-update', {
+          projectiles: this.projectiles.filter(function (projectile) {
+            return projectile.isVisibleTo(currentPlayer)
+          })
         })
-      })
+      }
     }
   }
 

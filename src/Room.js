@@ -69,8 +69,6 @@ window.Room = class Room { // eslint-disable-line
     this.game.htmlUI.updateLeftPlayer(data.numberAlive)
     this.game.htmlUI.updateTimeToStart('En attente d\'autre joueur')
     document.querySelector('.start-game').style.display = 'true'
-
-    this.game.start()
   }
 
   /**

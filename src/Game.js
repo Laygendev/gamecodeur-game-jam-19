@@ -205,6 +205,7 @@ window.Game = class Game { // eslint-disable-line
     if (this.id === data.id) {
       this.camera = new window.Camera(this)
       this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH)
+      this.start()
     }
   }
 
