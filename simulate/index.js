@@ -3,7 +3,7 @@ var sockets = []
 for (var i = 0; i < 28; i++) {
   let socket = require('socket.io-client')('http://51.38.60.46:80', { rejectUnauthorized: false })
   socket.latency = 0
-  socket.input_sequence_number = 0
+  socket.inputSequenceNumber = 0
   socket.startTime
   socket.lastTS
   socket.timerToShoot = 0
@@ -36,7 +36,7 @@ setInterval(function () {
       var nowTS = +new Date()
       var lastTS = sockets[key].lastTS || nowTS
       var dt = (nowTS - lastTS) / 1000.0
-      sockets[key].last_ts = nowTS
+      sockets[key].lastTS = nowTS
 
       sockets[key].timerToShoot += dt
 
@@ -45,7 +45,7 @@ setInterval(function () {
       var input = []
       input[0] = sockets[key].id
       input[1] = sockets[key].latency
-      input[2] = sockets[key].input_sequence_number++
+      input[2] = sockets[key].inputSequenceNumber++
 
       input[8] = 0 // UP
       input[9] = 0 // LEFT
