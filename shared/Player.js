@@ -12,7 +12,7 @@ var SharedUtil = typeof module === 'object' ? require( './Util') : Util // eslin
 var SharedWorld = typeof module === 'object' ? require( './World') : World // eslint-disable-line
 
 /** Class representing a Player. */
-class Player extends SharedEntity {
+var Player = class Player extends SharedEntity {
   /**
    * Initialise data
    *
@@ -209,7 +209,7 @@ class Player extends SharedEntity {
     var testVelocity = [this.velocity[0], this.velocity[1]]
 
     if (this.speed > SharedConstants.DEFAULT_SPEED) {
-      this.speed -= 100
+      this.speed -= 400
     } else {
       this.speed = SharedConstants.DEFAULT_SPEED
     }
@@ -326,5 +326,5 @@ class Player extends SharedEntity {
 }
 
 if (typeof module === 'object') {
-  module.exports = Player
+  module.exports = Player // eslint-disable-line
 }

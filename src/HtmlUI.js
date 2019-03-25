@@ -6,7 +6,7 @@
  */
 
 /** Class representing a HtmlUI. */
-class htmlUI {  // eslint-disable-line
+window.HtmlUI = class htmlUI {  // eslint-disable-line
   /**
    * Constuctor init data
    *
@@ -105,7 +105,6 @@ class htmlUI {  // eslint-disable-line
 
         if (name && name.length < 20) {
           this.isLookingForRoom = true
-          console.log(this.game.canvas.width)
           this.socket.emit('join-room', {
             name: name,
             screen: {

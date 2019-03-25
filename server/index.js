@@ -16,7 +16,8 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http, { pingInterval: 1000 })
 const path = require('path')
 
-const tankServer = require('./Server')(io)
+const TankServer = require('./Server')
+const tankServer = new TankServer(io)
 
 app.use('/lib', express.static('lib'))
 app.use('/shared', express.static('shared'))
@@ -29,6 +30,6 @@ app.get('/', function (req, res) {
 
 io.on('connection', (socket) => { tankServer.handleSocket(socket) })
 
-http.listen(8080, function () {
-  console.log('listening on *:8080')
+http.listen(80, function () {
+  console.log('listening on *:80')
 })

@@ -6,12 +6,8 @@
  * @version 0.1.0
  */
 
-var Image = window.Image
-var xhrJSON = window.xhrJSON
-var Util = window.Util
-
 /** Class representing a Loader. */
-class Loader {  // eslint-disable-line
+window.Loader = class Loader {  // eslint-disable-line
   /**
   * Constructor init data.
   *
@@ -79,7 +75,7 @@ class Loader {  // eslint-disable-line
   start () {
     for (var key in this.ressourcesToLoad) {
       if (this.ressourcesToLoad[key].type === 'image') {
-        this.game.ressources[key] = new Image()
+        this.game.ressources[key] = new window.Image()
         this.game.ressources[key].addEventListener('load', () => {
           this.nbLoad++
           this.checkAllLoad()
@@ -89,7 +85,7 @@ class Loader {  // eslint-disable-line
       } else if (this.ressourcesToLoad[key].type === 'json') {
         this.game.ressources[key] = {}
 
-        xhrJSON.loadJSON(this.ressourcesToLoad[key].path, (text) => {
+        window.xhrJSON.loadJSON(this.ressourcesToLoad[key].path, (text) => {
           this.game.ressources[key] = JSON.parse(text)
           this.nbLoad++
           this.checkAllLoad()
@@ -104,7 +100,7 @@ class Loader {  // eslint-disable-line
    * Check if all data is isLoaded
    */
   checkAllLoad () {
-    if (this.nbLoad === Util.length(this.ressourcesToLoad)) {
+    if (this.nbLoad === window.Util.length(this.ressourcesToLoad)) {
       this.isLoaded = true
       // this.game.net = new Net(this.game);
     }

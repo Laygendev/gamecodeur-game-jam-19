@@ -8,7 +8,7 @@
 var SharedUtil = typeof module === 'object' ? require('./Util') : Util // eslint-disable-line
 
 /** Class represening an Entity. */
-class Entity {
+var Entity = class Entity {
   /**
    * Initialize the position
    *
@@ -60,5 +60,5 @@ class Entity {
 }
 
 if (typeof module === 'object') {
-  module.exports = Entity
+  module.exports = Entity // eslint-disable-line
 }

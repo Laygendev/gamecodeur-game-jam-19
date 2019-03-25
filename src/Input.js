@@ -7,7 +7,7 @@
  */
 
 /** Class representing a Input. */
- class Input { // eslint-disable-line
+ window.Input = class Input { // eslint-disable-line
   /**
   * Construtor init data
   */

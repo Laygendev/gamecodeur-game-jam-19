@@ -5,11 +5,8 @@
  * @version 0.1.0
  */
 
-var Rectangle = window.Rectangle
-var Constants = window.Constants
-
 /** Class represening a Camera. */
-class Camera { // eslint-disable-line
+window.Camera = class Camera { // eslint-disable-line
   /**
    * Initialize data
    *
@@ -77,7 +74,7 @@ class Camera { // eslint-disable-line
      *
      * @type {Rectangle}
      */
-    this.viewportRect = new Rectangle(this.x, this.y, this.width, this.height)
+    this.viewportRect = new window.Rectangle(this.x, this.y, this.width, this.height)
   }
 
   /**
@@ -94,7 +91,7 @@ class Camera { // eslint-disable-line
     this.xDeadZone = xDeadZone
     this.yDeadZone = yDeadZone
 
-    this.worldRect = new Rectangle(0, 0, Constants.WORLD_MAX, Constants.WORLD_MAX)
+    this.worldRect = new window.Rectangle(0, 0, window.Constants.WORLD_MAX, window.Constants.WORLD_MAX)
   }
 
   /**

@@ -11,7 +11,7 @@
  * @namespace
  *
  */
-const Constants = {}
+var Constants = {}
 
 /**
  * Define min size of World

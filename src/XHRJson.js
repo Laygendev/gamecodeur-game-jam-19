@@ -6,10 +6,8 @@
  * @version 0.1.0
  */
 
-var XMLHttpRequest = window.XMLHttpRequest
-
 /** Class representing a xhrJSON. */
-class xhrJSON { // eslint-disable-line
+window.xhrJSON = class xhrJSON { // eslint-disable-line
   /**
    * Can a path and return with a CB an Object from the JSON file.
    *
@@ -17,11 +15,11 @@ class xhrJSON { // eslint-disable-line
    * @param {Func} callback - A callback function.
    */
   static loadJSON (path, callback) {
-    var xobj = new XMLHttpRequest()
+    var xobj = new window.XMLHttpRequest()
     xobj.overrideMimeType('application/json')
     xobj.open('GET', path, true)
     xobj.onreadystatechange = function () {
-      if (xobj.readyState === 4 && xobj.status === '200') {
+      if (xobj.readyState === 4 && xobj.status === 200) {
         callback(xobj.responseText)
       }
     }

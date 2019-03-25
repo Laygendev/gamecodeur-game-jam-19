@@ -5,10 +5,8 @@
  * @version 0.1.0
  */
 
-var World = window.World
-
 /** Class representing a Room. */
-class Room { // eslint-disable-line
+window.Room = class Room { // eslint-disable-line
   /**
    * Init data.
    *
@@ -88,7 +86,7 @@ class Room { // eslint-disable-line
    * When game call load, init World.
    */
   load () {
-    this.world = new World(this.game.ressources['worldCollider'], this.game)
+    this.world = new window.World(this.game.ressources['worldCollider'], this.game)
   }
 
   /**
@@ -176,7 +174,7 @@ class Room { // eslint-disable-line
   getAvailableMessage () {
     let now = +new Date()
     for (var i = 0; i < this.messages.length; ++i) {
-      let message = this.essages[i]
+      let message = this.messages[i]
 
       if (message.receiveTimestamp <= now) {
         this.messages.splice(i, 1)

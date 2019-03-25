@@ -10,7 +10,7 @@ var SharedConstants = typeof module === 'object' ? require('./Constants') : Cons
 var SharedUtil = typeof module === 'object' ? require('./Util') : Util // eslint-disable-line
 
 /** Class representing a World. */
-class World {
+var World = class World {
   /**
    * Initialise data
    *
@@ -90,5 +90,5 @@ class World {
 }
 
 if (typeof module === 'object') {
-  module.exports = World
+  module.exports = World // eslint-disable-line
 }

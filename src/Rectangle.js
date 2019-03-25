@@ -6,7 +6,7 @@
  */
 
 /** Class representing a Rectangle. */
-class Rectangle { // eslint-disable-line
+window.Rectangle = class Rectangle { // eslint-disable-line
   /**
   * Initialize data.
   *

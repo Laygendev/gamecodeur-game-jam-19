@@ -7,7 +7,7 @@
  */
 
 /** Class representing a UI. */
-class UI { // eslint-disable-line
+window.UI = class UI { // eslint-disable-line
   /**
    * Init data
    *

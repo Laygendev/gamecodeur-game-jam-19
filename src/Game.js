@@ -6,19 +6,8 @@
  * @version 0.1.0
  */
 
-var Room = window.Room
-var HtmlUI = window.htmlUI
-var Loader = window.Loader
-var Input = window.Input
-var UI = window.UI
-var Player = window.Player
-var Camera = window.Camera
-var Constants = window.Constants
-var Util = window.Util
-var requestAnimationFrame = window.requestAnimationFrame
-
 /** Class representing a Game. */
-class Game { // eslint-disable-line
+window.Game = class Game { // eslint-disable-line
 
   /**
    * Init data and load assets.
@@ -143,21 +132,21 @@ class Game { // eslint-disable-line
      *
      * @type {Room}
      */
-    this.room = new Room(this, this.socket)
+    this.room = new window.Room(this, this.socket)
 
     /**
      * HTML UI Object.
      *
      * @type {htmlUI}
      */
-    this.htmlUI = new HtmlUI(this, this.socket)
+    this.htmlUI = new window.HtmlUI(this, this.socket)
 
     /**
      * The position.
      *
      * @type {Array}
      */
-    this.loader = new Loader(this)
+    this.loader = new window.Loader(this)
     this.loader.loadImage('tile', 'asset/tile.png')
     this.loader.loadImage('tank', 'asset/tank.png')
     this.loader.loadImage('canon', 'asset/canon.png')
@@ -177,11 +166,11 @@ class Game { // eslint-disable-line
 
     this.htmlUI.switchUI()
 
-    this.input = new Input(this)
-    this.ui = new UI(this)
+    this.input = new window.Input(this)
+    this.ui = new window.UI(this)
     this.room.load()
 
-    requestAnimationFrame(() => { this.gameLoop() })
+    window.requestAnimationFrame(() => { this.gameLoop() })
   }
 
   /**
@@ -203,10 +192,10 @@ class Game { // eslint-disable-line
    * @param {Object} data - Data of the current player.
    */
   addPlayer (data) {
-    this.tanks[data.id] = new Player(data.position, data.orientation, data.name, data.id, data.screen)
+    this.tanks[data.id] = new window.Player(data.position, data.orientation, data.name, data.id, data.screen)
 
     if (this.id === data.id) {
-      this.camera = new Camera(this)
+      this.camera = new window.Camera(this)
       this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH)
     }
   }
@@ -238,7 +227,7 @@ class Game { // eslint-disable-line
       this.draw(dt)
     }
 
-    requestAnimationFrame(() => { this.gameLoop() })
+    window.requestAnimationFrame(() => { this.gameLoop() })
   }
 
   /**
@@ -317,8 +306,8 @@ class Game { // eslint-disable-line
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    for (var x = 0; x < Constants.WORLD_MAX; x += 40) {
-      for (var y = 0; y < Constants.WORLD_MAX; y += 40) {
+    for (var x = 0; x < window.Constants.WORLD_MAX; x += 40) {
+      for (var y = 0; y < window.Constants.WORLD_MAX; y += 40) {
         if (this.camera.inViewport(x, y)) {
           this.ctx.drawImage(this.ressources['tile'], x - this.camera.x, y - this.camera.y)
           tile++
@@ -339,7 +328,8 @@ class Game { // eslint-disable-line
     if (this.tanks[this.id]) {
       this.ctx.save()
       this.ctx.font = '20px Arial'
-      this.ctx.fillText('X: ' + parseInt(this.tanks[this.id].position[0]) + ' Y: ' + parseInt(this.tanks[this.id].position[1]), 20, 40)
+      this.ctx.fillText(this.latency + 'ms', 20, 40)
+      this.ctx.fillText('X: ' + parseInt(this.tanks[this.id].position[0]) + ' Y: ' + parseInt(this.tanks[this.id].position[1]), 20, 65)
       this.ctx.restore()
     }
 
@@ -379,7 +369,7 @@ class Game { // eslint-disable-line
         this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, 100, 10)
         this.ctx.save()
         this.ctx.fillStyle = '#556B2F'
-        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, tank.health * 100 / Constants.PLAYER_MAX_HEALTH, 10)
+        this.ctx.fillRect(tank.position[0] - this.camera.x - 50, tank.position[1] - this.camera.y - 50, tank.health * 100 / window.Constants.PLAYER_MAX_HEALTH, 10)
         this.ctx.restore()
 
         this.ctx.font = '26px Arial'
@@ -397,7 +387,7 @@ class Game { // eslint-disable-line
    * @param {Number} dt    - The deltaTime.
    */
   drawBullets (bullet, dt) {
-    var distance = Math.sqrt(Util.sqr(bullet.initPos[1] - bullet.position[1]) + Util.sqr(bullet.initPos[0] - bullet.position[0]))
+    var distance = Math.sqrt(window.Util.sqr(bullet.initPos[1] - bullet.position[1]) + window.Util.sqr(bullet.initPos[0] - bullet.position[0]))
     distance *= 0.3
 
     if (distance > 100) {

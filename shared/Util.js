@@ -6,7 +6,7 @@
  */
 
 /** Static Class; */
-class Util {
+var Util = class Util {
   /**
    * Convert degrees to radians
    *
@@ -29,6 +29,17 @@ class Util {
   static radiansToDegrees (radians) {
     var pi = Math.PI
     return radians * (180 / pi)
+  }
+
+  /**
+   * Make multiplication of the given value.
+   *
+   * @param {Number} a - The given value
+   *
+   * @return {Number}    The multiplied value.
+   */
+  static sqr (a) {
+    return a * a
   }
 
   /**
@@ -168,5 +179,5 @@ class Util {
 }
 
 if (typeof module === 'object') {
-  module.exports = Util
+  module.exports = Util // eslint-disable-line
 }
