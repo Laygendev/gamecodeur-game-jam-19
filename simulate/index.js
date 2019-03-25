@@ -46,6 +46,7 @@ setInterval(function () {
       input[0] = sockets[key].id
       input[1] = sockets[key].latency
       input[2] = sockets[key].inputSequenceNumber++
+      input[4] = false;
 
       input[8] = 0 // UP
       input[9] = 0 // LEFT
@@ -68,7 +69,7 @@ setInterval(function () {
       }
 
       if (sockets[key].timerToShoot >= 1) {
-        input[4] = true
+        // input[4] = true
         sockets[key].timerToShoot = 0
       }
 
