@@ -24,10 +24,14 @@ window.Drawing = class Drawing { // eslint-disable-line
 
   drawTiles () {
     for (var key in this.game.ressources['map'].layers) {
-      for (var x = 0; x < this.game.ressources['map'].layers[key].width; x++) {
-        for (var y = 0; y < this.game.ressources['map'].layers[key].height; y++) {
+      for (var y = 0; y < this.game.ressources['map'].layers[key].height; y++) {
+        for (var x = 0; x < this.game.ressources['map'].layers[key].width; x++) {
           if (this.game.camera.inViewport((x * 40), (y * 40))) {
-            var posTile = this.game.ressources['tilesTiles'].getTile(this.game.ressources['map'].layers[key].data[x][y]);
+            // (0 * 1000) + 0 = 0
+            // (1 * 1000) + 0 = 1000
+            // (1 * 1000) + 200 = 1200
+            // (2 * 1000) + 100 = 2100
+            var posTile = this.game.ressources['tilesTiles'].getTile(this.game.ressources['map'].layers[key].data[((y * 1000) + x)])
             this.game.ctx.drawImage(this.game.ressources['tile'], posTile.x, posTile.y, 40, 40, (x * 40) - this.game.camera.x, (y * 40) - this.game.camera.y, 40, 40)
           }
         }
@@ -36,8 +40,8 @@ window.Drawing = class Drawing { // eslint-disable-line
   }
 
   drawWorld () {
-    this.game.ctx.drawImage(this.game.ressources['house'], 500 - this.game.camera.x, 300 - this.game.camera.y)
-    this.game.ctx.drawImage(this.game.ressources['ile'], 2000 - this.game.camera.x, 2000 - this.game.camera.y)
+    // this.game.ctx.drawImage(this.game.ressources['house'], 500 - this.game.camera.x, 300 - this.game.camera.y)
+    // this.game.ctx.drawImage(this.game.ressources['ile'], 2000 - this.game.camera.x, 2000 - this.game.camera.y)
   }
 
   drawTank (tank) {

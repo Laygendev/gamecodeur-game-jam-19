@@ -158,12 +158,12 @@ window.Game = class Game { // eslint-disable-line
     this.loader.loadImage('canon', 'asset/canon.png')
     this.loader.loadImage('fire', 'asset/fire.png')
     this.loader.loadImage('endcanon', 'asset/endcanon.png')
-    this.loader.loadImage('ile', 'asset/ile.png')
-    this.loader.loadImage('house', 'asset/house.png')
-    this.loader.loadJSON('worldCollider', 'asset/worldCollider.json')
-    this.loader.loadJSONTile('tiles', 'asset/Tiles.json')
-    this.loader.loadImage('tile', 'asset/tile.png')
-    this.loader.loadJSON('map', 'asset/map.json')
+    // this.loader.loadImage('ile', 'asset/ile.png')
+    // this.loader.loadImage('house', 'asset/house.png')
+    // this.loader.loadJSON('worldCollider', 'asset/worldCollider.json')
+    // this.loader.loadJSONTile('tiles', 'asset/Tiles.json')
+    // this.loader.loadImage('tile', 'asset/tile.png')
+    // this.loader.loadJSON('map', 'asset/map.json')
 
     this.loader.start()
   }
@@ -317,8 +317,8 @@ window.Game = class Game { // eslint-disable-line
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-    this.drawing.drawTiles()
-    this.drawing.drawWorld()
+    // this.drawing.drawTiles()
+    // this.drawing.drawWorld()
 
     for (key in this.projectiles) {
       this.drawing.drawBullet(this.projectiles[key])

@@ -1,26 +1,62 @@
-{ "columns":3,
+{ "columns":6,
  "image":"tile.png",
  "imageheight":120,
- "imagewidth":120,
+ "imagewidth":240,
  "margin":0,
  "name":"Tiles",
  "spacing":0,
- "tilecount":9,
+ "terrains":[
+        {
+         "name":"Nouveau terrain",
+         "tile":0
+        }],
+ "tilecount":18,
+ "tiledversion":"1.2.2",
  "tileheight":40,
- "tileproperties":
-    {
-     "0":
+ "tiles":[
         {
-         "column":3
-        }
-    },
- "tilepropertytypes":
-    {
-     "0":
+         "id":0,
+         "properties":[
+                {
+                 "name":"column",
+                 "type":"int",
+                 "value":3
+                }],
+         "terrain":[0, 0, 0, 0]
+        }, 
         {
-         "column":"int"
-        }
-    },
+         "id":1,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":2,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":6,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":7,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":8,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":12,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":13,
+         "terrain":[0, 0, 0, 0]
+        }, 
+        {
+         "id":14,
+         "terrain":[0, 0, 0, 0]
+        }],
  "tilewidth":40,
- "type":"tileset"
+ "type":"tileset",
+ "version":1.2
 }
