@@ -3,7 +3,7 @@
  * canvas
  *
  * @author BwooGames
- * @version 0.1.0
+ * @version 0.1.0s
  */
 
 /** Class representing a Canvas. */
@@ -23,10 +23,13 @@ window.Drawing = class Drawing { // eslint-disable-line
   }
 
   drawTiles () {
-    for (var x = 0; x < window.Constants.WORLD_MAX; x += 40) {
-      for (var y = 0; y < window.Constants.WORLD_MAX; y += 40) {
-        if (this.game.camera.inViewport(x, y)) {
-          this.game.ctx.drawImage(this.game.ressources['tile'], x - this.game.camera.x, y - this.game.camera.y)
+    for (var key in this.game.ressources['map'].layers) {
+      for (var x = 0; x < layer.width; x++) {
+        for (var y = 0; y < layer.height; y++) {
+          if (this.game.camera.inViewport((x * 40), (y * 40))) {
+            var posTile = this.game.ressources['tilesTiles'].getTile(layer.data[x][y]);
+            this.game.ctx.drawImage(this.game.ressources['tile'], posTile.x, posTile.y, 40, 40, (x * 40) - this.game.camera.x, (y * 40) - this.game.camera.y, 40, 40)
+          }
         }
       }
     }

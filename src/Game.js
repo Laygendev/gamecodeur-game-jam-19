@@ -154,7 +154,6 @@ window.Game = class Game { // eslint-disable-line
      * @type {Array}
      */
     this.loader = new window.Loader(this)
-    this.loader.loadImage('tile', 'asset/tile.png')
     this.loader.loadImage('tank', 'asset/tank.png')
     this.loader.loadImage('canon', 'asset/canon.png')
     this.loader.loadImage('fire', 'asset/fire.png')
@@ -162,6 +161,9 @@ window.Game = class Game { // eslint-disable-line
     this.loader.loadImage('ile', 'asset/ile.png')
     this.loader.loadImage('house', 'asset/house.png')
     this.loader.loadJSON('worldCollider', 'asset/worldCollider.json')
+    this.loader.loadJSONTile('tiles', 'asset/Tiles.json')
+    this.loader.loadImage('tile', 'asset/tile.png')
+    this.loader.loadJSON('map', 'asset/map.json')
 
     this.loader.start()
   }

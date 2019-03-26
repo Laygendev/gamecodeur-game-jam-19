@@ -70,6 +70,20 @@ window.Loader = class Loader {  // eslint-disable-line
   }
 
   /**
+   * Add ressoures JSON Tiles to load
+   *
+   * @param {String} id   - The ID of the ressources.
+   * @param {String} path - The Abs path to the ressources.
+   */
+  loadJSONTile (id, path) {
+    this.ressourcesToLoad[id] = {
+      path: path,
+      type: 'json',
+      extra: 'tile'
+    }
+  }
+
+  /**
    * Start load
    */
   start () {
@@ -87,6 +101,15 @@ window.Loader = class Loader {  // eslint-disable-line
 
         window.xhrJSON.loadJSON(this.ressourcesToLoad[key].path, (text) => {
           this.game.ressources[key] = JSON.parse(text)
+
+          if ('tile' === this.ressourcesToLoad[key].extra) {
+            this.ressources[key + 'Tiles'] = new Tiles(
+              this.game.ressources[key].columns,
+              this.game.ressources[key].tilewidth,
+              this.game.ressources[key].tileheight,
+              this.game.ressources[key].imagewidth
+            );
+          }
           this.nbLoad++
           this.checkAllLoad()
         })
@@ -102,6 +125,7 @@ window.Loader = class Loader {  // eslint-disable-line
   checkAllLoad () {
     if (this.nbLoad === window.Util.length(this.ressourcesToLoad)) {
       this.isLoaded = true
+
       // this.game.net = new Net(this.game);
     }
   }

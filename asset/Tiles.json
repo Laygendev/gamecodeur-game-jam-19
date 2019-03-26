@@ -1,0 +1,26 @@
+{ "columns":3,
+ "image":"tile.png",
+ "imageheight":120,
+ "imagewidth":120,
+ "margin":0,
+ "name":"Tiles",
+ "spacing":0,
+ "tilecount":9,
+ "tileheight":40,
+ "tileproperties":
+    {
+     "0":
+        {
+         "column":3
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "column":"int"
+        }
+    },
+ "tilewidth":40,
+ "type":"tileset"
+}
