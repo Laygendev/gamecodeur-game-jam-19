@@ -24,10 +24,10 @@ window.Drawing = class Drawing { // eslint-disable-line
 
   drawTiles () {
     for (var key in this.game.ressources['map'].layers) {
-      for (var x = 0; x < layer.width; x++) {
-        for (var y = 0; y < layer.height; y++) {
+      for (var x = 0; x < this.game.ressources['map'].layers[key].width; x++) {
+        for (var y = 0; y < this.game.ressources['map'].layers[key].height; y++) {
           if (this.game.camera.inViewport((x * 40), (y * 40))) {
-            var posTile = this.game.ressources['tilesTiles'].getTile(layer.data[x][y]);
+            var posTile = this.game.ressources['tilesTiles'].getTile(this.game.ressources['map'].layers[key].data[x][y]);
             this.game.ctx.drawImage(this.game.ressources['tile'], posTile.x, posTile.y, 40, 40, (x * 40) - this.game.camera.x, (y * 40) - this.game.camera.y, 40, 40)
           }
         }

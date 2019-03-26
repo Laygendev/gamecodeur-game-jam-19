@@ -99,15 +99,14 @@ window.Loader = class Loader {  // eslint-disable-line
       } else if (this.ressourcesToLoad[key].type === 'json') {
         this.game.ressources[key] = {}
 
-        window.xhrJSON.loadJSON(this.ressourcesToLoad[key].path, (text) => {
-          this.game.ressources[key] = JSON.parse(text)
-
-          if ('tile' === this.ressourcesToLoad[key].extra) {
-            this.ressources[key + 'Tiles'] = new Tiles(
-              this.game.ressources[key].columns,
-              this.game.ressources[key].tilewidth,
-              this.game.ressources[key].tileheight,
-              this.game.ressources[key].imagewidth
+        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+          this.game.ressources[keyb] = JSON.parse(text)
+          if ('tile' === this.ressourcesToLoad[keyb].extra) {
+            this.game.ressources[keyb + 'Tiles'] = new Tiles(
+              this.game.ressources[keyb].columns,
+              this.game.ressources[keyb].tilewidth,
+              this.game.ressources[keyb].tileheight,
+              this.game.ressources[keyb].imagewidth
             );
           }
           this.nbLoad++

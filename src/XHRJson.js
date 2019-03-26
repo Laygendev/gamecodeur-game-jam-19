@@ -14,13 +14,13 @@ window.xhrJSON = class xhrJSON { // eslint-disable-line
    * @param {String} path   - The ABS path to the JSON File.
    * @param {Func} callback - A callback function.
    */
-  static loadJSON (path, callback) {
+  static loadJSON (key, path, callback) {
     var xobj = new window.XMLHttpRequest()
     xobj.overrideMimeType('application/json')
     xobj.open('GET', path, true)
     xobj.onreadystatechange = function () {
       if (xobj.readyState === 4 && xobj.status === 200) {
-        callback(xobj.responseText)
+        callback(key, xobj.responseText)
       }
     }
 
