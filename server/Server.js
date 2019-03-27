@@ -67,11 +67,11 @@ class Server {
    */
   handleSocket (socket) {
     socket.on('join-room', (data) => { this.joinRoom(socket, data) })
-    // socket.on('leave-room', () => { this.leaveRoom(socket) })
-    // socket.on('room-ask-to-start', () => { this.askToStart(socket) })
-    // socket.on('player-action', (data) => { this.receivePlayerAction(socket, data) })
-    // socket.on('disconnect', () => { this.disconnect(socket) })
-    //
+    socket.on('leave-room', () => { this.leaveRoom(socket) })
+    socket.on('room-ask-to-start', () => { this.askToStart(socket) })
+    socket.on('player-action', (data) => { this.receivePlayerAction(socket, data) })
+    socket.on('disconnect', () => { this.disconnect(socket) })
+
     socket.emit('connected', socket.id)
   }
 
@@ -236,9 +236,9 @@ class Server {
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
-        // currentRoom.processInput()
-        // currentRoom.update(dt)
-        // currentRoom.sendState()
+        currentRoom.processInput()
+        currentRoom.update(dt)
+        currentRoom.sendState()
 
         if (currentRoom.needToDeleted) {
           this.rooms.remove(currentRoom.id)
@@ -257,7 +257,7 @@ class Server {
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
-        // currentRoom.sendPlayersState()
+        currentRoom.sendPlayersState()
       }
     }
   }

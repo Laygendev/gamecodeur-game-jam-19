@@ -108,6 +108,10 @@ window.Loader = class Loader {  // eslint-disable-line
               this.game.ressources[keyb].tileheight,
               this.game.ressources[keyb].imagewidth
             );
+          } else {
+            for (var key in this.game.ressources[keyb].layers) {
+              this.game.layers.push(new Layer(this.game, this.game.ressources[keyb].layers[key]));
+            }
           }
           this.nbLoad++
           this.checkAllLoad()
