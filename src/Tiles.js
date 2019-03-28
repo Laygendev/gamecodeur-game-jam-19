@@ -14,7 +14,7 @@ window.Tiles = class Tiles { // eslint-disable-line
     this.imagewidth = imagewidth
   }
 
-  getTile(index) {
+  getTile (index) {
     let row = parseInt(Math.ceil(index / this.columns))
     let x = (((index - 1) * this.tilewidth) - ((row - 1) * this.imagewidth))
     let y = (row - 1) * this.tileheight

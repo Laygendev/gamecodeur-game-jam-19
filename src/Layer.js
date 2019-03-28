@@ -11,6 +11,8 @@ class Layer {
   }
 
   drawLayer() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
     if (this.game.tanks[this.game.id]) {
       let posTilesTankY = parseInt(this.game.tanks[this.game.id].position[1] / 40);
       let posTilesTankX = parseInt(this.game.tanks[this.game.id].position[0] / 40);
