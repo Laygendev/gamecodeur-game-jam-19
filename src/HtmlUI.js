@@ -43,7 +43,7 @@ window.HtmlUI = class htmlUI { // eslint-disable-line
     this.messages = []
 
     // Add event listener on socket.
-    this.socket.on('connected', (id) => { this.displayConnected(id) })
+    this.socket.on('connected', (id) => { this.displayLoadData(id) })
     this.socket.on('connect_error', () => { this.connectError() })
     this.socket.on('reconnecting', (n) => { this.reconnecting(n) })
 
@@ -79,15 +79,20 @@ window.HtmlUI = class htmlUI { // eslint-disable-line
     document.querySelector('.network-not-ready').innerHTML = 'Try reconnecting #' + n
   }
 
+  displayMainMenu () {
+    document.querySelector('.loading-data').style.display = 'none'
+    document.querySelector('.main-menu').style.display = 'block'
+  }
+
   /**
    * When receive "connected" event.
    *
    * @param {Number} id - Socket ID.
    */
-  displayConnected (id) {
+  displayLoadData (id) {
     this.game.id = id
 
-    document.querySelector('.network-ready').style.display = 'block'
+    document.querySelector('.loading-data').style.display = 'block'
     document.querySelector('.network-not-ready').style.display = 'none'
   }
 

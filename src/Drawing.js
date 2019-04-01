@@ -23,10 +23,10 @@ window.Drawing = class Drawing { // eslint-disable-line
   }
 
   drawTiles () {
-    for (var key in this.game.layers) {
-      this.game.layers[key].drawLayer();
+    for (var key in this.game.ressources['map'].layers) {
+      this.game.ressources['map'].layers[key].drawLayer()
 
-      this.game.ctx.drawImage(this.game.layers[key].canvas, 0, 0);
+      this.game.ctx.drawImage(this.game.ressources['map'].layers[key].canvas, 0, 0)
     }
   }
 

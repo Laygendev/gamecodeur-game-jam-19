@@ -127,7 +127,7 @@ window.Game = class Game { // eslint-disable-line
      */
     this.ui = undefined
 
-    this.layers = [];
+    this.layers = []
 
     /**
      * Drawing Object
@@ -159,13 +159,10 @@ window.Game = class Game { // eslint-disable-line
     this.loader.loadImage('tank', 'asset/tank.png')
     this.loader.loadImage('canon', 'asset/canon.png')
     this.loader.loadImage('fire', 'asset/fire.png')
+    this.loader.loadImage('tiles', 'asset/tile.png')
     this.loader.loadImage('endcanon', 'asset/endcanon.png')
-    // this.loader.loadImage('ile', 'asset/ile.png')
-    // this.loader.loadImage('house', 'asset/house.png')
-    // this.loader.loadJSON('worldCollider', 'asset/worldCollider.json')
-    this.loader.loadJSONTile('tiles', 'asset/Tiles.json')
-    this.loader.loadImage('tile', 'asset/tile.png')
-    this.loader.loadJSON('map', 'asset/map.json')
+    this.loader.loadJSONMap('map', 'asset/maptest.json')
+    this.loader.loadJSONTileset('tileset', 'asset/Tiles.json')
 
     this.loader.start()
   }

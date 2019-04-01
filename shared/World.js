@@ -59,29 +59,14 @@ var World = class World {
    */
   checkCollider (pos, nextPos) {
     var haveCollider = false
-    for (var key in this.collider) {
-      for (var i = 0; i < this.collider[key].length; i++) {
-        var A = this.collider[key][i]
-        var B
-        if (i === this.collider[key].length - 1) {
-          B = this.collider[key][0]
-        } else {
-          B = this.collider[key][i + 1]
-        }
 
-        A[0] = A.x
-        A[1] = A.y
-        B[0] = B.x
-        B[1] = B.y
-        haveCollider = SharedUtil.CollisionSegSeg(pos, nextPos, A, B)
+    if (this.game) {
+      for (var key in this.game.ressources['map'].layers) {
+        haveCollider = this.game.ressources['map'].layers[key].checkCollider(pos, nextPos)
 
         if (haveCollider) {
           break
         }
-      }
-
-      if (haveCollider) {
-        break
       }
     }
 

@@ -69,17 +69,17 @@ window.Loader = class Loader {  // eslint-disable-line
     }
   }
 
-  /**
-   * Add ressoures JSON Tiles to load
-   *
-   * @param {String} id   - The ID of the ressources.
-   * @param {String} path - The Abs path to the ressources.
-   */
-  loadJSONTile (id, path) {
+  loadJSONMap (id, path) {
     this.ressourcesToLoad[id] = {
       path: path,
-      type: 'json',
-      extra: 'tile'
+      type: 'map'
+    }
+  }
+
+  loadJSONTileset (id, path) {
+    this.ressourcesToLoad[id] = {
+      path: path,
+      type: 'tileset'
     }
   }
 
@@ -101,18 +101,25 @@ window.Loader = class Loader {  // eslint-disable-line
 
         window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
           this.game.ressources[keyb] = JSON.parse(text)
-          if ('tile' === this.ressourcesToLoad[keyb].extra) {
-            this.game.ressources[keyb + 'Tiles'] = new Tiles(
-              this.game.ressources[keyb].columns,
-              this.game.ressources[keyb].tilewidth,
-              this.game.ressources[keyb].tileheight,
-              this.game.ressources[keyb].imagewidth
-            );
-          } else {
-            for (var key in this.game.ressources[keyb].layers) {
-              this.game.layers.push(new Layer(this.game, this.game.ressources[keyb].layers[key]));
-            }
-          }
+          this.nbLoad++
+          this.checkAllLoad()
+        })
+      } else if (this.ressourcesToLoad[key].type === 'map') {
+        this.game.ressources[key] = {}
+        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+          let tmpData = JSON.parse(text)
+          this.game.ressources[keyb] = new Map(this.game, tmpData.tilewidth, tmpData.tileheight, tmpData.width, tmpData.height, tmpData.layers)
+
+          this.nbLoad++
+          this.checkAllLoad()
+        })
+      } else if (this.ressourcesToLoad[key].type === 'tileset') {
+        this.game.ressources[key] = {}
+
+        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+          let tmpData = JSON.parse(text)
+          this.game.ressources[keyb] = new window.Tileset(tmpData.columns, tmpData.imagewidth, tmpData.imageheight, tmpData.tilecount, tmpData.tileheight, tmpData.tilewidth, tmpData.tiles)
+
           this.nbLoad++
           this.checkAllLoad()
         })
@@ -129,7 +136,7 @@ window.Loader = class Loader {  // eslint-disable-line
     if (this.nbLoad === window.Util.length(this.ressourcesToLoad)) {
       this.isLoaded = true
 
-      // this.game.net = new Net(this.game);
+      this.game.htmlUI.displayMainMenu()
     }
   }
 }

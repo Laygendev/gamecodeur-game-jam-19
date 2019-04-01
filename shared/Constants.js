@@ -29,7 +29,7 @@ Constants.WORLD_MIN = 0
  *
  * @type {Number}
  */
-Constants.WORLD_MAX = 40000
+Constants.WORLD_MAX = 2000
 
 /**
  * Define the default shoot coldown
@@ -92,7 +92,7 @@ Constants.DEFAULT_SPEED = 300
  *
  * @type {Number}
  */
-Constants.DEFAULT_SPEED_MAX = 20000
+Constants.DEFAULT_SPEED_MAX = 2000
 
 /**
  * Define the default start room time

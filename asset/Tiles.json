@@ -1,60 +1,81 @@
-{ "columns":6,
+{ "columns":13,
  "image":"tile.png",
  "imageheight":120,
- "imagewidth":240,
+ "imagewidth":520,
  "margin":0,
  "name":"Tiles",
  "spacing":0,
- "terrains":[
-        {
-         "name":"Nouveau terrain",
-         "tile":0
-        }],
- "tilecount":18,
+ "tilecount":39,
  "tiledversion":"1.2.2",
  "tileheight":40,
  "tiles":[
         {
-         "id":0,
-         "properties":[
-                {
-                 "name":"column",
-                 "type":"int",
-                 "value":3
-                }],
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":1,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":2,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":6,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":7,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":8,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
          "id":12,
-         "terrain":[0, 0, 0, 0]
+         "objectgroup":
+            {
+             "draworder":"index",
+             "name":"",
+             "objects":[
+                    {
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "polyline":[
+                            {
+                             "x":0,
+                             "y":0
+                            }, 
+                            {
+                             "x":-11,
+                             "y":9.65625
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":0,
+                     "x":11.0625,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
         }, 
         {
-         "id":13,
-         "terrain":[0, 0, 0, 0]
-        }, 
-        {
-         "id":14,
-         "terrain":[0, 0, 0, 0]
+         "id":19,
+         "objectgroup":
+            {
+             "draworder":"index",
+             "name":"",
+             "objects":[
+                    {
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "polyline":[
+                            {
+                             "x":0,
+                             "y":0
+                            }, 
+                            {
+                             "x":-0.25,
+                             "y":39.625
+                            }],
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":0,
+                     "x":6,
+                     "y":0.25
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "x":0,
+             "y":0
+            }
         }],
  "tilewidth":40,
  "type":"tileset",
