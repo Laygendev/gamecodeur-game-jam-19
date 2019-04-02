@@ -12,6 +12,7 @@
 const HashMap = require('hashmap')
 
 const Room = require('./Room')
+const Load = require('./Load')
 
 const Constants = require('./Constants')
 
@@ -46,6 +47,10 @@ class Server {
      * @type {HashMap}
      */
     this.rooms = new HashMap()
+
+    this.ressources = []
+
+    this.load = new Load(this)
 
     /**
      * Last timestamp in the update loop. This property help to calcul deltatime.

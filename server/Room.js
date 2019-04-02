@@ -42,7 +42,7 @@ class Room {
      *
      * @type {World}
      */
-    this.world = new World()
+    this.world = new World(server.ressources['map'])
 
     /**
      * A collection of players.

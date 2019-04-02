@@ -84,7 +84,7 @@ window.Room = class Room { // eslint-disable-line
    * When game call load, init World.
    */
   load () {
-    this.world = new window.World(this.game.ressources['worldCollider'], this.game)
+    this.world = new window.World(this.game.ressources['map'])
   }
 
   /**

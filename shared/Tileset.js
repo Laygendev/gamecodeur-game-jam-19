@@ -5,8 +5,10 @@
  * @version 0.1.0
  */
 
+var SharedTiles = typeof module === 'object' ? require('./Tiles') : window.Tiles // eslint-disable-line
+
 /** Class representing a Tileset. */
-window.Tileset = class Tileset { // eslint-disable-line
+var Tileset = class Tileset {
   constructor (columns, imagewidth, imageheight, tilecount, tileheight, tilewidth, tilesInfo) {
     this.columns = columns
     this.imagewidth = imagewidth
@@ -20,7 +22,7 @@ window.Tileset = class Tileset { // eslint-disable-line
     this.tiles = []
 
     for (var i = 0; i < tilecount; i++) {
-      this.tiles.push(new window.Tiles(i, this.tilewidth, this.tileheight, this.searchTileCollision(i)))
+      this.tiles.push(new SharedTiles(i, this.tilewidth, this.tileheight, this.searchTileCollision(i)))
     }
   }
 
@@ -37,4 +39,8 @@ window.Tileset = class Tileset { // eslint-disable-line
 
     return undefined
   }
+}
+
+if (typeof module === 'object') {
+  module.exports = Tileset // eslint-disable-line
 }

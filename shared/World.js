@@ -14,27 +14,15 @@ var World = class World {
   /**
    * Initialise data
    *
-   * @param {Array} collider - The World collider.
-   * @param {Game} game      - The Game Object from Client side.
+   * @param {Array} map - The World map.
    */
-  constructor (collider, game) {
+  constructor (map) {
     /**
-     * The World collider.
+     * The World map.
      *
      * @type {Array}
      */
-    this.collider = collider
-
-    /**
-     * The Game Object from Client side.
-     *
-     * @type {Game}
-     */
-    this.game = game
-
-    if (typeof module === 'object') {
-      this.collider = require('./../asset/worldCollider.json')
-    }
+    this.map = map
   }
 
   /**
@@ -60,13 +48,11 @@ var World = class World {
   checkCollider (pos, nextPos) {
     var haveCollider = false
 
-    if (this.game) {
-      for (var key in this.game.ressources['map'].layers) {
-        haveCollider = this.game.ressources['map'].layers[key].checkCollider(pos, nextPos)
+    for (var key in this.map.layers) {
+      haveCollider = this.map.layers[key].checkCollider(pos, nextPos)
 
-        if (haveCollider) {
-          break
-        }
+      if (haveCollider) {
+        break
       }
     }
 
