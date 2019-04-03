@@ -7,6 +7,24 @@
 
 /** Static Class; */
 var Util = class Util {
+  static abs(value: number): number {
+    return value < 0 ? -value : value;
+  }
+
+  static clamp(value: number, min: number, max: number): number {
+    if (value < min) {
+      return min;
+    } else if (value > max) {
+      return max;
+    } else {
+      return value;
+    }
+  }
+
+  static sign(value: number): number {
+    return value < 0 ? -1 : 1;
+  }
+
   /**
    * Convert degrees to radians
    *
@@ -93,55 +111,38 @@ var Util = class Util {
     return ((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2))
   };
 
-  /**
-   * Check collision beetwen two segments.
-   *
-   * @param {Array} A - Point A From segment 1.
-   * @param {Array} B - Point B From segment 1.
-   * @param {Array} O - Point A From segment 2.
-   * @param {Array} P - Point B From segment 2.
-   *
-   * @return Boolean    True if segments is intersect or false.
-   */
-  static CollisionDroiteSeg (A, B, O, P) {
-    var AO = [0, 0]
-    var AP = [0, 0]
-    var AB = [0, 0]
+  static intersectAABB(box1: AABB, box2: AABB): Hit | null {
+    const dx = box1.pos.x - box2.pos.x
+    const px = (box1.half.x - box2.half.x) - abs(dx)
 
-    AB[0] = B[0] - A[0]
-    AB[1] = B[1] - A[1]
-    AP[0] = P[0] - A[0]
-    AP[1] = P[1] - A[1]
-    AO[0] = O[0] - A[0]
-    AO[1] = O[1] - A[1]
+    if (px <= 0) {
+      return null
+    }
 
-    if ((AB[0] * AP[1] - AB[1] * AP[0]) * (AB[0] * AO[1] - AB[1] * AO[0]) < 0) {
-      return true
+    const dy = box1.pos.y - box2.pos.y
+    const py = (box1.half.y + box2.half.y) - abs(dy)
+
+    if (py <= 0) {
+      return null
+    }
+
+    const hit = new Hit(box2)
+
+    if (px < py) {
+      const sx = sign(dx)
+      hit.delta.x = px * sx
+      hit.normal.x = sx
+      hit.pos.x = box2.pos.x + (box2.half.x * sx)
+      hit.pos.y = box1.pos.y
     } else {
-      return false
-    }
-  }
-
-  /**
-   * Test Intersect collision from two segments
-   *
-   * @param {Array} A - Point A From segment 1.
-   * @param {Array} B - Point B From segment 1.
-   * @param {Array} O - Point A From segment 2.
-   * @param {Array} P - Point B From segment 2.
-   *
-   * @return Boolean    True if segments is intersect or false.
-   */
-  static CollisionSegSeg (A, B, O, P) {
-    if (Util.CollisionDroiteSeg(A, B, O, P) === false) {
-      return false
+      const sy = sign(dy)
+      hit.delta.y = py * sy
+      hit.normal.y = sy
+      hit.pos.x = box1.pos.x
+      hit.pos.y = box2.pos.y + (box2.half.y * sy)
     }
 
-    if (Util.CollisionDroiteSeg(O, P, A, B) === false) {
-      return false
-    }
-
-    return true
+    return hit
   }
 
   /**

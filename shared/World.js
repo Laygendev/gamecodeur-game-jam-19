@@ -49,7 +49,7 @@ var World = class World {
     var haveCollider = false
 
     for (var key in this.map.layers) {
-      haveCollider = this.map.layers[key].checkCollider(pos, nextPos)
+      haveCollider = this.map.layers[key].intersectAABB(pos, nextPos)
 
       if (haveCollider) {
         break
