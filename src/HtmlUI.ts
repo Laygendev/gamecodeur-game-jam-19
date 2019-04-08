@@ -66,7 +66,7 @@ export class HTMLUI {
   connectError (): void {
     let inGame: HTMLElement = document.querySelector('.in-game')
     let menu: HTMLElement = document.querySelector('.menu')
-    let networkReady: HTMLElement = document.querySelector('.network-ready')
+    let mainMenu: HTMLElement = document.querySelector('.main-menu')
     let networkNotReady: HTMLElement = document.querySelector('.network-not-ready')
     let stateText: HTMLElement = document.querySelector('.network-ready .state')
 
@@ -77,7 +77,7 @@ export class HTMLUI {
       this.game.stop()
     }
 
-    networkReady.style.display = 'none'
+    mainMenu.style.display = 'none'
     networkNotReady.style.display = 'block'
     networkNotReady.innerHTML = 'Server offline'
   }
@@ -88,7 +88,9 @@ export class HTMLUI {
    * @param {Number} n - Number try to recconnect
    */
   reconnecting (n: number): void {
-    document.querySelector('.network-not-ready').innerHTML = 'Try reconnecting #' + n
+    let networkNotReady: HTMLElement = document.querySelector('.network-not-ready')
+
+    networkNotReady.innerHTML = 'Try reconnecting #' + n
   }
 
   displayMainMenu (): void {

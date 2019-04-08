@@ -6,7 +6,6 @@
  * @version 0.1.0
  */
 
-import * as io from 'socket.io'
 import { Game } from './Game'
 
 /** Class representing a Client. */
@@ -22,7 +21,7 @@ class Client {
      *
      * @type {Socket}
      */
-    this.socket = io()
+    this.socket = require('socket.io-client')()
 
     /**
      * The Game Object.
@@ -37,6 +36,4 @@ class Client {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  new Client(); // eslint-disable-line
-})
+new Client(); // eslint-disable-line

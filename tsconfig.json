@@ -4,11 +4,9 @@
     "module": "commonjs",
 		"moduleResolution": "node",
 		"allowJs": true,
-		"noEmit": true,
 		"isolatedModules": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": "./dist",
-    "baseUrl" : "."
+    "outDir": "./dist"
 	},
 	"include": [
 		"./server/**/*",

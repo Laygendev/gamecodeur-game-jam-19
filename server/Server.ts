@@ -10,8 +10,7 @@
  */
 
 import express from 'express'
-import http from 'http' // eslint-disable-line
-import io from 'socket.io' // eslint-disable-line
+import io from 'socket.io-client' // eslint-disable-line
 import path from 'path'
 
 import { Room } from './Room'
@@ -68,9 +67,11 @@ export class Server {
   constructor () {
     this.app = express()
 
-    let http = require('http').Server(this.app)
+    var server = this.app.listen(80, function () {
+      console.log('Listening on *:80')
+    })
 
-    let io = require('socket.io')(http, { pingInterval: 2000 })
+    let io = require('socket.io')(server, { pingInterval: 2000 })
 
     io.on('connection', (socket: any) => { this.handleSocket(socket) })
 
@@ -86,19 +87,18 @@ export class Server {
     this.config()
     this.route()
 
-    this.app.listen(80, function () {
-      console.log('Listening on *:80')
-    })
   }
 
   config () {
+    this.app.use('/main.bundle.js', express.static('dist/main.bundle.js'))
     this.app.use('/lib', express.static('lib'))
     this.app.use('/dist', express.static('dist'))
+    this.app.use('/asset', express.static('dist/asset'))
   }
 
   route () {
     this.app.get('/', function (req, res) {
-      res.sendFile(path.resolve('index.html'))
+      res.sendFile(path.resolve('dist/index.html'))
     })
   }
 
