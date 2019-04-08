@@ -7,7 +7,7 @@ script:
   - standard --parser="@typescript-eslint/parser" --plugin "@typescript-eslint/eslint-plugin" server/*.ts shared/*.ts src/*.ts
 addons:
   sonarcloud:
-    organization: "gamecodeur-game-jam-19" # the key of the org you chose at step #3
+    organization: "laygendev-github" # the key of the org you chose at step #3
     token:
       secure: 56947a418ead34c1e92a193e643a1dfbd41180ec # encrypted value of your token
 script:
