@@ -86,7 +86,6 @@ export class Server {
 
     this.config()
     this.route()
-
   }
 
   config () {
