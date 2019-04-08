@@ -1,6 +1,6 @@
 filter:
-  paths: ["server/*", "shared/*", "src/*"]
-  excluded_paths: ["node_modules/*", "dist/*", "asset/*", "lib/*", "simulate/*", "test/*", "out/*"]
+  paths: ["dist*"]
+  excluded_paths: ["node_modules/*", "asset/*", "lib/*", "simulate/*", "test/*", "out/*"]
 
 build:
   dependencies:
