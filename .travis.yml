@@ -9,7 +9,7 @@ addons:
   sonarcloud:
     organization: "laygendev-github" # the key of the org you chose at step #3
     token:
-      secure: 56947a418ead34c1e92a193e643a1dfbd41180ec # encrypted value of your token
+      secure: d704c720b1fd654112d7bbc038983415d325328f # encrypted value of your token
 script:
   # other script steps might be done before running the actual analysis
   - sonar-scanner
