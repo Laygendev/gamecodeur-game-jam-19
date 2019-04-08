@@ -5,7 +5,7 @@
  * @version 0.1.0
  */
 
-import {Util} from './Util'
+import { Util } from './Util'
 
 /** Class represening an Entity. */
 export class Entity {

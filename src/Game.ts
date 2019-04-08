@@ -6,156 +6,180 @@
  * @version 0.1.0
  */
 
+import { Camera } from './Camera'
+import { UI } from './ui'
+import { Drawing } from './Drawing'
+import { Room } from './Room'
+import { HTMLUI } from './HtmlUI'
+import { Loader } from './Loader'
+import { Input } from './Input'
+import { Player } from './../Shared/Player'
+
 /** Class representing a Game. */
-window.Game = class Game { // eslint-disable-line
+export class Game {
+  /**
+   * The client Socket
+   *
+   * @type {Socket}
+   */
+  socket: any
 
   /**
-   * Init data and load assets.
+   * The socket ID.
    *
-   * @param {Socket} socket - The client socket.
+   * @type {Number}
    */
-  constructor (socket) {
-    /**
-     * The client Socket
-     *
-     * @type {Socket}
-     */
+  id: number
+
+  /**
+   * An array with input sending by client.
+   *
+   * @type {Array}
+   */
+  pendingInputs: any
+
+  /**
+   * Game is started ?
+   *
+   * @type {Boolean}
+   */
+  started: boolean
+
+  /**
+   * The Canvas
+   *
+   * @type {HTMLCanvas}
+   */
+  canvas: any
+
+  /**
+   * The Context..
+   *
+   * @type {HTMLContext2D}
+   */
+  ctx: any
+
+  /**
+   * The game latency
+   *
+   * @type {number}
+   */
+  latency: number
+
+  /**
+   * The last timestamp in the main Loop.
+   *
+   * @type {Number}
+   */
+  lastTimestamp: number
+
+  /**
+  * The input sequence number for processInput.
+  *
+  * @type {Number}
+  */
+  inputSequenceNumber: number
+
+  /**
+  * Array of loaded assets ressource.
+  *
+  * @type {Array}
+  */
+  ressources: []
+
+  /**
+  * Array of tanks.
+  *
+  * @type {Array}
+  */
+  tanks: Player[]
+
+  /**
+  * Array of projectiles.
+  *
+  * @type {Array}
+  */
+  projectiles: []
+
+  /**
+  * Input Object.
+  *
+  * @type {any}
+  */
+  input: any
+
+  /**
+  * Camera Object.
+  *
+  * @type {Camera}
+  */
+  camera: Camera
+  /**
+  * UI Object.
+  *
+  * @type {UI}
+  */
+  ui: UI
+
+  /**
+  * Drawing Object
+  *
+  * @type {Drawing}
+  */
+  drawing: Drawing
+
+  /**
+  * Room Object.
+  *
+  * @type {Room}
+  */
+  room: Room
+
+  /**
+  * HTML UI Object.
+  *
+  * @type {htmlUI}
+  */
+  htmlUI: HTMLUI
+
+  /**
+  * Loader object.
+  *
+  * @type {Loader}
+  */
+  loader: Loader
+
+  /**
+  * Init data and load assets.
+  *
+  * @param {Socket} socket - The client socket.
+  */
+  constructor (socket: any) {
     this.socket = socket
-
-    /**
-     * The socket ID.
-     *
-     * @type {Number}
-     */
     this.id = null
-
-    /**
-     * An array with input sending by client.
-     *
-     * @type {Array}
-     */
     this.pendingInputs = []
-
-    /**
-     * Game is started ?
-     *
-     * @type {Boolean}
-     */
     this.started = false
-
-    /**
-     * The Canvas
-     *
-     * @type {HTMLCanvas}
-     */
     this.canvas = document.getElementById('canvas')
-
-    /**
-     * The Context..
-     *
-     * @type {HTMLContext2D}
-     */
     this.ctx = this.canvas.getContext('2d')
-
-    /**
-     * The last timestamp in the main Loop.
-     *
-     * @type {Number}
-     */
     this.lastTimestamp = 0
-
-    /**
-     * The input sequence number for processInput.
-     *
-     * @type {Number}
-     */
     this.inputSequenceNumber = 0
+    this.latency = 0
 
-    /**
-     * The canvas Width.
-     *
-     * @type {Number}
-     */
     this.canvas.width = window.innerWidth
-
-    /**
-     * The canvas Height.
-     *
-     * @type {Number}
-     */
     this.canvas.height = window.innerHeight
 
-    /**
-     * Array of loaded assets ressource.
-     *
-     * @type {Array}
-     */
     this.ressources = []
-
-    /**
-     * Array of tanks.
-     *
-     * @type {Array}
-     */
     this.tanks = []
-
-    /**
-     * Array of projectiles.
-     *
-     * @type {Array}
-     */
     this.projectiles = []
-
-    /**
-     * Input Object.
-     *
-     * @type {Input}
-     */
     this.input = null
-
-    /**
-     * Camera Object.
-     *
-     * @type {Camera}
-     */
     this.camera = undefined
-
-    /**
-     * UI Object.
-     *
-     * @type {UI}
-     */
     this.ui = undefined
 
-    this.layers = []
+    this.drawing = new Drawing(this)
+    this.room = new Room(this, this.socket)
+    this.htmlUI = new HTMLUI(this, this.socket)
 
-    /**
-     * Drawing Object
-     *
-     * @type {Drawing}
-     */
-    this.drawing = new window.Drawing(this)
-
-    /**
-     * Room Object.
-     *
-     * @type {Room}
-     */
-    this.room = new window.Room(this, this.socket)
-
-    /**
-     * HTML UI Object.
-     *
-     * @type {htmlUI}
-     */
-    this.htmlUI = new window.HtmlUI(this, this.socket)
-
-    /**
-     * The position.
-     *
-     * @type {Array}
-     */
-    this.loader = new window.Loader(this)
+    this.loader = new Loader(this)
     this.loader.loadImage('tank', 'asset/tank.png')
     this.loader.loadImage('canon', 'asset/canon.png')
     this.loader.loadImage('fire', 'asset/fire.png')
@@ -170,13 +194,13 @@ window.Game = class Game { // eslint-disable-line
   /**
    * Start the game
    */
-  start () {
+  start (): void {
     this.started = true
 
     this.htmlUI.switchUI()
 
-    this.input = new window.Input(this)
-    this.ui = new window.UI(this)
+    this.input = new Input(this)
+    this.ui = new UI(this)
     this.room.load()
 
     window.requestAnimationFrame(() => { this.gameLoop() })
@@ -187,7 +211,7 @@ window.Game = class Game { // eslint-disable-line
    *
    * Reset all data.
    */
-  stop () {
+  stop (): void {
     this.started = false
     this.htmlUI.isLookingForRoom = false
 
@@ -201,11 +225,11 @@ window.Game = class Game { // eslint-disable-line
    *
    * @param {Object} data - Data of the current player.
    */
-  addPlayer (data) {
-    this.tanks[data.id] = new window.Player(data.position, data.orientation, data.name, data.id, data.screen)
+  addPlayer (data: any): void {
+    this.tanks[data.id] = new Player(data.position, data.orientation, data.name, data.id, data.screen)
 
     if (this.id === data.id) {
-      this.camera = new window.Camera(this)
+      this.camera = new Camera(this)
       this.camera.setTarget(this.tanks[this.id], data.screen.hW, data.screen.hH)
       this.start()
     }
@@ -216,7 +240,7 @@ window.Game = class Game { // eslint-disable-line
    *
    * @param {Number} id - The Socket ID.
    */
-  removePlayer (id) {
+  removePlayer (id: number): void {
     delete this.tanks[id]
   }
 
@@ -227,7 +251,7 @@ window.Game = class Game { // eslint-disable-line
    *
    * Call update and draw method.
    */
-  gameLoop () {
+  gameLoop (): void {
     if (this.started) {
       var nowTimestamp = +new Date()
       var lastTimestamp = this.lastTimestamp || nowTimestamp
@@ -235,7 +259,7 @@ window.Game = class Game { // eslint-disable-line
       this.lastTimestamp = nowTimestamp
 
       this.update(dt)
-      this.draw(dt)
+      this.draw()
     }
 
     window.requestAnimationFrame(() => { this.gameLoop() })
@@ -248,7 +272,7 @@ window.Game = class Game { // eslint-disable-line
    *
    * @param {Number} dt - The deltaTime.
    */
-  update (dt) {
+  update (dt: number): void {
     this.ui.update(dt)
     this.processInput(dt)
     this.camera.update()
@@ -262,7 +286,7 @@ window.Game = class Game { // eslint-disable-line
    *
    * @param {Number} dt - The deltaTime.
    */
-  processInput (dt) {
+  processInput (dt: number): void {
     this.tanks[this.id].turretAngle = Math.atan2((this.input.mousePosition.y + this.camera.y) - this.tanks[this.id].position[1],
       (this.input.mousePosition.x + this.camera.x) - this.tanks[this.id].position[0])
 
@@ -308,11 +332,9 @@ window.Game = class Game { // eslint-disable-line
 
   /**
    * Draw tile, map, bullets, tank.
-   *
-   * @param {Number} dt - The deltaTime.
    */
-  draw (dt) {
-    var key
+  draw (): void {
+    var key: any
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 

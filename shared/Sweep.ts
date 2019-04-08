@@ -5,9 +5,8 @@
  * @version 0.1.0
  */
 
-import {Hit} from './Hit'
-import {Point} from './Point'
-
+import { Hit } from './Hit' // eslint-disable-line
+import { Point } from './Point'
 
 /** Class representing a Sweep. */
 export class Sweep {

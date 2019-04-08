@@ -6,7 +6,48 @@
  */
 
 /** Class representing a Rectangle. */
-window.Rectangle = class Rectangle { // eslint-disable-line
+export class Rectangle {
+  /**
+   * The left corner
+   *
+   * @type {Number}
+   */
+  left: number
+
+  /**
+   * The top corner
+   *
+   * @type {Number}
+   */
+  top: number
+
+  /**
+   * The width
+   *
+   * @type {Number}
+   */
+  width: number
+
+  /**
+   * The height
+   *
+   * @type {Number}
+   */
+  height: number
+
+  /**
+   * The right corner
+   *
+   * @type {Number}
+   */
+  right: number
+
+  /**
+   * The bottom corner.
+   *
+   * @type {Number}
+   */
+  bottom: number
   /**
   * Initialize data.
   *
@@ -15,47 +56,12 @@ window.Rectangle = class Rectangle { // eslint-disable-line
   * @param {number} width  - the width of the rect.
   * @param {number} height - the height of the rect.
   */
-  constructor (left, top, width, height) {
-    /**
-     * The left corner
-     *
-     * @type {Number}
-     */
+  constructor (left: number, top: number, width?: number, height?: number) {
     this.left = left || 0
-
-    /**
-     * The top corner
-     *
-     * @type {Number}
-     */
     this.top = top || 0
-
-    /**
-     * The width
-     *
-     * @type {Number}
-     */
     this.width = width || 0
-
-    /**
-     * The height
-     *
-     * @type {Number}
-     */
     this.height = height || 0
-
-    /**
-     * The right corner
-     *
-     * @type {Number}
-     */
     this.right = this.left + this.width
-
-    /**
-     * The bottom corner.
-     *
-     * @type {Number}
-     */
     this.bottom = this.top + this.height
   }
 
@@ -67,7 +73,7 @@ window.Rectangle = class Rectangle { // eslint-disable-line
   * @param {number} width  - the width of the rect.
   * @param {number} height - the height of the rect.
   */
-  set (left, top, width, height) {
+  set (left: number, top: number, width?: number, height?: number): void {
     this.left = left
     this.top = top
     this.width = width || this.width
@@ -83,7 +89,7 @@ window.Rectangle = class Rectangle { // eslint-disable-line
    *
    * @return {Boolean}      Is in ?
    */
-  within (r) {
+  within (r: Rectangle): boolean {
     return (r.left <= this.left &&
       r.right >= this.right &&
       r.top <= this.top &&

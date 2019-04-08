@@ -8,7 +8,7 @@
     "build": "babel -x \".ts\" server/ -d dist/server && babel -x \".ts\" shared/ -d dist/shared && babel -x \".tx\" src/ -d dist/src",
     "serve": "node dist/index.ts",
     "typecheck": "tsc",
-    "standard": "node \"node_modules/standard/bin/cmd.js\" server/*.ts"
+    "standard": "node \"node_modules/standard/bin/cmd.js\" server/*.ts src/*.ts shared/*.ts"
   },
   "author": "BwooGames <contact@bwoogames.com>",
   "license": "ISC",

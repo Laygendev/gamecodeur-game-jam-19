@@ -3,39 +3,48 @@
  * canvas
  *
  * @author BwooGames
- * @version 0.1.0s
+ * @version 0.1.0
  */
 
+import { Game } from './Game' // eslint-disable-line
+import { Player } from './../Shared/Player' // eslint-disable-line
+import { Util } from './../Shared/Util'
+import { Constants } from './../Shared/Constants'
+
 /** Class representing a Canvas. */
-window.Drawing = class Drawing { // eslint-disable-line
+export class Drawing {
+  /**
+   * The game Object.
+   *
+   * @type {Game}
+   */
+  game: Game
   /**
    * Initialize data
    *
    * @param {Game} game - The game Object.
    */
-  constructor (game) {
-    /**
-     * The game Object.
-     *
-     * @type {Game}
-     */
+  constructor (game: Game) {
     this.game = game
   }
 
-  drawTiles () {
-    for (var key in this.game.ressources['map'].layers) {
-      this.game.ressources['map'].layers[key].drawLayer()
+  drawTiles (): void {
+    let map: any = this.game.ressources['map']
+    let layers: any = map.layers
 
-      this.game.ctx.drawImage(this.game.ressources['map'].layers[key].canvas, 0, 0)
+    for (var key in layers) {
+      layers[key].drawLayer()
+
+      this.game.ctx.drawImage(layers[key].canvas, 0, 0)
     }
   }
 
-  drawWorld () {
+  drawWorld (): void {
     // this.game.ctx.drawImage(this.game.ressources['house'], 500 - this.game.camera.x, 300 - this.game.camera.y)
     // this.game.ctx.drawImage(this.game.ressources['ile'], 2000 - this.game.camera.x, 2000 - this.game.camera.y)
   }
 
-  drawTank (tank) {
+  drawTank (tank: Player): void {
     if ((tank.isVisibleTo(this.game.tanks[this.game.id]) && !tank.waitMessage) || tank.id === this.game.id) {
       this.game.ctx.save()
       this.game.ctx.translate(tank.position[0] - this.game.camera.x, tank.position[1] - this.game.camera.y)
@@ -63,7 +72,7 @@ window.Drawing = class Drawing { // eslint-disable-line
         this.game.ctx.fillRect(tank.position[0] - this.game.camera.x - 50, tank.position[1] - this.game.camera.y - 50, 100, 10)
         this.game.ctx.save()
         this.game.ctx.fillStyle = '#556B2F'
-        this.game.ctx.fillRect(tank.position[0] - this.game.camera.x - 50, tank.position[1] - this.game.camera.y - 50, tank.health * 100 / window.Constants.PLAYER_MAX_HEALTH, 10)
+        this.game.ctx.fillRect(tank.position[0] - this.game.camera.x - 50, tank.position[1] - this.game.camera.y - 50, tank.health * 100 / Constants.PLAYER_MAX_HEALTH, 10)
         this.game.ctx.restore()
 
         this.game.ctx.font = '26px Arial'
@@ -74,8 +83,8 @@ window.Drawing = class Drawing { // eslint-disable-line
     }
   }
 
-  drawBullet (bullet) {
-    var distance = Math.sqrt(window.Util.sqr(bullet.initPos[1] - bullet.position[1]) + window.Util.sqr(bullet.initPos[0] - bullet.position[0]))
+  drawBullet (bullet: any): void {
+    var distance = Math.sqrt(Util.sqr(bullet.initPos[1] - bullet.position[1]) + Util.sqr(bullet.initPos[0] - bullet.position[0]))
     distance *= 0.3
 
     if (distance > 100) {
@@ -110,15 +119,17 @@ window.Drawing = class Drawing { // eslint-disable-line
     this.game.ctx.restore()
   }
 
-  drawUI () {
+  drawUI (): void {
 
   }
 
-  drawText () {
+  drawText (): void {
+    let tank: Player = this.game.tanks[this.game.id]
+
     this.game.ctx.save()
     this.game.ctx.font = '20px Arial'
     this.game.ctx.fillText(this.game.latency + 'ms', 20, 40)
-    this.game.ctx.fillText('X: ' + parseInt(this.game.tanks[this.game.id].position[0]) + ' Y: ' + parseInt(this.game.tanks[this.game.id].position[1]), 20, 65)
+    this.game.ctx.fillText('X: ' + tank.position[0] + ' Y: ' + tank.position[1], 20, 65)
     this.game.ctx.restore()
   }
 }

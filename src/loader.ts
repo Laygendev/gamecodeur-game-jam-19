@@ -6,40 +6,51 @@
  * @version 0.1.0
  */
 
+import { Game } from './Game' // eslint-disable-line
+import { XHRJSON } from './XHRJson' // eslint-disable-line
+import { Map } from './../Shared/Map'
+import { Tileset } from './../Shared/Tileset'
+import { Util } from './../Shared/Util'
+
 /** Class representing a Loader. */
-window.Loader = class Loader {  // eslint-disable-line
+export class Loader {
+  /**
+   * The Game object
+   *
+   * @type {Game}
+   */
+  game: Game
+
+  /**
+   * An array of ressources to load.
+   *
+   * @type {any}
+   */
+  ressourcesToLoad: any
+
+  /**
+   * Ressources is loaded ?
+   *
+   * @type {Boolean}
+   */
+  isLoaded: boolean
+
+  /**
+   * Number of ressources loaded.
+   *
+   * @type {Number}
+   */
+  nbLoad: number
+
   /**
   * Constructor init data.
   *
   * @param {Game} game - Game Object.
   */
-  constructor (game) {
-    /**
-     * The Game object
-     *
-     * @type {Game}
-     */
+  constructor (game: Game) {
     this.game = game
-
-    /**
-     * An array of ressources to load.
-     *
-     * @type {Array}
-     */
     this.ressourcesToLoad = []
-
-    /**
-     * Ressources is loaded ?
-     *
-     * @type {Boolean}
-     */
     this.isLoaded = false
-
-    /**
-     * Number of ressources loaded.
-     *
-     * @type {Number}
-     */
     this.nbLoad = 0
   }
 
@@ -49,7 +60,7 @@ window.Loader = class Loader {  // eslint-disable-line
    * @param {String} id   - The ID of the ressources.
    * @param {String} path - The Abs path to the ressources.
    */
-  loadImage (id, path) {
+  loadImage (id: string, path: string) {
     this.ressourcesToLoad[id] = {
       path: path,
       type: 'image'
@@ -62,21 +73,21 @@ window.Loader = class Loader {  // eslint-disable-line
    * @param {String} id   - The ID of the ressources.
    * @param {String} path - The Abs path to the ressources.
    */
-  loadJSON (id, path) {
+  loadJSON (id: string, path: string) {
     this.ressourcesToLoad[id] = {
       path: path,
       type: 'json'
     }
   }
 
-  loadJSONMap (id, path) {
+  loadJSONMap (id: string, path: string) {
     this.ressourcesToLoad[id] = {
       path: path,
       type: 'map'
     }
   }
 
-  loadJSONTileset (id, path) {
+  loadJSONTileset (id: string, path: string) {
     this.ressourcesToLoad[id] = {
       path: path,
       type: 'tileset'
@@ -86,10 +97,10 @@ window.Loader = class Loader {  // eslint-disable-line
   /**
    * Start load
    */
-  start () {
+  start (): void {
     for (var key in this.ressourcesToLoad) {
       if (this.ressourcesToLoad[key].type === 'image') {
-        this.game.ressources[key] = new window.Image()
+        this.game.ressources[key] = new Image() // eslint-disable-line
         this.game.ressources[key].addEventListener('load', () => {
           this.nbLoad++
           this.checkAllLoad()
@@ -99,14 +110,14 @@ window.Loader = class Loader {  // eslint-disable-line
       } else if (this.ressourcesToLoad[key].type === 'json') {
         this.game.ressources[key] = {}
 
-        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+        XHRJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb: string, text: string) => {
           this.game.ressources[keyb] = JSON.parse(text)
           this.nbLoad++
           this.checkAllLoad()
         })
       } else if (this.ressourcesToLoad[key].type === 'map') {
         this.game.ressources[key] = {}
-        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+        XHRJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb: string, text: string) => {
           let tmpData = JSON.parse(text)
           this.game.ressources[keyb] = new Map(this.game, tmpData.tilewidth, tmpData.tileheight, tmpData.width, tmpData.height, tmpData.layers)
 
@@ -116,9 +127,9 @@ window.Loader = class Loader {  // eslint-disable-line
       } else if (this.ressourcesToLoad[key].type === 'tileset') {
         this.game.ressources[key] = {}
 
-        window.xhrJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb, text) => {
+        XHRJSON.loadJSON(key, this.ressourcesToLoad[key].path, (keyb: string, text: string) => {
           let tmpData = JSON.parse(text)
-          this.game.ressources[keyb] = new window.Tileset(tmpData.columns, tmpData.imagewidth, tmpData.imageheight, tmpData.tilecount, tmpData.tileheight, tmpData.tilewidth, tmpData.tiles)
+          this.game.ressources[keyb] = new Tileset(tmpData.columns, tmpData.imagewidth, tmpData.imageheight, tmpData.tilecount, tmpData.tileheight, tmpData.tilewidth, tmpData.tiles)
 
           this.nbLoad++
           this.checkAllLoad()
@@ -133,7 +144,7 @@ window.Loader = class Loader {  // eslint-disable-line
    * Check if all data is isLoaded
    */
   checkAllLoad () {
-    if (this.nbLoad === window.Util.length(this.ressourcesToLoad)) {
+    if (this.nbLoad === Util.bytes(this.ressourcesToLoad)) {
       this.isLoaded = true
 
       this.game.htmlUI.displayMainMenu()

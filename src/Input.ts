@@ -6,24 +6,43 @@
  * @version 0.1.0
  */
 
+import { Game } from './Game' // eslint-disable-line
+
 /** Class representing a Input. */
- window.Input = class Input { // eslint-disable-line
+export class Input {
+  /**
+   * Game Object
+   *
+   * @type {Game}
+   */
+  game: Game
+
+  /**
+   * Define keyPressed Obejct
+   *
+   * @type {Object}
+   */
+  keyPressed: any
+
+  /**
+   * Define mouse position
+   *
+   * @type {Object}
+   */
+  mousePosition: any
+
+  /**
+   * Left click is pressed ?
+   *
+   * @type {Boolean}
+   */
+  leftClickPressed: boolean
+
   /**
   * Construtor init data
   */
-  constructor (game) {
-    /**
-     * Game Object
-     *
-     * @type {Game}
-     */
+  constructor (game: Game) {
     this.game = game
-
-    /**
-     * Define keyPressed Obejct
-     *
-     * @type {Object}
-     */
     this.keyPressed = {
       up: false,
       down: false,
@@ -36,21 +55,11 @@
       D: false
     }
 
-    /**
-     * Define mouse position
-     *
-     * @type {Object}
-     */
     this.mousePosition = {
       x: 0,
       y: 0
     }
 
-    /**
-     * Left click is pressed ?
-     *
-     * @type {Boolean}
-     */
     this.leftClickPressed = false
 
     /**
@@ -61,7 +70,7 @@
     window.addEventListener('mousemove', (e) => { this.mousemove(e) }, false)
     window.addEventListener('mousedown', (e) => { this.mousedown(e) }, false)
     window.addEventListener('mouseup', (e) => { this.mouseup(e) }, false)
-    window.addEventListener('resize', (e) => { this.resizeCanvas(e) }, false)
+    window.addEventListener('resize', () => { this.resizeCanvas() }, false)
   }
 
   /**
@@ -69,7 +78,7 @@
    *
    * @param {KeyboardEvent} e - Keyboard info.
    */
-  keydown (e) {
+  keydown (e: KeyboardEvent) {
     var code = e.keyCode
 
     switch (code) {
@@ -108,7 +117,7 @@
    *
    * @param {KeyboardEvent} e - Keyboard info.
    */
-  keyup (e) {
+  keyup (e: KeyboardEvent) {
     var code = e.keyCode
 
     switch (code) {
@@ -147,7 +156,7 @@
    *
    * @param {MouseEvent} e - Mouse info.
    */
-  mousemove (e) {
+  mousemove (e: MouseEvent) {
     this.mousePosition.x = e.offsetX
     this.mousePosition.y = e.offsetY
   }
@@ -157,7 +166,7 @@
    *
    * @param {MouseEvent} e - Mouse info.
    */
-  mousedown (e) {
+  mousedown (e: MouseEvent) {
     if (e.which === 1) {
       this.leftClickPressed = true
     }
@@ -166,9 +175,9 @@
   /**
    * Called when a mouse button is up
    *
-   * @param {MousEvent} e - Mouse info.
+   * @param {MouseEvent} e - Mouse info.
    */
-  mouseup (e) {
+  mouseup (e: MouseEvent) {
     if (e.which === 1) {
       this.leftClickPressed = false
     }
@@ -176,10 +185,8 @@
 
   /**
    * Called when the browser is resized
-   *
-   * @param {WindowEvent} e - Window info.
    */
-  resizeCanvas (e) {
+  resizeCanvas (): void {
     this.game.canvas.width = window.innerWidth
     this.game.canvas.height = window.innerHeight
     this.game.camera.width = this.game.canvas.width

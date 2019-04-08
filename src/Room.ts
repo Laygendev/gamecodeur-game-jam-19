@@ -5,53 +5,68 @@
  * @version 0.1.0
  */
 
+import { Game } from './Game' // eslint-disable-line
+import { World } from './../Shared/World' // eslint-disable-line
+
 /** Class representing a Room. */
-window.Room = class Room { // eslint-disable-line
+export class Room {
+  /**
+   * The Game Object.
+   *
+   * @type {Game}
+   */
+  game: Game
+
+  /**
+   * The client Socket
+   *
+   * @type {Socket}
+   */
+  socket: any
+
+  /**
+   * The player ID
+   *
+   * @type {number}
+   */
+  id: number
+
+  /**
+   * The World Object
+   *
+   * @type {World}
+   */
+  world: World
+
+  /**
+   * Message receive by Server
+   *
+   * @type {Array}
+   */
+  messages: any
+
   /**
    * Init data.
    *
    * @param {Game} game     - The Game Object.
    * @param {Socket} socket - The Socket Object.
    */
-  constructor (game, socket) {
-    /**
-     * The Game Object.
-     *
-     * @type {Game}
-     */
+  constructor (game: Game, socket: any) {
     this.game = game
-
-    /**
-     * The client Socket
-     *
-     * @type {Socket}
-     */
     this.socket = socket
-
-    /**
-     * The World Object
-     *
-     * @type {Socket}
-     */
     this.world = undefined
-
-    /**
-     * Message receive by Server
-     *
-     * @type {Array}
-     */
     this.messages = []
 
     /**
      * Attach event socket
      */
-    this.socket.on('room-spawn', (data) => { this.spawn(data) })
-    this.socket.on('room-timer-start', (data) => { this.updateTimeToStart(data) })
-    this.socket.on('room-start', (data) => { this.start(data) })
-    this.socket.on('room-messages', (data) => { this.receiveMessage(data) })
-    this.socket.on('room-update', (data) => { this.receiveUpdate(data) })
-    this.socket.on('room-update-ui', (data) => { this.receiveUpdateUI(data) })
-    this.socket.on('room-remove-player', (id) => { this.removePlayer(id) })
+    this.socket.on('room-spawn', (data: any) => { this.spawn(data) })
+    this.socket.on('room-timer-start', (data: any) => { this.updateTimeToStart(data) })
+    this.socket.on('room-start', (data: any) => { this.start(data) })
+    this.socket.on('room-messages', (data: any) => { this.receiveMessage(data) })
+    this.socket.on('room-update', (data: any) => { this.receiveUpdate(data) })
+    this.socket.on('room-update-ui', (data: any) => { this.receiveUpdateUI(data) })
+    this.socket.on('room-remove-player', (id: any) => { this.removePlayer(id) })
   }
 
   /**
@@ -59,16 +74,14 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Spawn info.
    */
-  spawn (data) {
+  spawn (data: any): void {
     this.game.addPlayer(data)
 
     for (var key in data.players) {
       this.game.addPlayer(data.players[key])
     }
 
-    this.game.htmlUI.updateLeftPlayer(data.numberAlive)
-    this.game.htmlUI.updateTimeToStart('En attente d\'autre joueur')
-    document.querySelector('.start-game').style.display = 'true'
+    this.game.htmlUI.startGame(data.numberAlive)
   }
 
   /**
@@ -76,15 +89,16 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Timer room info.
    */
-  updateTimeToStart (data) {
+  updateTimeToStart (data: any): void {
     this.game.htmlUI.updateTimeToStart(data.message)
   }
 
   /**
    * When game call load, init World.
    */
-  load () {
-    this.world = new window.World(this.game.ressources['map'])
+  load (): void {
+    let map: any = this.game.ressources['map']
+    this.world = new World(map)
   }
 
   /**
@@ -92,7 +106,7 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Room start event.
    */
-  start (data) {
+  start (data: any): void {
     this.game.tanks[data.id].position = data.position
     this.game.htmlUI.hideStartMessage()
   }
@@ -104,7 +118,7 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Action players data.
    */
-  receiveMessage (data) {
+  receiveMessage (data: any): void {
     var receiveTimestamp = +new Date()
 
     this.messages.push({
@@ -118,7 +132,7 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Update data.
    */
-  receiveUpdate (data) {
+  receiveUpdate (data: any): void {
     this.game.projectiles = data.projectiles
   }
 
@@ -127,7 +141,7 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Object} data - Update ui info.
    */
-  receiveUpdateUI (data) {
+  receiveUpdateUI (data: any): void {
     if (data.hit) {
       this.game.ui.displayDamage(data.hit)
     }
@@ -154,14 +168,14 @@ window.Room = class Room { // eslint-disable-line
    *
    * @param {Number} id - the ID of the player to remove.
    */
-  removePlayer (id) {
+  removePlayer (id: number): void {
     this.game.removePlayer(id)
   }
 
   /**
    * Main update loop called by game.
    */
-  update () {
+  update (): void {
     this.processServerMessage()
     this.interpolateEntities()
   }
@@ -169,7 +183,7 @@ window.Room = class Room { // eslint-disable-line
   /**
    * Get recents message from server.
    */
-  getAvailableMessage () {
+  getAvailableMessage (): any {
     let now = +new Date()
     for (var i = 0; i < this.messages.length; ++i) {
       let message = this.messages[i]
@@ -189,7 +203,7 @@ window.Room = class Room { // eslint-disable-line
   /**
    * Handle server message for update entity state.
    */
-  processServerMessage () {
+  processServerMessage (): void {
     while (true) {
       var messages = this.getAvailableMessage()
 
@@ -248,7 +262,7 @@ window.Room = class Room { // eslint-disable-line
   /**
    * Interpolate client position with render timestamp.
    */
-  interpolateEntities () {
+  interpolateEntities (): void {
     var now = +new Date()
     var renderTimestamp = now - (1000.0 / 10)
     for (var i in this.game.tanks) {

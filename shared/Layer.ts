@@ -1,4 +1,4 @@
-import {Util} from './Util'
+import { Util } from './Util' // eslint-disable-line
 
 export class Layer {
   public object: any
@@ -64,12 +64,12 @@ export class Layer {
           continue
         }
 
-        var posCollider = [
-          [x * 40 + tile.collision.x - tile.collision.polyline[0].x, y * 40 + tile.collision.y + tile.collision.polyline[0].y],
-          [x * 40 + tile.collision.x - tile.collision.polyline[1].x, y * 40 + tile.collision.y + tile.collision.polyline[1].y]
-        ]
+        // var posCollider = [
+        //   [x * 40 + tile.collision.x - tile.collision.polyline[0].x, y * 40 + tile.collision.y + tile.collision.polyline[0].y],
+        //   [x * 40 + tile.collision.x - tile.collision.polyline[1].x, y * 40 + tile.collision.y + tile.collision.polyline[1].y]
+        // ]
 
-        //haveCollider = Util.CollisionSegSeg(pos, nextPos, posCollider[0], posCollider[1])
+        // haveCollider = Util.CollisionSegSeg(pos, nextPos, posCollider[0], posCollider[1])
 
         if (haveCollider) {
           break

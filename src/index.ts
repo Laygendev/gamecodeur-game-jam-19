@@ -6,8 +6,13 @@
  * @version 0.1.0
  */
 
+import * as io from 'socket.io'
+import { Game } from './Game'
+
 /** Class representing a Client. */
 class Client {
+  socket: any
+  game: Game
   /**
    * Init Socket and Game
    */
@@ -17,16 +22,16 @@ class Client {
      *
      * @type {Socket}
      */
-    this.socket = window.io()
+    this.socket = io()
 
     /**
      * The Game Object.
      *
      * @type {Game}
      */
-    this.game = new window.Game(this.socket)
+    this.game = new Game(this.socket)
 
-    this.socket.on('pong', (ms) => {
+    this.socket.on('pong', (ms: number) => {
       this.game.latency = ms
     })
   }

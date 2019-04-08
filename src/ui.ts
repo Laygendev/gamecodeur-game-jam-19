@@ -6,26 +6,31 @@
  * @version 0.1.0
  */
 
+import { Game } from './Game' // eslint-disable-line
+
 /** Class representing a UI. */
-window.UI = class UI { // eslint-disable-line
+export class UI {
+  /**
+   * The Game Object
+   *
+   * @type {Object}
+   */
+  game: Game
+
+  /**
+   * An array of entities correspond to UI text, or UI Image, or UI Whatever.
+   *
+   * @type {Array}
+   */
+  entities: any
+
   /**
    * Init data
    *
    * @param {Game} game - the Game Object.
    */
-  constructor (game) {
-    /**
-     * The Game Object
-     *
-     * @type {Object}
-     */
+  constructor (game: Game) {
     this.game = game
-
-    /**
-     * An array of entities correspond to UI text, or UI Image, or UI Whatever.
-     *
-     * @type {Array}
-     */
     this.entities = []
   }
 
@@ -34,15 +39,17 @@ window.UI = class UI { // eslint-disable-line
    *
    * @param {UIText} entity - An UI Text.
    */
-  add (entity) {
+  add (entity: any): void {
     entity.ui = this
     this.entities[entity.id] = entity
   }
 
   /**
    * For each entity, call update with the deltaTime.
+   *
+   * @param {number} dt The deltatime
    */
-  update (dt) {
+  update (dt: number): void {
     for (var key in this.entities) {
       this.entities[key].update(dt)
     }
@@ -51,7 +58,7 @@ window.UI = class UI { // eslint-disable-line
   /**
    * For each entity, call draw with
    */
-  draw () {
+  draw (): void {
     for (var key in this.entities) {
       this.entities[key].draw(this.game)
     }
@@ -62,7 +69,7 @@ window.UI = class UI { // eslint-disable-line
    *
    * @param {Number} entityID - The ID of the entity to delete.
    */
-  destroy (entityID) {
+  destroy (entityID: number): void {
     delete this.entities[entityID]
   }
 
@@ -72,8 +79,8 @@ window.UI = class UI { // eslint-disable-line
    *
    * @param {Object} data - The position of the UI Text.
    */
-  displayDamage (data) {
-    var text = new UIText(data.position, 10)
+  displayDamage (data: any): void {
+    var text = new UIText(data.position, '10')
     this.add(text)
   }
 }
@@ -81,87 +88,106 @@ window.UI = class UI { // eslint-disable-line
 /** Class representing a UIText. */
 class UIText {
   /**
+   * The ID
+   *
+   * @type {Number}
+   */
+  id: number
+
+  /**
+   * UI Object
+   *
+   * @param {UI}
+   */
+  ui: UI
+
+  /**
+   * The text to display
+   *
+   * @type {String}
+   */
+  text: string
+
+  /**
+   * The position
+   *
+   * @type {Array}
+   */
+  pos: any
+
+  /**
+   * Alpha
+   *
+   * @type {Number}
+   */
+  alpha: number
+
+  /**
+   * Angle
+   *
+   * @type {Object}
+   */
+   angle: number
+
+  /**
+  * Speed
+  *
+  * @type {Object}
+  */
+  speed: number
+
+  /**
+   * The Velocity.
+   *
+   * @type {Object}
+   */
+  velocity: any
+
+  /**
+   * The timestamp when created.
+   *
+   * @type {Number}
+   */
+  createdTime: number
+
+  /**
+   * Last time timestamp updated
+   *
+   * @type {Object}
+   */
+  lastTime: number
+
+  /**
+   * The lifetime of the UI.
+   *
+   * @type {Number}
+   */
+  lifetime: number
+
+  /**
+   * Time already lived
+   *
+   * @type {Number}
+   */
+  timeElapsed: number
+
+  /**
    * Init Data
    *
    * @param {Array} pos   - The position.
    * @param {String} text - The text.
    */
-  constructor (pos, text) {
-    /**
-     * The ID
-     *
-     * @type {Number}
-     */
+  constructor (pos: any, text: string) {
     this.id = +Date.now()
-
-    /**
-     * The text to display
-     *
-     * @type {String}
-     */
     this.text = text
-
-    /**
-     * The position
-     *
-     * @type {Array}
-     */
     this.pos = pos
-
-    /**
-     * Alpha
-     *
-     * @type {Number}
-     */
     this.alpha = 1
-
-    /**
-     * Angle
-     *
-     * @type {Object}
-     */
     this.angle = 1
-
-    /**
-     * Speed
-     *
-     * @type {Object}
-     */
     this.speed = 100
-
-    /**
-     * The Velocity.
-     *
-     * @type {Object}
-     */
     this.velocity = { x: 0.2, y: -1 }
-
-    /**
-     * The timestamp when created.
-     *
-     * @type {Number}
-     */
     this.createdTime = +Date.now()
-
-    /**
-     * Last time timestamp updated
-     *
-     * @type {Object}
-     */
     this.lastTime = +Date.now()
-
-    /**
-     * The lifetime of the UI.
-     *
-     * @type {Number}
-     */
     this.lifetime = 1000
-
-    /**
-     * Time already lived
-     *
-     * @type {Number}
-     */
     this.timeElapsed = 0
   }
 
@@ -172,7 +198,7 @@ class UIText {
    *
    * @param {Number} dt - The deltaTime.
    */
-  update (dt) {
+  update (dt: number): void {
     this.lastTime = +Date.now()
 
     this.timeElapsed = this.lastTime - this.createdTime
@@ -190,7 +216,7 @@ class UIText {
    *
    * @param {Game} game - The Game Object.
    */
-  draw (game) {
+  draw (game: Game): void {
     this.alpha = (this.lifetime - this.timeElapsed) / 1000 * 1
     game.ctx.save()
     game.ctx.globalAlpha = this.alpha

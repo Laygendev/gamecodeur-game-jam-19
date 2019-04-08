@@ -15,11 +15,11 @@ export class Point {
     this.y = y
   }
 
-  public clone(): Point {
+  public clone (): Point {
     return new Point(this.x, this.y)
   }
 
-  public normalize(): number {
+  public normalize (): number {
     let length = this.x * this.x + this.y * this.y
 
     if (length > 0) {

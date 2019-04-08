@@ -6,10 +6,10 @@
  * @version 0.1.0
  */
 
-import {Entity} from './Entity'
-import {Constants} from './Constants'
-import {Util} from './Util'
-import {World} from './World'
+import { Entity } from './Entity'
+import { Constants } from './Constants'
+import { Util } from './Util'
+import { World } from './World'
 
 /** Class representing a Player. */
 export class Player extends Entity {
@@ -216,7 +216,7 @@ export class Player extends Entity {
    * @param {Array} Input - Input data like key pressed.
    * @param {World} World - World data.
    */
-  updateOnInput (input: any[], world: World): void {
+  updateOnInput (input: any, world: World): void {
     this.turretAngle = input[3]
 
     var haveCollision = false

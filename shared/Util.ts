@@ -5,27 +5,27 @@
  * @version 0.1.0
  */
 
-import {AABB} from './AABB'
-import {Hit} from './Hit'
+import { AABB } from './AABB' // eslint-disable-line
+import { Hit } from './Hit'
 
 /** Static Class; */
 export class Util {
-  static abs(value: number): number {
-    return value < 0 ? -value : value;
+  static abs (value: number): number {
+    return value < 0 ? -value : value
   }
 
-  static clamp(value: number, min: number, max: number): number {
+  static clamp (value: number, min: number, max: number): number {
     if (value < min) {
-      return min;
+      return min
     } else if (value > max) {
-      return max;
+      return max
     } else {
-      return value;
+      return value
     }
   }
 
-  static sign(value: number): number {
-    return value < 0 ? -1 : 1;
+  static sign (value: number): number {
+    return value < 0 ? -1 : 1
   }
 
   /**
@@ -114,7 +114,7 @@ export class Util {
     return ((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2))
   };
 
-  static intersectAABB(box1: AABB, box2: AABB): Hit | null {
+  static intersectAABB (box1: AABB, box2: AABB): Hit | null {
     const dx = box1.pos.x - box2.pos.x
     const px = (box1.half.x - box2.half.x) - this.abs(dx)
 

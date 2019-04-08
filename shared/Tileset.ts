@@ -5,7 +5,7 @@
  * @version 0.1.0
  */
 
-import {Tiles} from './Tiles'
+import { Tiles } from './Tiles'
 
 /** Class representing a Tileset. */
 export class Tileset {

@@ -7,15 +7,15 @@
  */
 
 /** Class representing a xhrJSON. */
-window.xhrJSON = class xhrJSON { // eslint-disable-line
+export class XHRJSON {
   /**
    * Can a path and return with a CB an Object from the JSON file.
    *
    * @param {String} path   - The ABS path to the JSON File.
    * @param {Func} callback - A callback function.
    */
-  static loadJSON (key, path, callback) {
-    var xobj = new window.XMLHttpRequest()
+  static loadJSON (key: string, path: string, callback: any) {
+    var xobj = new XMLHttpRequest() // eslint-disable-line
     xobj.overrideMimeType('application/json')
     xobj.open('GET', path, true)
     xobj.onreadystatechange = function () {

@@ -5,7 +5,7 @@
  * @version 0.1.0
  */
 
-import {Point} from './Point'
+import { Point } from './Point'
 
 /** Class representing a Hit. */
 export class Hit {

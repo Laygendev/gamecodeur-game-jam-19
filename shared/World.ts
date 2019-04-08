@@ -6,9 +6,9 @@
  * @version 0.1.0
  */
 
-import {Map} from './Map'
-import {Constants} from './Constants'
-import {Util} from './Util'
+import { Map } from './Map' // eslint-disable-line
+import { Constants } from './Constants'
+import { Util } from './Util'
 
 /** Class representing a World. */
 export class World {
@@ -50,13 +50,13 @@ export class World {
   checkCollider (pos: Array<Number>, nextPos: Array<Number>): boolean {
     var haveCollider = false
 
-    for (var key in this.map.layers) {
-      //haveCollider = this.map.layers[key].intersectAABB(pos, nextPos)
-
-      if (haveCollider) {
-        break
-      }
-    }
+    // for (var key: any in this.map.layers) {
+    //   // haveCollider = this.map.layers[key].intersectAABB(pos, nextPos)
+    //
+    //   if (haveCollider) {
+    //     break
+    //   }
+    // }
 
     return haveCollider
   }
