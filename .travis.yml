@@ -3,5 +3,7 @@ node_js:
   - "8"
 before_script:
   - npm install -g standard
+  - npm install -g @typescript-eslint/eslint-plugin
+  - npm install -g @typescript-eslint/parser
 script:
-  standard --parser typescript-eslint-parser --plugin typescript "*.ts"
+  standard server/*.ts
