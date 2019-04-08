@@ -6,4 +6,4 @@ before_script:
   - npm install -g @typescript-eslint/eslint-plugin
   - npm install -g @typescript-eslint/parser
 script:
-  standard server/*.ts
+  standard --parser @typescript-eslint/parser --plugin typescript server/*.ts
