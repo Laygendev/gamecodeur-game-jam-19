@@ -1,5 +1,5 @@
 filter:
-  paths: ["dist*"]
+  paths: ["dist/*"]
   excluded_paths: ["node_modules/*", "asset/*", "lib/*", "simulate/*", "test/*", "out/*"]
 
 build:
