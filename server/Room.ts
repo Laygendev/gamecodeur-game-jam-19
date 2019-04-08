@@ -5,15 +5,97 @@
  * @version 0.1.0
  */
 
-const HashMap = require('hashmap')
-
-const Player = require('./Player')
-const Bullet = require('./Bullet')
-const World = require('./World')
-const Constants = require('./Constants')
+import { Player } from './../Shared/Player'
+import { Bullet } from './Bullet'
+import { World } from './../Shared/World'
+import { Server } from './Server' // eslint-disable-line
+import { Constants } from './../Shared/Constants'
 
 /** Class represening a room. */
-class Room {
+export class Room {
+  /**
+   * The room ID.
+   *
+   * @type {Number}
+   */
+  public id: number
+
+  /**
+   * The Server instance Server class.
+   *
+   * @type {Server}
+   */
+  public server: Server
+
+  /**
+   * The World Object.
+   *
+   * @type {World}
+   */
+  public world: World
+
+  /**
+   * A collection of players.
+   *
+   * @type {HashMap}
+   */
+  public players: Map<number, any>
+
+  /**
+   * An array of received message from client.
+   *
+   * @type {HashMap}
+   */
+  public messages: any[]
+
+  /**
+   * An array of projectiles.
+   *
+   * @type {HashMap}
+   */
+  public projectiles: any[]
+
+  /**
+   * Number player alive.
+   *
+   * @type {Number}
+   */
+  public numberAlive: number
+
+  /**
+   * Room need to be deleted or not.
+   *
+   * @type {Boolean}
+   */
+  public needToDeleted: boolean
+
+  /**
+   * Room is started or not.
+   *
+   * @type {Boolean}
+   */
+  public isStarted: boolean
+
+  /**
+   * Room is waiting to start or not.
+   *
+   * @type {Boolean}
+   */
+  public isWaitingForStart: boolean
+
+  /**
+   * Timestamp when try to start the room.
+   *
+   * @type {Number}
+   */
+  public timerTryToStart: number
+
+  /**
+   * Try to start room or not.
+   *
+   * @type {Boolean}
+   */
+  public onTryToStart: boolean
   /**
    * Create a room.
    *
@@ -22,89 +104,18 @@ class Room {
    * @param {Number} id - The room ID.
    * @param {Server} server - The Server instance Server class.
    */
-  constructor (id, server) {
-    /**
-     * The room ID.
-     *
-     * @type {Number}
-     */
+  constructor (id: number, server: Server) {
     this.id = id
-
-    /**
-     * The Server instance Server class.
-     *
-     * @type {Server}
-     */
     this.server = server
-
-    /**
-     * The World Object.
-     *
-     * @type {World}
-     */
     this.world = new World(server.ressources['map'])
-
-    /**
-     * A collection of players.
-     *
-     * @type {HashMap}
-     */
-    this.players = new HashMap()
-
-    /**
-     * An array of received message from client.
-     *
-     * @type {HashMap}
-     */
+    this.players = new Map()
     this.messages = []
-
-    /**
-     * An array of projectiles.
-     *
-     * @type {HashMap}
-     */
     this.projectiles = []
-
-    /**
-     * Number player alive.
-     *
-     * @type {Number}
-     */
     this.numberAlive = 0
-
-    /**
-     * Room need to be deleted or not.
-     *
-     * @type {Boolean}
-     */
     this.needToDeleted = false
-
-    /**
-     * Room is started or not.
-     *
-     * @type {Boolean}
-     */
     this.isStarted = false
-
-    /**
-     * Room is waiting to start or not.
-     *
-     * @type {Boolean}
-     */
     this.isWaitingForStart = false
-
-    /**
-     * Timestamp when try to start the room.
-     *
-     * @type {Number}
-     */
     this.timerTryToStart = 0
-
-    /**
-     * Try to start room or not.
-     *
-     * @type {Boolean}
-     */
     this.onTryToStart = false
   }
 
@@ -116,7 +127,7 @@ class Room {
    *
    * @return {Number}         Return the size of the collection players.
    */
-  addNewPlayer (socket, data) {
+  addNewPlayer (socket: any, data: any): number {
     this.players.set(socket.id, Player.generateNewPlayer(data.name, socket.id, data.screen))
 
     return this.players.size
@@ -127,7 +138,7 @@ class Room {
    *
    * @param {Number} id - The id of current socket.
    */
-  spawn (id) {
+  spawn (id: number): void {
     this.numberAlive++
     this.isWaitingForStart = true
     this.onTryToStart = false
@@ -141,17 +152,17 @@ class Room {
       position: currentPlayer.position,
       orientation: currentPlayer.orientation,
       screen: currentPlayer.screen,
-      numberAlive: this.players.size,
-      players: this.players.values().filter(function (player) {
-        if (player.id === currentPlayer.id) {
-          return false
-        }
-
-        return true
-      })
+      numberAlive: this.players.size
+      // players: this.players.values().filter(function (player: Player) {
+      //   if (player.id === currentPlayer.id) {
+      //     return false
+      //   }
+      //
+      //   return true
+      // })
     })
 
-    var ids = this.players.keys()
+    var ids: any = this.players.keys()
     for (var i = 0; i < ids.length; i++) {
       var otherClient = this.server.clients.get(ids[i])
 
@@ -169,7 +180,7 @@ class Room {
   /**
    * Try to start the room
    */
-  tryToStart () {
+  tryToStart (): void {
     this.onTryToStart = true
     this.timerTryToStart = (new Date()).getTime()
   }
@@ -177,10 +188,10 @@ class Room {
   /**
    * Start the room. Send the new position to all connected client
    */
-  start () {
+  start (): void {
     this.isStarted = true
 
-    var ids = this.players.keys()
+    var ids: any = this.players.keys()
     for (var i = 0; i < ids.length; i++) {
       var currentClient = this.server.clients.get(ids[i])
       var currentPlayer = this.players.get(ids[i])
@@ -204,13 +215,13 @@ class Room {
    *
    * @return {String}     The name of the removed player.
    */
-  removePlayer (id) {
+  removePlayer (id: number): string {
     var name = ''
     if (this.players.has(id)) {
       var player = this.players.get(id)
       name = player.name
 
-      this.players.remove(id)
+      // this.players.remove(id)
       this.server.io.to(this.id).emit('room-remove-player', id)
       this.numberAlive--
       this.checkNumberAlive()
@@ -224,7 +235,7 @@ class Room {
   /**
    * Check if we need to delete this room or not.
    */
-  checkCloseRoom () {
+  checkCloseRoom (): void {
     if (this.players.size === 0) {
       this.needToDeleted = true
     }
@@ -235,10 +246,10 @@ class Room {
    *
    * If only one player is alive, send him "room-update-ui" for display top 1.
    */
-  checkNumberAlive () {
+  checkNumberAlive (): void {
     if (this.numberAlive <= 1) {
       var alivePlayer = null
-      var ids = this.players.keys()
+      var ids: any = this.players.keys()
       for (var i = 0; i < ids.length; i++) {
         var player = this.players.get(ids[i])
 
@@ -262,15 +273,15 @@ class Room {
    * Update projectiles position.
    * Delete projectiles need to be deleted.
    *
-   * @param {Number} dtSec - The deltatime (Needed for update position).
+   * @param {Number} dt - The deltatime (Needed for update position).
    */
-  update (dtSec) {
+  update (dt: number): void {
     var i
     var currentClient
 
     if (this.onTryToStart) {
       this.server.io.to(this.id).emit('room-timer-start', {
-        message: 'Lancement de la partie dans ' + (parseInt((Constants.DEFAULT_TIME_TO_START_ROOM - ((new Date()).getTime() - this.timerTryToStart)) / 1000) + 1) + ' secondes'
+        message: 'Lancement de la partie dans ' + ((Constants.DEFAULT_TIME_TO_START_ROOM - ((new Date()).getTime() - this.timerTryToStart) / 1000) + 1) + ' secondes'
       })
 
       if ((new Date()).getTime() > this.timerTryToStart + Constants.DEFAULT_TIME_TO_START_ROOM) {
@@ -280,7 +291,7 @@ class Room {
     }
 
     for (i = 0; i < this.projectiles.length; ++i) {
-      var hitInfo = this.projectiles[i].update(this, this.players, dtSec)
+      var hitInfo = this.projectiles[i].update(this, this.players, dt)
 
       if (hitInfo) {
         if (hitInfo.killingPlayer) {
@@ -316,7 +327,7 @@ class Room {
    * @param {Client} client - The client.
    * @param {Object} data   - The player data.
    */
-  receiveAction (socket, client, data) {
+  receiveAction (socket: any, client: any, data: any) {
     var now = +new Date()
 
     var player = this.players.get(socket.id)
@@ -334,7 +345,7 @@ class Room {
   /**
    * Get recents message from client
    */
-  getAvailableMessage () {
+  getAvailableMessage (): void {
     var now = +new Date()
     for (var i = 0; i < this.messages.length; i++) {
       var message = this.messages[i]
@@ -348,9 +359,9 @@ class Room {
   /**
    * Handle input received by client.
    */
-  processInput () {
+  processInput (): void {
     while (true) {
-      var message = this.getAvailableMessage()
+      var message: any = this.getAvailableMessage()
       if (!message) {
         break
       }
@@ -375,11 +386,11 @@ class Room {
   /**
    * Send  to all client, the current state of the projectiles visible to him.
    */
-  sendState () {
-    var currentClient
-    var currentPlayer
+  sendState (): void {
+    var currentClient: any
+    var currentPlayer: any
 
-    var ids = this.players.keys()
+    var ids: any = this.players.keys()
     for (var i = 0; i < ids.length; ++i) {
       currentClient = this.server.clients.get(ids[i])
       currentPlayer = this.players.get(ids[i])
@@ -395,38 +406,36 @@ class Room {
   /**
    * Send to all client, the current state of players visible to him.
    */
-  sendPlayersState () {
-    var currentClient
-    var currentPlayer
+  sendPlayersState (): void {
+    var currentClient: any
+    var currentPlayer: any
 
-    var ids = this.players.keys()
+    var ids: any = this.players.keys()
     for (var i = 0; i < ids.length; ++i) {
       currentClient = this.server.clients.get(ids[i])
       currentPlayer = this.players.get(ids[i])
       currentPlayer.canSpeed = currentPlayer.canISpeed()
 
       currentClient.socket.emit('room-messages', {
-        1: currentClient.lag,
-        worldState: this.players.values().filter(function (player) {
-          if (player.isVisibleTo(currentPlayer)) {
-            player.isVisible = true
-            return true
-          } else {
-            if (player.isVisible) {
-              player.isVisible = false
-              return true
-            }
-          }
-
-          if (!player.isVisible) {
-            return false
-          }
-
-          return true
-        })
+        1: currentClient.lag
+        // worldState: this.players.values().filter(function (player: any) {
+        //   if (player.isVisibleTo(currentPlayer)) {
+        //     player.isVisible = true
+        //     return true
+        //   } else {
+        //     if (player.isVisible) {
+        //       player.isVisible = false
+        //       return true
+        //     }
+        //   }
+        //
+        //   if (!player.isVisible) {
+        //     return false
+        //   }
+        //
+        //   return true
+        // })
       })
     }
   }
 }
-
-module.exports = Room

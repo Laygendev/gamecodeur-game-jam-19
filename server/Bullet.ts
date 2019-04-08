@@ -5,72 +5,73 @@
  * @version 0.1.0
  */
 
-const Entity = require('./Entity')
-const Constants = require('./Constants')
+import { Entity } from './../Shared/Entity'
+import { Constants } from './../Shared/Constants'
+import { Room } from './Room' // eslint-disable-line
 
 /** Class represening a bullet. */
-class Bullet extends Entity {
+export class Bullet extends Entity {
+  /**
+   * The degrees angle.
+   *
+   * @type {Number}
+   */
+  public angle: number
+
+  /**
+   * The owner ID.
+   *
+   * @type {Number}
+   */
+  public playerID: number
+
+  /**
+   * The init position.
+   * JSON.parse and JSON.stringify for copy the array and not make a
+   * reference to it.
+   *
+   * @type {Number}
+   */
+  public initPos: number[]
+
+  /**
+   * Speed.
+   *
+   * @type {Number}
+   */
+  public speed: number
+
+  /**
+   * Distance before delete it.
+   *
+   * @type {Number}
+   */
+  public distanceMax: number
+
+  /**
+   * Need to be deleted or ot.
+   *
+   * @type {Boolean}
+   */
+  public needToDeleted: boolean
+
   /**
    * Create a bullet.
    *
    * Init all properties needed from the bullet Object.
    *
    * @param {Array} position - The position of bullet
-   * @param {Server} angle    - The degrees angle.
+   * @param {number} angle    - The degrees angle.
    * @param {Number} playerID - The owner ID of this bullet.
    */
-  constructor (position, angle, playerID) {
+  constructor (position: number[], angle: number, playerID: number) {
     super(position)
 
-    /**
-     * The position.
-     *
-     * @type {Array}
-     */
-    this.position = position
-
-    /**
-     * The degrees angle.
-     *
-     * @type {Number}
-     */
     this.angle = angle
-
-    /**
-     * The owner ID.
-     *
-     * @type {Number}
-     */
     this.playerID = playerID
-
-    /**
-     * The init position.
-     * JSON.parse and JSON.stringify for copy the array and not make a
-     * reference to it.
-     *
-     * @type {Number}
-     */
     this.initPos = JSON.parse(JSON.stringify(position))
-
-    /**
-     * Speed.
-     *
-     * @type {Number}
-     */
     this.speed = 1500
-
-    /**
-     * Distance before delete it.
-     *
-     * @type {Number}
-     */
     this.distanceMax = 800
-
-    /**
-     * Need to be deleted or ot.
-     *
-     * @type {Boolean}
-     */
     this.needToDeleted = false
   }
 
@@ -89,7 +90,7 @@ class Bullet extends Entity {
    * @return {Object}            Info of collide. KillingPlayer and
    * killedPlayer.
    */
-  update (room, clients, dt) {
+  update (room: Room, clients: any, dt: number): any {
     if (!this.needToDeleted) {
       this.position[0] += this.speed * Math.cos(this.angle) * dt
       this.position[1] += this.speed * Math.sin(this.angle) * dt
@@ -128,5 +129,3 @@ class Bullet extends Entity {
     }
   }
 }
-
-module.exports = Bullet

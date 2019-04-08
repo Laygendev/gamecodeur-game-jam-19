@@ -5,21 +5,25 @@
  * @version 0.1.0
  */
 
-var SharedUtil = typeof module === 'object' ? require('./Util') : Util // eslint-disable-line
+import {Util} from './Util'
 
 /** Class represening an Entity. */
-var Entity = class Entity {
+export class Entity {
+  /**
+   * Initialize position
+   *
+   * @type {Array}
+   */
+  public position: number[]
+
+  protected screen: any
+
   /**
    * Initialize the position
    *
    * @param {Array} position - The position.
    */
-  constructor (position) {
-    /**
-     * Initialize position
-     *
-     * @type {Array}
-     */
+  constructor (position: number[]) {
     this.position = position || [0, 0]
   }
 
@@ -30,11 +34,11 @@ var Entity = class Entity {
    *
    * @return {Boolean}       True is visible, or false.
    */
-  isVisibleTo (other) {
-    return SharedUtil.inBound(
+  isVisibleTo (other: Entity): boolean {
+    return Util.inBound(
       this.getX(),
       other.getX() - other.screen.w,
-      other.getX() + other.screen.w) && SharedUtil.inBound(
+      other.getX() + other.screen.w) && Util.inBound(
       this.getY(),
       other.getY() - other.screen.h,
       other.getY() + other.screen.h)
@@ -45,20 +49,16 @@ var Entity = class Entity {
    *
    * @return {Number} X position.
    */
-  getX () {
+  getX (): number {
     return this.position[0]
   }
 
   /**
    * Return Y
    *
-   * @return {Number} Y position.
+   * @return {number} Y position.
    */
-  getY () {
+  getY (): number {
     return this.position[1]
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = Entity // eslint-disable-line
 }

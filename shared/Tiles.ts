@@ -6,16 +6,17 @@
  */
 
 /** Class representing a Tiles. */
-var Tiles = class Tiles {
-  constructor (id, tilewidth, tileheight, collision) {
+export class Tiles {
+  public id: number
+  public tilewidth: number
+  public tileheight: number
+  public collision: any
+
+  constructor (id: number, tilewidth: number, tileheight: number, collision: any) {
     this.id = id
     this.tilewidth = tilewidth
     this.tileheight = tileheight
 
     this.collision = collision
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = Tiles // eslint-disable-line
 }

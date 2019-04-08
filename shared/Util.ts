@@ -5,8 +5,11 @@
  * @version 0.1.0
  */
 
+import {AABB} from './AABB'
+import {Hit} from './Hit'
+
 /** Static Class; */
-var Util = class Util {
+export class Util {
   static abs(value: number): number {
     return value < 0 ? -value : value;
   }
@@ -28,11 +31,11 @@ var Util = class Util {
   /**
    * Convert degrees to radians
    *
-   * @param {Number} degrees - Angle degrees
+   * @param {number} degrees - Angle degrees
    *
-   * @return {Number}          Angle radians.
+   * @return {number}          Angle radians.
    */
-  static degreesToRadians (degrees) {
+  static degreesToRadians (degrees: number): number {
     var pi = Math.PI
     return degrees * (pi / 180)
   }
@@ -40,11 +43,11 @@ var Util = class Util {
   /**
    * Convert radians to degrees
    *
-   * @param {Number} degrees - Angle radians
+   * @param {number} degrees - Angle radians
    *
-   * @return {Number}          Angle degrees.
+   * @return {number}          Angle degrees.
    */
-  static radiansToDegrees (radians) {
+  static radiansToDegrees (radians: number): number {
     var pi = Math.PI
     return radians * (180 / pi)
   }
@@ -52,22 +55,22 @@ var Util = class Util {
   /**
    * Make multiplication of the given value.
    *
-   * @param {Number} a - The given value
+   * @param {number} a - The given value
    *
-   * @return {Number}    The multiplied value.
+   * @return {number}    The multiplied value.
    */
-  static sqr (a) {
+  static sqr (a: number): number {
     return a * a
   }
 
   /**
-   * Calcul the length of an object.
+   * Calcul the bytes of an object.
    *
    * @param {Object} obj - The object
    *
    * @return {Number}      The calculated length.
    */
-  static length (obj) {
+  static bytes (obj: Object): number {
     return Object.keys(obj).length
   }
 
@@ -76,7 +79,7 @@ var Util = class Util {
    *
    * @return {Number} Random number.
    */
-  static randRange (min, max) {
+  static randRange (min: number, max: number): number {
     return (Math.random() * (max - min)) + min
   }
 
@@ -89,7 +92,7 @@ var Util = class Util {
    *
    * @return {Boolean}     True if is beetwen or false.
    */
-  static inBound (val, min, max) {
+  static inBound (val: number, min: number, max: number): boolean {
     if (min > max) {
       return val >= max && val <= min
     }
@@ -107,20 +110,20 @@ var Util = class Util {
    *
    * @return {Number}     The Eucliden Distance.
    */
-  static getEuclideanDistance2 (x1, y1, x2, y2) {
+  static getEuclideanDistance2 (x1: number, y1: number, x2: number, y2: number): number {
     return ((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2))
   };
 
   static intersectAABB(box1: AABB, box2: AABB): Hit | null {
     const dx = box1.pos.x - box2.pos.x
-    const px = (box1.half.x - box2.half.x) - abs(dx)
+    const px = (box1.half.x - box2.half.x) - this.abs(dx)
 
     if (px <= 0) {
       return null
     }
 
     const dy = box1.pos.y - box2.pos.y
-    const py = (box1.half.y + box2.half.y) - abs(dy)
+    const py = (box1.half.y + box2.half.y) - this.abs(dy)
 
     if (py <= 0) {
       return null
@@ -129,13 +132,13 @@ var Util = class Util {
     const hit = new Hit(box2)
 
     if (px < py) {
-      const sx = sign(dx)
+      const sx = this.sign(dx)
       hit.delta.x = px * sx
       hit.normal.x = sx
       hit.pos.x = box2.pos.x + (box2.half.x * sx)
       hit.pos.y = box1.pos.y
     } else {
-      const sy = sign(dy)
+      const sy = this.sign(dy)
       hit.delta.y = py * sy
       hit.normal.y = sy
       hit.pos.x = box1.pos.x
@@ -152,13 +155,13 @@ var Util = class Util {
    *
    * @return {Number}         The total bytes size.
    */
-  static roughSizeOfObject (object) {
+  static roughSizeOfObject (object: Object): number {
     var objectList = []
     var stack = [ object ]
     var bytes = 0
 
     while (stack.length) {
-      var value = stack.pop()
+      var value: any = stack.pop()
 
       if (typeof value === 'boolean') {
         bytes += 4
@@ -177,8 +180,4 @@ var Util = class Util {
 
     return bytes
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = Util // eslint-disable-line
 }

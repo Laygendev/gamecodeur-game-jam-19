@@ -9,58 +9,97 @@
  * @version 0.1.0
  */
 
-const HashMap = require('hashmap')
+import express from 'express'
+import http from 'http' // eslint-disable-line
+import io from 'socket.io' // eslint-disable-line
+import path from 'path'
 
-const Room = require('./Room')
-const Load = require('./Load')
-
-const Constants = require('./Constants')
+import { Room } from './Room'
+import { Load } from './Load'
+import { Constants } from './../shared/Constants'
 
 /** Class represening a server. */
-class Server {
+export class Server {
+  /**
+   * Express Server
+   *
+   * @type {express.Application}
+   */
+  public app: express.Application
+
+  /**
+   * The Server instance from http node module with io.
+   *
+   * @type {Server}
+   */
+  public io: any
+
+  /**
+   * A collection of clients.
+   *
+   * @type {HashMap}
+   */
+  public clients: Map<number, any>
+
+  /**
+   * A collection of rooms.
+   *
+   * @type {HashMap}
+   */
+  public rooms: Map<number, any>
+
+  public ressources: any
+
+  public load: Load
+
+  /**
+   * Last timestamp in the update loop. This property help to calcul deltatime.
+   *
+   * @type {Number}
+   */
+  public lastTimestamp: number
+
   /**
    * Create a server.
    *
    * Init clients, room and lastTimestamp properties.
    * Set interval update and updatePlayers.
-   *
-   * @param {Server} io - The Server instance from http node module with io.
    */
-  constructor (io) {
-    /**
-     * The Server instance from http node module with io.
-     *
-     * @type {Server}
-     */
-    this.io = io
+  constructor () {
+    this.app = express()
 
-    /**
-     * A collection of clients.
-     *
-     * @type {HashMap}
-     */
-    this.clients = new HashMap()
+    let http = require('http').Server(this.app)
 
-    /**
-     * A collection of rooms.
-     *
-     * @type {HashMap}
-     */
-    this.rooms = new HashMap()
+    let io = require('socket.io')(http, { pingInterval: 2000 })
 
+    io.on('connection', (socket: any) => { this.handleSocket(socket) })
+
+    this.clients = new Map()
+    this.rooms = new Map()
     this.ressources = []
-
     this.load = new Load(this)
-
-    /**
-     * Last timestamp in the update loop. This property help to calcul deltatime.
-     *
-     * @type {Number}
-     */
     this.lastTimestamp = 0
 
     setInterval(() => { this.update() }, 1000 / 60)
     setInterval(() => { this.updatePlayers() }, 1000 / 10)
+
+    this.config()
+    this.route()
+
+    this.app.listen(80, function () {
+      console.log('Listening on *:80')
+    })
+  }
+
+  config () {
+    this.app.use('/lib', express.static('lib'))
+    this.app.use('/dist', express.static('dist'))
+  }
+
+  route () {
+    this.app.get('/', function (req, res) {
+      res.sendFile(path.resolve('index.html'))
+    })
   }
 
   /**
@@ -70,11 +109,11 @@ class Server {
    *
    * @param {Socket} socket - The current socket.
    */
-  handleSocket (socket) {
-    socket.on('join-room', (data) => { this.joinRoom(socket, data) })
+  handleSocket (socket: any): void {
+    socket.on('join-room', (data: any) => { this.joinRoom(socket, data) })
     socket.on('leave-room', () => { this.leaveRoom(socket) })
     socket.on('room-ask-to-start', () => { this.askToStart(socket) })
-    socket.on('player-action', (data) => { this.receivePlayerAction(socket, data) })
+    socket.on('player-action', (data: any) => { this.receivePlayerAction(socket, data) })
     socket.on('disconnect', () => { this.disconnect(socket) })
 
     socket.emit('connected', socket.id)
@@ -92,10 +131,10 @@ class Server {
    * @param {Socket} socket - The current socket.
    * @param {Object} data   -
    */
-  joinRoom (socket, data) {
+  joinRoom (socket: any, data: Object): void {
     var foundedRoom = null
 
-    var ids = this.rooms.keys()
+    var ids: any = this.rooms.keys()
     for (var key in ids) {
       var currentRoom = this.rooms.get(ids[key])
       if (currentRoom && !currentRoom.isStarted) {
@@ -139,7 +178,7 @@ class Server {
    *
    * @param {Socket} socket - The current socket.
    */
-  leaveRoom (socket) {
+  leaveRoom (socket: any): void {
     var client = this.clients.get(socket.id)
 
     if (client) {
@@ -163,7 +202,7 @@ class Server {
    *
    * @param {Socket} socket - The current socket.
    */
-  askToStart (socket) {
+  askToStart (socket: any): void {
     var client = this.clients.get(socket.id)
 
     if (client) {
@@ -180,7 +219,7 @@ class Server {
    *
    * Found the room by this.socket.id and call receiveAction method
    */
-  receivePlayerAction (socket, data) {
+  receivePlayerAction (socket: any, data: Object): void {
     var client = this.clients.get(socket.id)
 
     if (client) {
@@ -202,7 +241,7 @@ class Server {
    *
    * @param {Socket} socket - The current socket.
    */
-  disconnect (socket) {
+  disconnect (socket: any): void {
     var client = this.clients.get(socket.id)
 
     if (client) {
@@ -219,7 +258,7 @@ class Server {
         }
       }
 
-      this.clients.remove(socket.id)
+      // this.clients.remove(socket.id)
     }
   }
 
@@ -231,13 +270,13 @@ class Server {
    * If a room need to be deleted (because, no player connected to it), remove
    * it by call remove method from HashMap Object.
    */
-  update () {
+  update (): void {
     var nowTimestamp = +new Date()
     var lastTimestamp = this.lastTimestamp || nowTimestamp
     var dt = (nowTimestamp - lastTimestamp) / 1000.0
     this.lastTimestamp = nowTimestamp
 
-    var ids = this.rooms.keys()
+    var ids: any = this.rooms.keys()
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
@@ -246,7 +285,7 @@ class Server {
         currentRoom.sendState()
 
         if (currentRoom.needToDeleted) {
-          this.rooms.remove(currentRoom.id)
+          // this.rooms.remove(currentRoom.id)
         }
       }
     }
@@ -257,8 +296,8 @@ class Server {
    *
    * Call for each room started, the state of players.
    */
-  updatePlayers () {
-    var ids = this.rooms.keys()
+  updatePlayers (): void {
+    var ids: any = this.rooms.keys()
     for (var i = 0; i < ids.length; ++i) {
       var currentRoom = this.rooms.get(ids[i])
       if (currentRoom.isStarted || currentRoom.isWaitingForStart) {
@@ -267,5 +306,3 @@ class Server {
     }
   }
 }
-
-module.exports = Server

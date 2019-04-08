@@ -4,4 +4,4 @@ node_js:
 before_script:
   - npm install -g standard
 script:
-  standard "src/*.js" "shared/*.js" "server/*.js"
+  standard --parser typescript-eslint-parser --plugin typescript "*.ts"

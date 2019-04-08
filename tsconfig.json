@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+    "module": "commonjs",
+		"moduleResolution": "node",
+		"allowJs": true,
+		"noEmit": true,
+		"isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./dist",
+    "baseUrl" : "."
+	},
+	"include": [
+		"./server/**/*",
+    "./shared/**/*"
+	]
+}

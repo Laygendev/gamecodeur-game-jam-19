@@ -6,13 +6,154 @@
  * @version 0.1.0
  */
 
-var SharedEntity = typeof module === 'object' ? require('./Entity') : Entity // eslint-disable-line
-var SharedConstants = typeof module === 'object' ? require('./Constants') : Constants // eslint-disable-line
-var SharedUtil = typeof module === 'object' ? require( './Util') : Util // eslint-disable-line
-var SharedWorld = typeof module === 'object' ? require( './World') : World // eslint-disable-line
+import {Entity} from './Entity'
+import {Constants} from './Constants'
+import {Util} from './Util'
+import {World} from './World'
 
 /** Class representing a Player. */
-var Player = class Player extends SharedEntity {
+export class Player extends Entity {
+  /**
+   * Setter orientation
+   *
+   * @type {Number}
+   */
+  public orientation: number
+
+  /**
+   * Setter name
+   *
+   * @type {String}
+   */
+  public name: string
+
+  /**
+   * Setter ID
+   *
+   * @type {Number}
+   */
+  public id: number
+
+  /**
+   * Setter screen
+   *
+   * @type {Object}
+   */
+  public screen: Object
+
+  /**
+   * The turret angle (degrees)
+   *
+   * @type {Number}
+   */
+  public turretAngle: number
+
+  /**
+   * The Vector velocity
+   *
+   * @type {Array}
+   */
+  public velocity: number[]
+
+  /**
+   * The friction for velocity calcul.
+   *
+   * @type {Number}
+   */
+  public friction: number
+
+  /**
+   * The speed of the player.
+   *
+   * @type {Number}
+   */
+  public speed: number
+
+  /**
+   * The timestamp of the last shoot.
+   *
+   * @type {Number}
+   */
+  public lastShotTime: number
+
+  /**
+   * The shotcoldown in MS.
+   *
+   * @type {Number}
+   */
+  public shotCooldown: number
+
+  /**
+   * The timestamp of the last speed action.
+   *
+   * @type {Number}
+   */
+  public lastSpeedTime: number
+
+  /**
+   * Can do speed action.
+   *
+   * @type {Boolean}
+   */
+  public canSpeed: boolean
+
+  /**
+   * The speed cooldown in MS.
+   *
+   * @type {Number}
+   */
+  public speedCooldown: number
+
+  /**
+   * Count number of processed input for no make an applyInput already make.
+   *
+   * @type {Number}
+   */
+  public lastProcessedInput: number
+
+  /**
+   * A buffer of position for make interpolate client. Only used in client
+   * side.
+   *
+   * @type {Array}
+   */
+  public positionBuffer: any
+
+  /**
+   * Waiting message from server.
+   *
+   * @type {Boolean}
+   */
+  public waitMessage: boolean
+
+  /**
+   * Size of hitbox
+   *
+   * @type {Number}
+   */
+  public hitboxSize: number
+
+  /**
+   * Health of player.
+   *
+   * @type {Number}
+   */
+  public health: number
+
+  /**
+   * Number kill of player.
+   *
+   * @type {Number}
+   */
+  public kills: number
+
+  /**
+   * Player is death ?
+   *
+   * @type {Boolean}
+   */
+  public death: boolean
+
   /**
    * Initialise data
    *
@@ -22,155 +163,30 @@ var Player = class Player extends SharedEntity {
    * @param {Number} id          - The socket ID.
    * @param {Object} screen      - The browser screen of the client.
    */
-  constructor (position, orientation, name, id, screen) {
+  constructor (position: number[], orientation: number, name: string, id: number, screen: Object) {
     super(position)
 
-    /**
-     * Setter position
-     *
-     * @type {Array}
-     */
     this.position = position
-
-    /**
-     * Setter orientation
-     *
-     * @type {Number}
-     */
     this.orientation = orientation
-
-    /**
-     * Setter name
-     *
-     * @type {String}
-     */
     this.name = name
-
-    /**
-     * Setter ID
-     *
-     * @type {Number}
-     */
     this.id = id
-
-    /**
-     * Setter screen
-     *
-     * @type {Object}
-     */
     this.screen = screen
 
-    /**
-     * The turret angle (degrees)
-     *
-     * @type {Number}
-     */
     this.turretAngle = orientation
-
-    /**
-     * The Vector velocity
-     *
-     * @type {Array}
-     */
     this.velocity = [0, 0]
-
-    /**
-     * The friction for velocity calcul.
-     *
-     * @type {Number}
-     */
     this.friction = 0.95
-
-    /**
-     * The speed of the player.
-     *
-     * @type {Number}
-     */
-    this.speed = SharedConstants.DEFAULT_SPEED
-
-    /**
-     * The timestamp of the last shoot.
-     *
-     * @type {Number}
-     */
+    this.speed = Constants.DEFAULT_SPEED
     this.lastShotTime = 0
-
-    /**
-     * The shotcoldown in MS.
-     *
-     * @type {Number}
-     */
-    this.shotCooldown = SharedConstants.DEFAULT_SHOT_COOLDOWN
-
-    /**
-     * The timestamp of the last speed action.
-     *
-     * @type {Number}
-     */
+    this.shotCooldown = Constants.DEFAULT_SHOT_COOLDOWN
     this.lastSpeedTime = 0
-
-    /**
-     * Can do speed action.
-     *
-     * @type {Boolean}
-     */
     this.canSpeed = true
-
-    /**
-     * The speed cooldown in MS.
-     *
-     * @type {Number}
-     */
-    this.speedCooldown = SharedConstants.DEFAULT_SPEED_COOLDOWN
-
-    /**
-     * Count number of processed input for no make an applyInput already make.
-     *
-     * @type {Number}
-     */
+    this.speedCooldown = Constants.DEFAULT_SPEED_COOLDOWN
     this.lastProcessedInput = 0
-
-    /**
-     * A buffer of position for make interpolate client. Only used in client
-     * side.
-     *
-     * @type {Array}
-     */
     this.positionBuffer = []
-
-    /**
-     * Waiting message from server.
-     *
-     * @type {Boolean}
-     */
     this.waitMessage = true
-
-    /**
-     * Size of hitbox
-     *
-     * @type {Number}
-     */
-    this.hitboxSize = SharedConstants.DEFAULT_HITBOX_SIZE
-
-    /**
-     * Health of player.
-     *
-     * @type {Number}
-     */
-    this.health = SharedConstants.PLAYER_MAX_HEALTH
-
-    /**
-     * Number kill of player.
-     *
-     * @type {Number}
-     */
+    this.hitboxSize = Constants.DEFAULT_HITBOX_SIZE
+    this.health = Constants.PLAYER_MAX_HEALTH
     this.kills = 0
-
-    /**
-     * Player is death ?
-     *
-     * @type {Boolean}
-     */
     this.death = false
   }
 
@@ -183,9 +199,10 @@ var Player = class Player extends SharedEntity {
    *
    * @return {Player}       - The new created player.
    */
-  static generateNewPlayer (name, id, screen) {
-    var point = SharedWorld.getRandomPoint()
-    var orientation = SharedUtil.randRange(0, 2 * Math.PI)
+  static generateNewPlayer (name: string, id: number, screen: Object): Player {
+    var point = World.getRandomPoint()
+    var orientation = Util.randRange(0, 2 * Math.PI)
+
     return new Player(point, orientation, name, id, screen)
   }
 
@@ -199,7 +216,7 @@ var Player = class Player extends SharedEntity {
    * @param {Array} Input - Input data like key pressed.
    * @param {World} World - World data.
    */
-  updateOnInput (input, world) {
+  updateOnInput (input: any[], world: World): void {
     this.turretAngle = input[3]
 
     var haveCollision = false
@@ -208,15 +225,15 @@ var Player = class Player extends SharedEntity {
     var someKeyIsPressed = false
     var testVelocity = [this.velocity[0], this.velocity[1]]
 
-    if (this.speed > SharedConstants.DEFAULT_SPEED) {
+    if (this.speed > Constants.DEFAULT_SPEED) {
       this.speed -= 400
     } else {
-      this.speed = SharedConstants.DEFAULT_SPEED
+      this.speed = Constants.DEFAULT_SPEED
     }
 
     if (input[12]) {
       this.canSpeed = false
-      this.speed = SharedConstants.DEFAULT_SPEED_MAX
+      this.speed = Constants.DEFAULT_SPEED_MAX
       this.lastSpeedTime = (new Date()).getTime()
     }
 
@@ -264,11 +281,11 @@ var Player = class Player extends SharedEntity {
 
     haveCollision = world.checkCollider(this.position, forwardPos)
 
-    if (tmpTestPos[0] >= 0 && tmpTestPos[0] <= SharedConstants.WORLD_MAX && someKeyIsPressed && !haveCollision) {
+    if (tmpTestPos[0] >= 0 && tmpTestPos[0] <= Constants.WORLD_MAX && someKeyIsPressed && !haveCollision) {
       this.position[0] = tmpTestPos[0]
     }
 
-    if (tmpTestPos[1] >= 0 && tmpTestPos[1] <= SharedConstants.WORLD_MAX && someKeyIsPressed && !haveCollision) {
+    if (tmpTestPos[1] >= 0 && tmpTestPos[1] <= Constants.WORLD_MAX && someKeyIsPressed && !haveCollision) {
       this.position[1] = tmpTestPos[1]
     }
 
@@ -282,7 +299,7 @@ var Player = class Player extends SharedEntity {
    *
    * @return {Boolean} True if can, or false.
    */
-  canShoot () {
+  canShoot (): boolean {
     return (new Date()).getTime() > this.lastShotTime + this.shotCooldown && !this.death
   }
 
@@ -291,7 +308,7 @@ var Player = class Player extends SharedEntity {
    *
    * @return {Boolean} True if can, or false.
    */
-  canISpeed () {
+  canISpeed (): boolean {
     return (new Date()).getTime() > this.lastSpeedTime + this.speedCooldown && !this.death
   }
 
@@ -302,9 +319,9 @@ var Player = class Player extends SharedEntity {
    * @param {Number} y          - Other entity Y coord.
    * @param {Number} hitboxSize - Other entity hitbox size.
    */
-  isCollidedWith (x, y, hitboxSize) {
+  isCollidedWith (x: number, y: number, hitboxSize: number): boolean {
     var minDistance = this.hitboxSize + hitboxSize
-    return SharedUtil.getEuclideanDistance2(this.getX(), this.getY(), x, y) <
+    return Util.getEuclideanDistance2(this.getX(), this.getY(), x, y) <
       (minDistance * minDistance)
   }
 
@@ -315,7 +332,7 @@ var Player = class Player extends SharedEntity {
    *
    * @param {Number} amount - The damage player taken.
    */
-  damage (amount) {
+  damage (amount: number): void {
     this.health -= amount
 
     if (this.health <= 0) {
@@ -323,8 +340,4 @@ var Player = class Player extends SharedEntity {
       this.death = true
     }
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = Player // eslint-disable-line
 }

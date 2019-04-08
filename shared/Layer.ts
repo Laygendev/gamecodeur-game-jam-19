@@ -1,7 +1,12 @@
-var SharedUtil = typeof module === 'object' ? require( './Util') : Util // eslint-disable-line
+import {Util} from './Util'
 
-var Layer = class Layer {
-  constructor (object, layer) {
+export class Layer {
+  public object: any
+  public layer: any
+  public canvas: any
+  public context: any
+
+  constructor (object: any, layer: any) {
     this.object = object
     this.layer = layer
 
@@ -18,8 +23,9 @@ var Layer = class Layer {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
     if (this.object.tanks[this.object.id]) {
-      let posTilesTankY = parseInt(this.object.tanks[this.object.id].position[1] / 40)
-      let posTilesTankX = parseInt(this.object.tanks[this.object.id].position[0] / 40)
+      let posTilesTankY: number = this.object.tanks[this.object.id].position[1] / 40
+      let posTilesTankX: number = this.object.tanks[this.object.id].position[0] / 40
+
       for (let y = posTilesTankY - 20; y < posTilesTankY + 20; y++) {
         for (let x = posTilesTankX - 30; x < posTilesTankX + 30; x++) {
           var tile = this.object.ressources['tileset'].getTile(this.layer.data[((y * 20) + x)])
@@ -46,10 +52,10 @@ var Layer = class Layer {
     }
   }
 
-  checkCollider (pos, nextPos) {
+  checkCollider (pos: Array<number>, nextPos: Array<number>) {
     let haveCollider = false
-    let posTilesTankY = parseInt(pos[1] / 40)
-    let posTilesTankX = parseInt(pos[0] / 40)
+    let posTilesTankY = pos[1] / 40
+    let posTilesTankX = pos[0] / 40
     for (let y = posTilesTankY - 20; y < posTilesTankY + 20; y++) {
       for (let x = posTilesTankX - 30; x < posTilesTankX + 30; x++) {
         var tile = this.object.ressources['tileset'].getTile(this.layer.data[((y * 20) + x)])
@@ -63,7 +69,7 @@ var Layer = class Layer {
           [x * 40 + tile.collision.x - tile.collision.polyline[1].x, y * 40 + tile.collision.y + tile.collision.polyline[1].y]
         ]
 
-        haveCollider = SharedUtil.CollisionSegSeg(pos, nextPos, posCollider[0], posCollider[1])
+        //haveCollider = Util.CollisionSegSeg(pos, nextPos, posCollider[0], posCollider[1])
 
         if (haveCollider) {
           break
@@ -77,8 +83,4 @@ var Layer = class Layer {
 
     return haveCollider
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = Layer // eslint-disable-line
 }

@@ -6,17 +6,19 @@
  * @version 0.1.0
  */
 
-var SharedConstants = typeof module === 'object' ? require('./Constants') : Constants // eslint-disable-line
-var SharedUtil = typeof module === 'object' ? require('./Util') : Util // eslint-disable-line
+import {Map} from './Map'
+import {Constants} from './Constants'
+import {Util} from './Util'
 
 /** Class representing a World. */
-var World = class World {
+export class World {
+  public map: Map
   /**
    * Initialise data
    *
    * @param {Array} map - The World map.
    */
-  constructor (map) {
+  constructor (map: Map) {
     /**
      * The World map.
      *
@@ -30,11 +32,11 @@ var World = class World {
    *
    * @return {Array} Random Coordinate beetween WORLD_MIN and WORLD_MAX.
    */
-  static getRandomPoint () {
-    return [SharedUtil.randRange(SharedConstants.WORLD_MIN,
-      SharedConstants.WORLD_MAX),
-    SharedUtil.randRange(SharedConstants.WORLD_MIN,
-      SharedConstants.WORLD_MAX)]
+  static getRandomPoint (): number[] {
+    return [Util.randRange(Constants.WORLD_MIN,
+      Constants.WORLD_MAX),
+    Util.randRange(Constants.WORLD_MIN,
+      Constants.WORLD_MAX)]
   }
 
   /**
@@ -45,11 +47,11 @@ var World = class World {
    *
    * @return {Boolean}        True if collide or false.
    */
-  checkCollider (pos, nextPos) {
+  checkCollider (pos: Array<Number>, nextPos: Array<Number>): boolean {
     var haveCollider = false
 
     for (var key in this.map.layers) {
-      haveCollider = this.map.layers[key].intersectAABB(pos, nextPos)
+      //haveCollider = this.map.layers[key].intersectAABB(pos, nextPos)
 
       if (haveCollider) {
         break
@@ -58,8 +60,4 @@ var World = class World {
 
     return haveCollider
   }
-}
-
-if (typeof module === 'object') {
-  module.exports = World // eslint-disable-line
 }
