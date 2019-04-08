@@ -1,0 +1,151 @@
+@font-face {
+    font-family: motion;
+    src: url("MotionControl-Bold.otf") format("opentype");
+}
+
+* {
+  margin:0;padding:0;
+}
+
+
+html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
+
+canvas {
+    background: #77f;  /* to show the canvas bounds */
+    display:block;     /* to remove the scrollbars */
+}
+
+.mask {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+    font-family: 'motion';
+    font-size: 30px;
+}
+
+
+.mask .in {
+    width: 96%;
+    padding: 2%;
+}
+
+.center-bloc {
+    position: absolute;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30vh;
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+.center-bloc input {
+  width: 50%;
+}
+
+input {
+    font-family: 'motion';
+    width: 60%;
+    padding: 10px;
+    font-size: 20px;
+    border: solid black 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+h1 {
+  font-size: 80px;
+}
+
+.button {
+  text-align: center;
+  background-color: white;
+  padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background-color 100ms linear;
+  border: solid rgba(0,0,0,0.2) 1px;
+}
+
+.back {
+  margin-top: 50px;
+  width: 50%;
+}
+
+.button:hover {
+  cursor: pointer;
+  background-color: rgba(0,0,0,0.2);
+  border: solid rgba(0,0,0,0.5) 1px;
+}
+
+.button:active {
+  background-color: rgba(0,0,0,0.1);
+  border: solid rgba(0,0,0,0.5) 1px;
+}
+
+.top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+}
+
+.top-center {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.messages {
+  margin-top: 10px;
+  font-size: 18px;
+  height: 102px;
+  text-align: right;
+  overflow: hidden;
+}
+.messages li {
+  margin-top: 6px;
+}
+.icons {
+  display: flex;
+}
+.icons li {
+  margin-left: 10px;
+}
+.icons li span {
+  margin-left: 5px;
+}
+
+.menu img {
+  position: absolute;
+  top: 30%;
+  right: 10%;
+}
+
+.red {
+  color: #eb2f06;
+}
+.green {
+  color: #b8e994;
+}
+
+.vote {
+  margin-top: 50px;
+}
+
+.vote p {
+  font-size: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.votes {
+  display: flex;
+  width: 30%;
+  margin:auto;
+}
